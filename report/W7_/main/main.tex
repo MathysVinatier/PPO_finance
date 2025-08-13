@@ -1,0 +1,528 @@
+\documentclass[11pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[myheadings]{fullpage}
+\DeclareUnicodeCharacter{0301}{\hspace{-1ex}\'{ }}
+% Package for headers 
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% For figures and stuff
+\usepackage{graphicx, wrapfig, subcaption, setspace, booktabs}
+\usepackage[T1]{fontenc}
+
+% Change for different font sizes and families
+\usepackage[font=small, labelfont=bf]{caption}
+\usepackage{fourier}
+\usepackage[protrusion=true, expansion=true]{microtype}
+
+% Maths
+\usepackage{amsmath,amssymb}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+% Code
+\usepackage{minted}
+\usepackage{adjustbox}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\SetKwProg{While}{while}{}{}
+\SetKwProg{For}{for}{}{}
+\SetKwProg{Function}{function}{}{}
+
+% Bibliography
+\usepackage{biblatex} 
+\addbibresource{../references.bib}
+
+%Glossary
+\usepackage[acronym]{glossaries}
+\makeglossaries
+\input{../glossary}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage{csquotes}
+
+%Tabular
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+
+%Function draw
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{tikz}
+\usepackage{tikz-uml}
+\usepackage{amsmath}
+\usepackage{pgfmath}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+\usetikzlibrary{fit, backgrounds, calc}
+
+\usepackage{afterpage}
+
+% Show mini ToCs automatically at the beginning of each chapter
+\usepackage{minitoc}
+\setcounter{tocdepth}{0}        % Only show chapters in the main ToC
+\setcounter{minitocdepth}{2}    % Show sections and subsections in mini ToCs
+\dominitoc                      % Enable mini ToCs
+
+\definecolor{terminalbg}{RGB}{0,0,0}
+\definecolor{terminalfg}{RGB}{255, 255, 255} 
+
+\newminted[console]{bash}{
+  bgcolor=terminalbg,
+  fontfamily=tt,
+  fontsize=\small,
+  linenos=false,
+  framesep=100mm,
+  rulecolor=\color{white},
+  baselinestretch=1,
+  breaklines=true
+}
+
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
+
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
+\onehalfspacing
+
+%% Sets page size and margins
+\usepackage[a4paper,top=2cm,bottom=1.5cm,left=2cm,right=2cm,marginparwidth=1.5cm]{geometry}
+% Command to draw a horizontal line
+\newcommand{\separator}{%
+    \begin{center}
+      {\Large$\ast$~$\ast$~$\ast$}
+    \end{center}
+}
+
+\newcommand{\ind}{
+    \noindent\hspace{1cm}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+
+% Header and footer information
+\setlength\headheight{15pt}
+\author{Mathys VINATIER}
+%\fancyhead[L]{IPSA} 
+\fancyhead[R]{Mathys VINATIER}
+\fancyfoot[R]{\thepage}
+ \setlength {\marginparwidth }{2cm}
+\begin{document}
+
+
+\date{}
+
+\title{ 
+		\HRule{2pt} \\
+		\LARGE \textbf{ Report on Kalman Filter applied on Neural Network for Finance } 
+		\HRule{2pt} \\ [0.5cm]
+		\normalsize \today \vspace*{5\baselineskip}\\
+		Mathys VINATIER  - \href{https://github.com/MathysVinatier/17_SNU_Lab/blob/main/}{GitHub Project page}\\
+		Supervisor:      \\
+		  Pr Kim Tae-Wan
+      }
+
+\maketitle
+
+\tableofcontents
+\blankpage
+
+\newpage
+
+\setcounter{chapter}{9}
+\chapter{Week 10}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{Reminder on Greedy Policy and QLearning}
+
+
+Q-Learning is a \textbf{model-free, off-policy, value-based reinforcement learning algorithm} that trains an action-value function (Q-function) to find the optimal policy indirectly. The Q-function estimates the expected cumulative reward of taking a certain action in a given state and following the best policy thereafter.
+
+\begin{itemize}
+    \item \textbf{Q-table:} Internally, Q-Learning uses a Q-table storing values for each state-action pair. Initially, all values are zero, and the table is updated iteratively during training.
+    \begin{center}
+        \begin{tikzpicture}[
+            scale=0.7,
+            node distance=1.1cm and 2.2cm,
+            box/.style={draw, rounded corners, minimum width=2.1cm, minimum height=0.7cm, align=center, font=\small, fill=blue!10},
+            arrow/.style={-{Latex[length=2mm]}, thick}
+        ]
+        % Nodes
+        \node[box] (state) {State};
+        \node[box, right=of state, yshift=-0.8cm] (qtable) {Q-Table};
+        \node[box, below=of state] (action) {Action};
+        \node[box, right=of qtable] (qvalue) {Q-Value};
+        % Arrows
+        \draw[arrow] (state) -- (qtable);
+        \draw[arrow] (action) -- (qtable);
+        \draw[arrow] (qtable) -- (qvalue);
+        % Labels
+        \node[left=1mm of qtable] {\scriptsize{Input}};
+        \node[right=1mm of qtable, yshift=3mm] {\scriptsize{Output}};   
+        \end{tikzpicture}
+    \end{center}
+    \item \textbf{Epsilon-Greedy Strategy:} To balance exploration and exploitation, actions are chosen using an epsilon-greedy policy:
+    \[
+        \pi^*(s) = \arg\max_{a} Q^*(s, a)
+    \]
+        \begin{itemize}
+            \item With probability \(1 - \epsilon\), exploit by selecting the action with the highest Q-value.
+            \item With probability \(\epsilon\), explore by selecting a random action.
+            \item \(\epsilon\) decays over time to shift from exploration to exploitation.
+        \end{itemize}
+    \begin{center}
+        \begin{tikzpicture}[
+        scale=0.7,
+        node distance=0.5cm and 3cm,
+        box/.style={draw, rounded corners, minimum width=3cm, minimum height=0.7cm, align=center, fill=blue!10, font=\small},
+        arrow/.style={-{Latex[length=2mm]}, thick}
+        ]
+        % Nodes
+        \node[box] (policy) {\textbf{$\epsilon$-greedy policy}};
+        \node[box, above right=of policy] (exploit) {Exploitation\\(greedy action)};
+        \node[box, below right=of policy] (explore) {Exploration\\(random action)};
+        % Arrows
+        \draw[arrow] (policy.east) -- node[above, pos=0.5, rotate=30] {$1-\epsilon$} (exploit.west);
+        \draw[arrow] (policy.east) -- node[below, pos=0.5] {$\epsilon$} (explore.west);
+        \end{tikzpicture}
+    \end{center}
+    \item \textbf{TD Update:} At each step, the Q-value for the current state-action pair \(Q(s_t, a_t)\) is updated based on the immediate reward \(r_{t+1}\) plus the discounted maximum Q-value of the next state \(s_{t+1}\):
+        \[
+        Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left[r_{t+1} + \gamma \max_{a} Q(s_{t+1}, a) - Q(s_t, a_t)\right]
+        \]
+    \item \textbf{Off-policy Learning:} The policy used to select actions (epsilon-greedy) differs from the policy used to compute the target update (greedy). This distinction allows Q-Learning to learn optimal policies even when exploring randomly.
+\end{itemize}
+
+After enough training episodes, the Q-table converges to the optimal Q-function, which directly yields the optimal policy by choosing actions with the highest Q-values in each state.
+
+
+\newpage
+
+\section{Implementation Progress and Experiments}
+
+\ind This week was dedicated to the initial implementation and experimentation phase of the project, focusing primarily on the Proximal Policy Optimization (PPO) basis algorithms. Using the Hugging Face classes, we developed a prototype with greedy policy agent and integrated it into a custom trading environment inspired by the concepts discussed in previous weeks.
+
+\vspace{0.3cm}
+
+\subsection{Environment Setup}
+
+\ind The custom environment was designed to simulate stock market trading dynamics with the following key elements :
+
+\begin{itemize}
+\item \textbf{State representation} including historical price data, technical indicators (moving averages, RSI) and Kalman filtered signals.
+\item \textbf{Action space} consisting of discrete trading actions: Buy, Hold or Sell.
+\item \textbf{Reward structure} based on portfolio value change and risk-adjusted metrics to incentivize both profit and stability.
+\item \textbf{Episode design} with fixed-length trading periods to allow episodic evaluation of agent performance.
+\end{itemize}
+
+\noindent The environment was implemented adhering to OpenAI Gym interfaces, allowing smooth integration with standard RL training pipelines. Here is the UML of the created environement :
+
+\vfill
+
+\begin{center}
+\begin{tikzpicture}
+% TradingEnv class
+\umlclass[width=.4\linewidth, x=0, y=0]{TradingEnv}{
+    - df : DataFrame \\
+    - n\_steps : int \\
+    - current\_step : int \\
+    - initial\_balance : float \\
+    - balance : float \\
+    - position : int \\
+    - last\_action : int \\
+    - observation\_space : Box \\
+    - action\_space : Discrete
+}{
+    + \_\_init\_\_(df) \\
+    + \_get\_obs() \\
+    + sample\_valid\_action() \\
+    + get\_valid\_actions() \\
+    + step(action) \\
+    + set\_data(df) \\
+    + reset()
+}
+
+  % QLearning class
+  \umlclass[x=8, y=0]{QLearning}{
+    - env : TradingEnv \\
+    - log : bool \\
+    - state\_space : int \\
+    - action\_space : int
+  }{
+    + \_\_init\_\_(env, log=True) \\
+    + train(...) \\
+    + greedy\_policy(Qtable, state) \\
+    + epsilon\_greedy\_policy(Qtable, state\_idx, epsilon) \\
+    + discretize\_state(state, bins) \\
+    + state\_to\_index(discrete\_state, bins) \\
+    + initialize\_q\_table(bins) \\
+    + split\_data(df, train\_size) \\
+    + get\_actions\_and\_prices(Qtable, df, initial\_cash=100) \\
+    + plot(df, Qtable)
+  }
+
+  % Association link
+  \umlassoc[geometry=-|, arm1=1, arm2=1, anchor1=west, anchor2=east]{QLearning}{TradingEnv}
+\end{tikzpicture}
+\end{center}
+
+\vfill
+
+\newpage
+
+\begin{algorithm}[H]
+\caption{Trading Environment Behavior}
+\KwIn{Environment $env$, number of episodes $N$, exploration rate $\epsilon$}
+\KwOut{Episode value and rewards}
+
+\For{$episode \leftarrow 1$ \KwTo $N$}{
+    $s \leftarrow env.reset()$\;
+    total\_reward $\leftarrow 0$\;
+    
+    \While{True}{
+        Get valid actions $A_{valid} \leftarrow env.get\_valid\_actions()$\;
+        
+            Select $a \leftarrow$ random choice from $A_{valid}$\;
+        Execute $(s', r, done, info) \leftarrow env.step(a)$\;
+        total\_reward $\leftarrow$ total\_reward $+ r$\;
+        
+        Log $(episode, s, a, r, info["portfolio\_value"])$\;
+        
+        $s \leftarrow s'$\;
+        
+        \If{$done$}{break}
+    }
+    
+    Print episode summary : total\_reward, final portfolio value\;
+}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Q-Learning Training }
+\KwIn{Environment $env$, data frame $df$, training size $train\_size$, episode $N$}
+\KwOut{Trained Q-table $Q$}
+
+Split data: $df_{train} \leftarrow$ $train\_size$ of $df$\;
+
+Calculate bins for discretization : $bins \leftarrow$ compute bins from $df_{train}$\;
+
+Initialize Q-table
+
+\For{$episode \leftarrow 1$ \KwTo $N$}{
+    Exploration rate : $\epsilon \leftarrow \epsilon_{min} + (\epsilon_{max} - \epsilon_{min}) \cdot \exp(-decay\_rate \times episode)$\;
+    
+    Reset environment : $state_{cont} \leftarrow env.reset()$\;
+    
+    Discretize initial state : $state_{disc} \leftarrow discretize(state_{cont}, bins)$\;
+    
+    Convert to index : $state_{idx} \leftarrow state\_to\_index(state_{disc}, bins)$\;
+    
+    \For{$step \leftarrow 1$ \KwTo $max\_steps$}{
+        
+        Choose action $a$ using epsilon-greedy policy :
+        \[
+        a \leftarrow
+        \begin{cases}
+            \arg\max_{a'} Q[state_{idx}, a'] & \text{with probability } 1 - \epsilon \\
+            \text{random valid action} & \text{with probability } \epsilon
+        \end{cases}
+        \]
+        
+        Take action : $(next_{state_{cont}}, r, done, info) \leftarrow env.step(a)$\;
+        
+        Discretize next state : $next_{state_{disc}} \leftarrow discretize(next_{state_{cont}}, bins)$\;
+        
+        Convert to index : $next_{state_{idx}} \leftarrow state\_to\_index(next_{state_{disc}}, bins)$\;
+        
+        Update Q-value :$Q[state_{idx}, a] \leftarrow Q[state_{idx}, a] + \alpha \left( r + \gamma \max_{a'} Q[next_{state_{idx}}, a'] - Q[state_{idx}, a] \right)$\;
+        
+        $state_{idx} \leftarrow next_{state_{idx}}$\;
+        
+        \If{$done$}{
+            \textbf{break}\;
+        }
+    }
+}
+
+\Return $Q$
+\end{algorithm}
+
+\newpage
+
+\ind In the context of Q-learning for trading environments, bins are used to discretize the continuous state space into a finite number of discrete states. This discretization is essential because the Q-table requires a finite and manageable number of states to store and update the expected rewards for each state-action pair. Continuous variables, such as stock prices or technical indicators, have infinite possible values, which makes it impractical to represent them directly in a Q-table. To address this, we divide the range of each continuous feature into a fixed number of intervals called bins. Each bin represents a segment of the feature's value range, allowing us to map any continuous observation into a discrete category. For implementation, we analyze the training dataset and create evenly spaced bins (10 bins) for each feature by computing linearly spaced intervals between the minimum and maximum values of that feature. Then, during training or evaluation, the observed continuous state is converted into a discrete state by determining which bin each feature value falls into. This discretized state is subsequently converted into a unique index to access and update the Q-table. The use of bins thus enables effective Q-learning in continuous state environments by simplifying the state representation while preserving essential information.
+
+\vspace{0.3cm}
+
+\subsection{Preliminary Results for Q-Learning Greedy Policy}
+
+\ind Initial experiments aimed to evaluate the training behavior and reward progression of the Q-Learning agent following a greedy policy. Results were compared over two time horizons : a shorter training period of 100 episodes and an extended training of 1000 episodes.
+
+\subsubsection{100 episodes}
+
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2010.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2011.png}
+\vfill
+
+\newpage
+
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2012.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2013.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2014.png}
+\vfill
+
+\newpage
+
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2015.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2016.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2017.png}
+\vfill
+
+\newpage
+
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2018.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2019.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2020.png}
+\vfill
+
+\newpage
+
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2021.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_100ep/QLearning_AAPL_2022.png}
+\vfill
+
+\subsubsection{1000 episodes}
+
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2010.png}
+\vfill
+
+\newpage
+
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2011.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2012.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2013.png}
+\vfill
+
+\newpage
+
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2014.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2015.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2016.png}
+\vfill
+
+\newpage
+
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2017.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2018.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2019.png}
+\vfill
+
+\newpage
+
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2020.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2021.png}
+\vfill
+\includegraphics[width=.9\linewidth]{../img/QL_1000ep/QLearning_AAPL_2022.png}
+\vfill
+
+
+\begin{itemize}
+\item Over 100 episodes, the cumulative rewards exhibited a modest upward trend, indicating initial learning progress, though with significant variability.
+\item Extending to 1000 episodes resulted showed that the agent is not taking position anymore, a convergence of the hold position shouyld be evaluated
+\item Value estimates became more consistent over time, though some fluctuations persisted due to the noisy environment dynamics (should add filtering or smoothing).
+\item The results highlight the trade-off between exploration and exploitation inherent in the greedy approach and motivate future exploration of strategies with controlled exploration. Noticed that the agent is not learning from the path but more on the direct previous value.
+\end{itemize}
+
+\noindent These preliminary findings establish a baseline for Q-Learning performance and set the stage for comparisons with other reinforcement learning methods such as Deep Q-Networks (DQN).
+
+\vspace{0.3cm}
+
+\section{Challenges and Solutions}
+
+\ind The Q-Learning experiments faced several challenges specific to the greedy policy and the trading environment :
+
+\begin{itemize}
+\item \textbf{Limited exploration due to greediness} : The strictly greedy policy limited the agent's ability to discover better actions, particularly early in training. Future work will include incorporating greedy or softmax action selection to balance exploration.
+\item \textbf{Reward noise and sparsity} : The stochastic environment produced noisy and sparse rewards, complicating learning.
+\item \textbf{Hyperparameter sensitivity} : Learning rate and discount factor tuning were critical, especially over longer training horizons. We will use optuna to get better hyperparameter in the future on more complexe models.
+\item \textbf{Computational efficiency} : Although less demanding than deep RL methods, Q-Learning with large state spaces required careful management of updates. We leveraged experience replay buffers and batch updates to accelerate convergence.
+\end{itemize}
+
+\section{Next Steps}
+
+\ind Building on the current progress with Q-Learning and the greedy policy, the immediate next steps focus on advancing the model complexity and preparing for PPO :
+
+\begin{itemize}
+\item Designing and integrating a deep neural network architecture to implement Deep Q-Learning (DQN), enabling function approximation for larger and continuous state spaces.
+\item Conducting experiments to compare the performance of DQN against the baseline Q-Learning greedy policy.
+\item Following the DQN implementation, proceeding with the development and fine-tuning of the PPO agent, including enhanced reward shaping and hyperparameter optimization.
+\item Expanding the trading environment to model more realistic market conditions such as transaction costs, slippage, and possibly varying liquidity.
+\item Performing ablation studies to isolate the effects of PPO-specific components like clipping, value function loss weighting, and entropy regularization.
+\item Enhancing visualization tools to track detailed performance metrics such as Sharpe ratio, maximum drawdown, and other risk-adjusted return measures.
+\end{itemize}
+
+\noindent These steps will establish a robust foundation for evaluating advanced reinforcement learning algorithms in the trading domain and inform subsequent research and publication efforts.
+
+
+%\newpage
+
+%\appendix
+
+
+%\newpage
+
+%Références
+%\printbibliography
+
+\newpage
+
+%Glossaire
+\printacronyms
+
+% \newpage
+
+% \printglossary
+
+% %Annexes
+% \section{Annexes}
+% \input{annexe.tex}
+
+\end{document}
