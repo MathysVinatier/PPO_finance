@@ -1,9 +1,16 @@
 import numpy as np
 import sys
+
 import shutil
 from tqdm import tqdm
+
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from collections import deque, namedtuple
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
 
 class ModelRL:
     def __init__(self, env, log=True):
@@ -13,17 +20,13 @@ class ModelRL:
         self.action_space = env.action_space.n
 
         if self.log:
-            print('===============================================================')
-            print("_____OBSERVATION SPACE_____ \n")
-            print("Observation Space", self.env.observation_space)
-            print("Sample observation", self.env.observation_space.sample())
-            print("There are ", self.state_space, " possible states")
-
-            print("\n _____ACTION SPACE_____ \n")
-            print("Action Space Shape", self.env.action_space.n)
-            print("Action Space Sample", self.env.action_space.sample())
-            print("There are ", self.action_space, " possible actions")
-            print('===============================================================\n')
+            print('================== ENV INFO ==================')
+            print("Observation Space:", self.env.observation_space)
+            print("Sample observation:", self.env.observation_space.sample())
+            print("Number of features:", self.state_space)
+            print("\nAction Space:", self.env.action_space.n)
+            print("Sample action:", self.env.action_space.sample())
+            print('============================================\n')
 
 
     def __bar_graph(self, label, count, max_count):
@@ -53,14 +56,14 @@ class ModelRL:
         df_test = df[int(train_size * len(df)):]
         return df_train, df_test
 
-    def plot(self, df, Qtable, train_size=0.8, save=False, name="Company", show=True):
+    def plot(self, df, model, train_size=0.8, save=False, name="Company", show=True):
         plt.figure(figsize=(14, 6))
 
         df_train, df_test = self.split_data(df, train_size)
 
         # Now returns actions, prices, dates, and equity curve directly
-        actions_train, prices_train, dates_train, equity_train = self.get_actions_and_prices(Qtable, df_train)
-        actions_test, prices_test, dates_test, equity_test = self.get_actions_and_prices(Qtable, df_test, initial_cash=equity_train[-1])
+        actions_train, prices_train, dates_train, equity_train = self.get_actions_and_prices(model, df_train)
+        actions_test, prices_test, dates_test, equity_test = self.get_actions_and_prices(model, df_test, initial_cash=equity_train[-1])
 
         # --- Subplot 1 : Price + Buy/Sell ---
         plt.subplot(2, 1, 1)
@@ -124,7 +127,7 @@ class ModelRL:
 
         plt.tight_layout()
         if save:
-            plt.savefig(f'./QLearning_{name}_{df.index[0][:4]}')
+            plt.savefig(f'./{self.__class__.__name__}_{name}_{df.index[0][:4]}')
         if show:
             plt.show()
 
@@ -167,8 +170,8 @@ class QLearning(ModelRL):
             return self.env.sample_valid_action()
 
     def train(self, df, train_size=0.8, n_training_episodes=1000,
-              learning_rate=0.7, gamma=0.95, max_epsilon=1.0,
-              min_epsilon=0.05, decay_rate=0.0005):
+              learning_rate=0.1, gamma=0.92, max_epsilon=1.0,
+              min_epsilon=0.05, decay_rate=0.0015):
 
         self.df = df
         self.df_train, _ = self.split_data(self.df.copy(), train_size)
@@ -223,9 +226,13 @@ class QLearning(ModelRL):
         done, step = False, 0
 
         while not done:
+            if self.env.current_step >= len(df) - 1:
+                break
+
             action = np.argmax(Qtable[state_idx])
             if action not in self.env.get_valid_actions():
                 action = 0
+
             next_obs, _, done, _ = self.env.step(action)
             price = df["Close"].iloc[self.env.current_step - 1]
 
@@ -246,3 +253,218 @@ class QLearning(ModelRL):
             step += 1
 
         return actions_taken, prices, df_indices, equity_curve
+
+
+class ReplayBuffer:
+    """Simple replay buffer for DQN."""
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.buffer = deque(maxlen=capacity)
+        self.experience = namedtuple(
+            'Experience', ['state', 'action', 'reward', 'next_state', 'done']
+        )
+
+    def push(self, state, action, reward, next_state, done):
+        self.buffer.append(self.experience(state, action, reward, next_state, done))
+
+    def sample(self, batch_size):
+        idx = np.random.choice(len(self.buffer), size=batch_size, replace=False)
+        batch = [self.buffer[i] for i in idx]
+        states = np.array([b.state for b in batch], dtype=np.float32)
+        actions = np.array([b.action for b in batch], dtype=np.int64)
+        rewards = np.array([b.reward for b in batch], dtype=np.float32)
+        next_states = np.array([b.next_state for b in batch], dtype=np.float32)
+        dones = np.array([b.done for b in batch], dtype=np.float32)
+        return states, actions, rewards, next_states, dones
+
+    def __len__(self):
+        return len(self.buffer)
+
+
+class MLP(nn.Module):
+    def __init__(self, input_dim, output_dim, hidden_dims=(128, 128)):
+        super().__init__()
+        layers = []
+        last_dim = input_dim
+        for h in hidden_dims:
+            layers += [nn.Linear(last_dim, h), nn.ReLU()]
+            last_dim = h
+        layers += [nn.Linear(last_dim, output_dim)]
+        self.net = nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.net(x)
+
+
+class DeepQLearning(ModelRL):
+
+    def __init__(self, env, steps=1, log=True, device=None, hidden_dims=(128, 128)):
+        super().__init__(env, log=log)  # Initialize ModelRL logging & utilities
+        self.steps = max(1, int(steps))
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+
+        self.state_space = env.observation_space.shape[0]
+        self.action_space = env.action_space.n
+
+        # DQN networks
+        input_dim = self.state_space * self.steps
+        output_dim = self.action_space
+        self.policy_net = MLP(input_dim, output_dim, hidden_dims).to(self.device)
+        self.target_net = MLP(input_dim, output_dim, hidden_dims).to(self.device)
+        self.target_net.load_state_dict(self.policy_net.state_dict())
+        self.target_net.eval()
+
+
+    # ------------------ DQN Core ------------------
+    def _stack_state(self, history_deque):
+        if len(history_deque) < self.steps:
+            pad = [np.zeros(self.state_space, dtype=np.float32)] * (self.steps - len(history_deque))
+            arr = np.concatenate(pad + list(history_deque), axis=0)
+        else:
+            arr = np.concatenate(list(history_deque), axis=0)
+        return arr.astype(np.float32)
+
+    @torch.no_grad()
+    def _q_values(self, state_batch):
+        return self.policy_net(torch.as_tensor(state_batch, dtype=torch.float32, device=self.device))
+
+    def _select_action_eps_greedy(self, state_vec, epsilon):
+        if np.random.rand() < epsilon:
+            if hasattr(self.env, 'sample_valid_action'):
+                return self.env.sample_valid_action()
+            return np.random.randint(self.action_space)
+        state_t = torch.as_tensor(state_vec, dtype=torch.float32, device=self.device).unsqueeze(0)
+        q = self.policy_net(state_t)[0].detach().cpu().numpy()
+        return int(np.argmax(q))
+
+    def _optimize(self, optimizer, buffer, batch_size, gamma):
+        if len(buffer) < batch_size:
+            return 0.0
+        states, actions, rewards, next_states, dones = buffer.sample(batch_size)
+        states_t = torch.as_tensor(states, dtype=torch.float32, device=self.device)
+        actions_t = torch.as_tensor(actions, dtype=torch.int64, device=self.device).unsqueeze(1)
+        rewards_t = torch.as_tensor(rewards, dtype=torch.float32, device=self.device).unsqueeze(1)
+        next_states_t = torch.as_tensor(next_states, dtype=torch.float32, device=self.device)
+        dones_t = torch.as_tensor(dones, dtype=torch.float32, device=self.device).unsqueeze(1)
+
+        q_sa = self.policy_net(states_t).gather(1, actions_t)
+        with torch.no_grad():
+            q_next = self.target_net(next_states_t).max(1, keepdim=True)[0]
+            q_target = rewards_t + gamma * q_next * (1.0 - dones_t)
+
+        loss = nn.functional.mse_loss(q_sa, q_target)
+        optimizer.zero_grad()
+        loss.backward()
+        nn.utils.clip_grad_norm_(self.policy_net.parameters(), 1.0)
+        optimizer.step()
+        return float(loss.item())
+
+    # ------------------ Training ------------------
+    def train(self, df, train_size=0.8, n_training_episodes=1000,
+              learning_rate=1e-3, gamma=0.99, max_epsilon=1.0,
+              min_epsilon=0.05, decay_rate=0.0005, buffer_capacity=50_000,
+              batch_size=64, target_update_every=1000, learn_every=1,
+              warmup_steps=1_000):
+
+        self.df_train, _ = self.split_data(df, train_size)
+        buffer = ReplayBuffer(buffer_capacity)
+        optimizer = optim.Adam(self.policy_net.parameters(), lr=learning_rate)
+        max_steps = len(self.df_train['Close'])
+
+        global_step = 0
+        pbar = tqdm(range(n_training_episodes), disable=not self.log)
+
+        if self.log:
+            action_counts = np.zeros(self.action_space)
+
+        for episode in pbar:
+            epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
+            state_cont = self.env.reset()
+            history = deque(maxlen=self.steps)
+            history.append(np.asarray(state_cont, dtype=np.float32))
+            state_vec = self._stack_state(history)
+
+            for step in range(max_steps):
+                action = self._select_action_eps_greedy(state_vec, epsilon)
+                next_state_cont, reward, done, info = self.env.step(action)
+                history.append(np.asarray(next_state_cont, dtype=np.float32))
+                next_state_vec = self._stack_state(history)
+                buffer.push(state_vec, action, reward, next_state_vec, done)
+
+                if global_step % learn_every == 0 and len(buffer) >= max(batch_size, warmup_steps):
+                    self._optimize(optimizer, buffer, batch_size, gamma)
+
+                global_step += 1
+                if global_step % target_update_every == 0:
+                    self.target_net.load_state_dict(self.policy_net.state_dict())
+                state_vec = next_state_vec
+                if done:
+                    break
+
+        return self.policy_net
+
+    @torch.no_grad()
+    def get_actions_and_prices(self, policy_net, df, initial_cash=100):
+        self.env.set_data(df)
+        state_cont = self.env.reset()
+        history = deque(maxlen=self.steps)
+        history.append(np.asarray(state_cont, dtype=np.float32))
+        state_vec = self._stack_state(history)
+
+        actions_taken, prices, df_indices, equity_curve = [], [], [], []
+        cash, stock, step = initial_cash, 0, 0
+        done = False
+        while not done:
+            if self.env.current_step >= len(df) - 1:
+                break
+            state_t = torch.as_tensor(state_vec, dtype=torch.float32, device=self.device).unsqueeze(0)
+            q = policy_net(state_t)[0].cpu().numpy()
+            action = int(np.argmax(q))
+            next_obs, reward, done, info = self.env.step(action)
+            price = df["Close"].iloc[self.env.current_step - 1]
+
+            actions_taken.append((step, action))
+            prices.append(price)
+            df_indices.append(self.env.current_step)
+
+            # Portfolio update
+            if action == 1:  # Buy
+                stock += 1
+                cash -= price
+            elif action == 2:  # Sell
+                stock -= 1
+                cash += price
+            equity_curve.append(cash + stock * price)
+
+            history.append(np.asarray(next_obs, dtype=np.float32))
+            state_vec = self._stack_state(history)
+            step += 1
+
+        return actions_taken, prices, df_indices, equity_curve
+
+if __name__ == "__main__":
+    from Environment import TradingEnv, DataLoader
+
+    df = DataLoader().read("data/General/O_2016_2024.csv")
+    env = TradingEnv(df)
+
+    model = DeepQLearning(env, log=True)
+    
+    policy_net = model.train(
+        df=df,                 # dataframe
+        train_size=0.8,        # 80% train split
+        n_training_episodes=500, # number of episodes
+        learning_rate=1e-3,
+        gamma=0.99
+    )
+
+    # Save
+    torch.save(policy_net.state_dict(), "dqn_policy_net.pth")
+    
+
+    # Later, to load
+    model_loaded = DeepQLearning(env)
+    model_loaded.policy_net.load_state_dict(torch.load("dqn_policy_net.pth"))
+    model_loaded.policy_net.eval()
+
+    model_loaded.plot(df, model = model_loaded.policy_net, name="O", save=True)

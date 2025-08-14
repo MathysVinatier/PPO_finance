@@ -116,43 +116,45 @@ class TradingEnv(gym.Env):
     def step(self, action):
         done = False
 
-        price = self.df.loc[self.current_step, "Close"]
+        price = self.df.iloc[self.current_step]["Close"]
         prev_portfolio_value = self.balance + self.position * price
+        penalty = 0
 
+        # Enforce legality
         if action == 1:  # BUY
-            if self.position == 0:  # only if not already holding
+            if self.position == 0:
                 self.balance -= price
                 self.position = 1
                 self.last_action = 1
-                penalty = 0
             else:
-                penalty = -1  # small penalty for redundant buy
+                penalty = -5  # stronger penalty for redundant buy
+                action = 0    # force to HOLD
         elif action == 2:  # SELL
-            if self.position == 1:  # only if holding
+            if self.position == 1:
                 self.balance += price
                 self.position = 0
                 self.last_action = 2
-                penalty = 0
             else:
-                penalty = -1  # small penalty for redundant sell
-        else:  # HOLD
-            penalty = 0
+                penalty = -5  # stronger penalty for redundant sell
+                action = 0    # force to HOLD
 
         # Advance time
         self.current_step += 1
+        if self.current_step >= self.n_steps:
+            done = True
+            return self._get_obs(), 0, True, {"portfolio_value": prev_portfolio_value, "action": action}
+
+        # New price after step
         new_price = self.df.iloc[self.current_step]["Close"]
         current_portfolio_value = self.balance + self.position * new_price
 
-        # Reward: portfolio change + penalty
+        # Reward = change in portfolio value + penalty
         reward = (current_portfolio_value - prev_portfolio_value) + penalty
-
-        if self.current_step >= self.n_steps - 1:
-            done = True
 
         return self._get_obs(), reward, done, {
             "portfolio_value": current_portfolio_value,
             "action": action
-    }
+        }
 
 
     def set_data(self, df):
