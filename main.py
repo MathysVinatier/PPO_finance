@@ -2,7 +2,6 @@ from utils.Environment import DataLoader, TradingEnv
 from utils.RLMethod import QLearning
 
 import os
-import matplotlib.pyplot as plt
 
 def experiment1():
 
@@ -38,11 +37,11 @@ def experiment1():
         QL.plot(df, Qtable_trained, training_size, save=True, show=True, name=company)
 
 def experiment2():
-    start_date = 2010
-    stop_date = 2021
+    start_date = 2016
+    stop_date = 2024
 
     dir = './data/10yearData/'
-    company = 'BTC-USD'
+    company = 'RNO.PA'
     data_loader = DataLoader()
     list_dir = os.listdir(dir)
     fname = f"{company}_{start_date}_{stop_date}.csv"
@@ -53,13 +52,14 @@ def experiment2():
     episode = 1000
 
     print(f"\n\n File => {fname}")
+    print(f'Saving as {company.split('.')[0]}')
     df = data_loader.read(dir+fname)
     env = TradingEnv(df)
     QL = QLearning(env)
 
     Qtable_trained = QL.train(df, n_training_episodes=episode, train_size=training_size)
-    QL.plot(df, Qtable_trained, training_size, save=True, show=True, name=company)
+    QL.plot(df, Qtable_trained, training_size, save=True, show=True, name=company.split('.')[0])
 
 
 if __name__ == '__main__':
-    experiment2()
+    experiment1()
