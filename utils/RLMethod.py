@@ -176,10 +176,12 @@ class QLearning(ModelRL):
         bins = self.__get_bins(self.df_train)
         Qtable = self.initialize_q_table(bins)
 
-        pbar = tqdm(range(n_training_episodes))
 
         if self.log:
+            pbar = tqdm(range(n_training_episodes))
             self._ModelRL__reload_bar()
+        else:
+            pbar = range(n_training_episodes)
 
         for episode in pbar:
             epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
