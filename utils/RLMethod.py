@@ -5,15 +5,14 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-class QLearning:
+class ModelRL:
     def __init__(self, env, log=True):
-        self.log = log
         self.env = env
+        self.log = log
+        self.state_space = env.observation_space.shape[0]
+        self.action_space = env.action_space.n
 
-        self.state_space = self.env.observation_space.shape[0]
-        self.action_space = self.env.action_space.n
-
-        if self.log != True:
+        if self.log:
             print('===============================================================')
             print("_____OBSERVATION SPACE_____ \n")
             print("Observation Space", self.env.observation_space)
@@ -27,192 +26,32 @@ class QLearning:
             print('===============================================================\n')
 
 
-    def __get_bins(self, df_training):
-        bins = list()
-        training_values = df_training.copy()
-
-        for i in range(self.env.observation_space.shape[0]):
-            feature_vals = training_values.iloc[:, i]
-            bins.append(np.linspace(feature_vals.min(), feature_vals.max(), num=10))
-        return bins
-
     def __bar_graph(self, label, count, max_count):
-        max_width=shutil.get_terminal_size().columns//2
-        count = int(count)
-        max_count = max(1, max_count)  # avoid division by zero
-        bar_length = int((count / max_count) * max_width)
-        bar = '█' * bar_length
-        count_str = f"  {count}"
-        line = f"{label:<4}|{bar}{count_str}"
-
-        # total length should be fixed: label + " |" + bar (max_width) + count_str (fixed width)
+        max_width    = shutil.get_terminal_size().columns // 2
+        count        = int(count)
+        max_count    = max(1, max_count)
+        bar_length   = int((count / max_count) * max_width)
+        bar          = '█' * bar_length
+        count_str    = f"  {count}"
+        line         = f"{label:<4}|{bar}{count_str}"
         total_length = len(label) + 2 + max_width + len(count_str)
-
-        # pad right with spaces so line length == total_length
         return line.ljust(total_length)
 
-    def discretize_state(self, state, bins):
-        discrete_state = []
-        for i, b in enumerate(bins):
-            discrete_state.append(np.digitize(state[i], b))
-        return tuple(discrete_state)
+    def __reload_bar(self):
+        self.action_counts = np.zeros(self.env.action_space.n)
 
-    def state_to_index(self, discrete_state, bins):
-        sizes = [len(b) + 1 for b in bins]
-        index = 0
-        for i, val in enumerate(discrete_state):
-            prod = np.prod(sizes[i+1:]) if i + 1 < len(sizes) else 1
-            index += val * prod
-        return int(index)
-
-    def initialize_q_table(self, bins):
-        num_bins_per_feature = [len(b) + 1 for b in bins]
-        num_states = np.prod(num_bins_per_feature)
-        num_actions = self.env.action_space.n
-        Qtable = np.zeros((num_states, num_actions))
-        return Qtable
-
-    def greedy_policy(self, Qtable, state):
-        action = np.argmax(Qtable[state])
-        return action
-
-    def epsilon_greedy_policy(self, Qtable, state_idx, epsilon):
-        if np.random.rand() > epsilon:
-            return np.argmax(Qtable[state_idx])
-        else:
-            return self.env.sample_valid_action()
+    def __log_bar(self,action):
+        self.action_counts[action] += 1
+        max_count = max(self.action_counts)
+        print(self._ModelRL__bar_graph("HOLD", self.action_counts[0], max_count))
+        print(self._ModelRL__bar_graph("BUY", self.action_counts[1], max_count))
+        print(self._ModelRL__bar_graph("SELL", self.action_counts[2], max_count))
+        sys.stdout.write('\033[F' * 3)
 
     def split_data(self, df, train_size):
-        df_train = df[:int(train_size*len(df))]
-        df_test = df[int(train_size*len(df)):]
+        df_train = df[:int(train_size * len(df))]
+        df_test = df[int(train_size * len(df)):]
         return df_train, df_test
-
-    def train(self, df,
-            train_size=0.8,
-            n_training_episodes=1000,       # Total training episodes
-            learning_rate=0.7,              # Learning rate
-            gamma=0.95,                    # Discounting rate
-            max_epsilon=1.0,               # Exploration probability at start
-            min_epsilon=0.05,              # Minimum exploration probability
-            decay_rate=0.0005):            # Exploration decay rate
-
-
-        self.df       = df
-        self.df_train = self.split_data(self.df.copy(), train_size)[0]
-
-        max_steps = len(self.df_train['Close'])
-        bins = self.__get_bins(self.df_train)
-
-        Qtable = self.initialize_q_table(bins)
-
-        pbar = tqdm(range(n_training_episodes))
-        print()
-
-        if self.log :
-            action_counts = np.zeros(self.env.action_space.n)
-
-        for episode in pbar:
-                epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
-
-                # Reset environment
-                state_cont = self.env.reset()
-                state_disc = self.discretize_state(state_cont, bins)
-                state_idx = self.state_to_index(state_disc, bins)
-        
-                for step in range(max_steps):
-                    # Choose action
-                    action = self.epsilon_greedy_policy(Qtable, state_idx, epsilon)
-
-                    # Take step
-                    next_state_cont, reward, done, info = self.env.step(action)
-
-                    # Discretize next state
-                    next_state_disc = self.discretize_state(next_state_cont, bins)
-                    next_state_idx = self.state_to_index(next_state_disc, bins)
-
-                    # Q-learning update
-                    Qtable[state_idx][action] += learning_rate * (
-                        reward + gamma * np.max(Qtable[next_state_idx]) - Qtable[state_idx][action]
-                    )
-
-                    # Move to next state
-                    state_idx = next_state_idx
-
-                    if done :
-                        break
-
-                    if self.log:
-                        sys.stdout.flush()
-                        # Move cursor UP 3 lines to overwrite previous bars
-                        action_counts[action] += 1
-                        sys.stdout.write('\033[E' * 1)
-                        sys.stdout.flush()
-
-                        max_count = max(action_counts)
-
-                        print(self.__bar_graph("HOLD", action_counts[0], max_count))
-                        print(self.__bar_graph("BUY",  action_counts[1], max_count))
-                        print(self.__bar_graph("SELL", action_counts[2], max_count))
-
-                        sys.stdout.write('\033[F' *4)
-                        sys.stdout.flush()
-
-                        #pbar.set_postfix({
-                        #    'HOLD': int(action_counts[0]),
-                        #    'BUY': int(action_counts[1]),
-                        #    'SELL': int(action_counts[2])
-                        #})
-        if self.log:
-            print('\n'*3)
-        return Qtable
-
-    def get_actions_and_prices(self, Qtable, df, initial_cash=100):
-        self.env.set_data(df)
-        state_cont = self.env.reset()
-        bins = self.__get_bins(df)
-        state_disc = self.discretize_state(state_cont, bins)
-        state_idx = self.state_to_index(state_disc, bins)
-
-        actions_taken = []
-        prices = []
-        df_indices = []
-        equity_curve = []
-
-        cash = initial_cash
-        stock = 0
-
-        done = False
-        step = 0
-        while not done:
-            action = np.argmax(Qtable[state_idx])
-            if action not in self.env.get_valid_actions():
-                action = 0
-            next_obs, reward, done, info = self.env.step(action)
-            price = df["Close"].iloc[self.env.current_step-1]
-
-            # Record action and price
-            actions_taken.append((step, action))
-            prices.append(price)
-            df_indices.append(self.env.current_step)
-
-            # Update portfolio based on action
-            if action == 1 :  # Buy
-                stock += 1
-                cash -= price
-            elif action == 2 :    # Sell
-                stock -= 1
-                cash += price
-
-            total_value = cash + stock * price
-            equity_curve.append(total_value)
-
-            # Move to next state
-            next_state_disc = self.discretize_state(next_obs, bins)
-            state_idx = self.state_to_index(next_state_disc, bins)
-
-            step += 1
-
-        return actions_taken, prices, df_indices, equity_curve
 
     def plot(self, df, Qtable, train_size=0.8, save=False, name="Company", show=True):
         plt.figure(figsize=(14, 6))
@@ -257,7 +96,7 @@ class QLearning:
         plt.plot(test_value.index, test_value, label="Testing Data", linewidth=1)
         plt.scatter(buy_dates_test, buy_prices_test, marker="^", c='green', s=22, zorder=3)
         plt.scatter(sell_dates_test, sell_prices_test, marker="v", c='red', s=22, zorder=3)
-        
+
         plt.title(f"Buy & Sell Signals on {name} in {df.index[0][:4]}")
         plt.ylabel("Price")
         plt.legend()
@@ -289,3 +128,119 @@ class QLearning:
         if show:
             plt.show()
 
+
+class QLearning(ModelRL):
+    def __init__(self, env, log=True):
+        super().__init__(env, log)
+
+    def __get_bins(self, df_training):
+        bins = []
+        training_values = df_training.copy()
+        for i in range(self.env.observation_space.shape[0]):
+            feature_vals = training_values.iloc[:, i]
+            bins.append(np.linspace(feature_vals.min(), feature_vals.max(), num=10))
+        return bins
+
+    def discretize_state(self, state, bins):
+        return tuple(np.digitize(state[i], b) for i, b in enumerate(bins))
+
+    def state_to_index(self, discrete_state, bins):
+        sizes = [len(b) + 1 for b in bins]
+        index = 0
+        for i, val in enumerate(discrete_state):
+            prod = np.prod(sizes[i+1:]) if i + 1 < len(sizes) else 1
+            index += val * prod
+        return int(index)
+
+    def initialize_q_table(self, bins):
+        num_bins_per_feature = [len(b) + 1 for b in bins]
+        num_states = np.prod(num_bins_per_feature)
+        return np.zeros((num_states, self.env.action_space.n))
+
+    def greedy_policy(self, Qtable, state_idx):
+        return np.argmax(Qtable[state_idx])
+
+    def epsilon_greedy_policy(self, Qtable, state_idx, epsilon):
+        if np.random.rand() > epsilon:
+            return np.argmax(Qtable[state_idx])
+        else:
+            return self.env.sample_valid_action()
+
+    def train(self, df, train_size=0.8, n_training_episodes=1000,
+              learning_rate=0.7, gamma=0.95, max_epsilon=1.0,
+              min_epsilon=0.05, decay_rate=0.0005):
+
+        self.df = df
+        self.df_train, _ = self.split_data(self.df.copy(), train_size)
+        max_steps = len(self.df_train['Close'])
+        bins = self.__get_bins(self.df_train)
+        Qtable = self.initialize_q_table(bins)
+
+        pbar = tqdm(range(n_training_episodes))
+
+        if self.log:
+            self._ModelRL__reload_bar()
+
+        for episode in pbar:
+            epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
+            state_cont = self.env.reset()
+            state_disc = self.discretize_state(state_cont, bins)
+            state_idx = self.state_to_index(state_disc, bins)
+
+            for _ in range(max_steps):
+                action = self.epsilon_greedy_policy(Qtable, state_idx, epsilon)
+                next_state_cont, reward, done, _ = self.env.step(action)
+
+                next_state_disc = self.discretize_state(next_state_cont, bins)
+                next_state_idx = self.state_to_index(next_state_disc, bins)
+
+                Qtable[state_idx][action] += learning_rate * (
+                    reward + gamma * np.max(Qtable[next_state_idx]) - Qtable[state_idx][action]
+                )
+                state_idx = next_state_idx
+
+                if done:
+                    break
+
+                if self.log:
+                    self._ModelRL__log_bar(action)
+
+        if self.log:
+            print('\n' * 3)
+        return Qtable
+
+    def get_actions_and_prices(self, Qtable, df, initial_cash=100):
+        self.env.set_data(df)
+        bins = self.__get_bins(df)
+        state_cont = self.env.reset()
+        state_disc = self.discretize_state(state_cont, bins)
+        state_idx = self.state_to_index(state_disc, bins)
+
+        actions_taken, prices, df_indices, equity_curve = [], [], [], []
+        cash, stock = initial_cash, 0
+        done, step = False, 0
+
+        while not done:
+            action = np.argmax(Qtable[state_idx])
+            if action not in self.env.get_valid_actions():
+                action = 0
+            next_obs, _, done, _ = self.env.step(action)
+            price = df["Close"].iloc[self.env.current_step - 1]
+
+            actions_taken.append((step, action))
+            prices.append(price)
+            df_indices.append(self.env.current_step)
+
+            if action == 1:
+                stock += 1
+                cash -= price
+            elif action == 2:
+                stock -= 1
+                cash += price
+
+            equity_curve.append(cash + stock * price)
+            state_disc = self.discretize_state(next_obs, bins)
+            state_idx = self.state_to_index(state_disc, bins)
+            step += 1
+
+        return actions_taken, prices, df_indices, equity_curve
