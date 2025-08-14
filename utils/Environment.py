@@ -1,9 +1,15 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
+
 import gym
 from gym import spaces
+
 import random
+import os
+
+TODAY            = 2024
+GENERAL_DATA_DIR = "./data/General/"
 
 class DataLoader:
 
@@ -11,21 +17,58 @@ class DataLoader:
         self.DATA_DIR   = str()
         self.DATA_FNAME = str()
 
-    def save(self, df_full_path = "./data/", df_fname = "my_extraction", start_date = "2020-01-01", end_date = "2023-01-01"):
-        self.DATA_DIR   = df_full_path
-        self.DATA_FNAME = df_fname
-        self.FULL_PATH  = str()
-        for element in self.DATA_DIR.split('/'):
-            if not element:
-                continue
-            self.FULL_PATH += element + '/'
-        self.FULL_PATH  = self.FULL_PATH+self.DATA_FNAME
+    def __check_repo(self, repo_name):
+        repo_path = os.path.abspath(repo_name)
+        if not os.path.exists(repo_path):
+            os.makedirs(repo_path)
 
-        self.start      = start_date
-        self.end        = end_date
+        return repo_path+"/"
+    
+    def __formating(self, company, start, end=None):
+        if end == None:
+            year_start = start.split('-')[0]
+            return f'{company}_{year_start}.csv'
+        else:
+            year_start = start.split('-')[0]
+            year_end   = end.split('-')[0]
+            return f'{company}_{year_start}_{year_end}.csv'
 
-        self.df = yf.download(self.DATA_FNAME, start=self.start, end=self.end, auto_adjust=True)
-        self.df.to_csv(f'{self.FULL_PATH}_{self.start[:4]}_{self.end[:4]}.csv', index=True)
+    def save_company(self, df_full_path = "./", company_name = "my_extraction", start_date = "2020-01-01", end_date = None):
+        if end_date==None:
+            year = int(start_date.split('-')[0])
+            self.df = yf.download(company_name, start=start_date, end=f'{year+1}-01-01', auto_adjust=True)
+        else:
+            self.df = yf.download(company_name, start=start_date, end=end_date, auto_adjust=True)
+        self.df.to_csv(f'{df_full_path}{self.__formating(company_name, start_date, end_date)}', index=True)
+
+    def save_companies(self, companies=None):
+
+        if companies == None:
+            company_dict = {
+                "AAPL"    : ["2010-01-01", str(TODAY)+"-01-01"],
+                "ATOS"    : ["2017-01-01", str(TODAY)+"-01-01"],
+                "BTC-USD" : ["2014-01-01", str(TODAY)+"-01-01"],
+                "O"       : ["2016-01-01", str(TODAY)+"-01-01"],
+                "RNO.PA"  : ["2016-01-01", str(TODAY)+"-01-01"],
+                "TSLA"    : ["2019-01-01", str(TODAY)+"-01-01"]
+            }
+
+        else : 
+            company_dict = companies
+
+        dir = self.__check_repo(GENERAL_DATA_DIR)
+        list_dir = os.listdir(dir)
+
+        for company in company_dict.keys():
+            if len(company_dict[company]) == 2:
+                start, end = company_dict[company]
+            else :
+                start = company_dict[company][0]
+                end   = None
+
+            print(self.__formating(company, start, end))
+            if self.__formating(company, start, end) not in list_dir:
+                self.save_company(df_full_path=dir, company_name=company, start_date=start, end_date=end)
 
     def read(self,folder_path):
         df = pd.read_csv(folder_path, header=[0, 1], index_col=0)
