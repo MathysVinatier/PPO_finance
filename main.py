@@ -6,6 +6,21 @@ import multiprocessing
 
 import os
 
+def test_QLearning(fdir):
+
+    dataloader = DataLoader()
+    dataloader.save_companies()
+    
+    list_dir = os.listdir(fdir)
+    
+    for data in list_dir :
+        df = dataloader.read(fdir+data)
+        env = TradingEnv(df)
+        print(f"TRAINING ON {data}")
+        QL = QLearning(env)
+        Qtable = QL.train(df=df, train_size=0.8, n_training_episodes=1000)
+        QL.plot(df=df, model=Qtable, train_size=0.8, name=data.split('_')[0], save=True, show=True)
+
 def experiment1():
 
     start_date = 2010
@@ -125,7 +140,17 @@ def optimization1():
     for p in processes:
         p.join()
 
+def get_best_parameter(storage_url):
+    study = optuna.create_study(
+            direction="maximize",
+            study_name="QLearning_Study",
+            storage=storage_url,
+            load_if_exists=True
+        )
+    print("Best params:", study.best_params)
+    print("Best score:", study.best_value)
+
 
 
 if __name__ == '__main__':
-    optimization1()
+    test_QLearning("data/General/")
