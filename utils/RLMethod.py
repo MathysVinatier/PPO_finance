@@ -12,6 +12,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+from transformers import AutoModel, AutoConfig
+from transformers import DecisionTransformerConfig, DecisionTransformerGPT2Model
+
 class ModelRL:
     def __init__(self, env, log=True):
         self.env = env
@@ -294,23 +297,54 @@ class MLP(nn.Module):
 
     def forward(self, x):
         return self.net(x)
+    
+
+class DecisionTransformerQ(nn.Module):
+    def __init__(self, input_dim, output_dim, model_name="edbeeching/decision-transformer-gym-hopper-medium"):
+        super().__init__()
+        # Load config for hidden size, layers, etc.
+        config = DecisionTransformerConfig.from_pretrained(model_name)
+        self.backbone = DecisionTransformerGPT2Model(config)  # <-- raw transformer (no embed_state)
+
+        # Our own projection
+        self.input_proj = nn.Linear(input_dim, config.hidden_size)
+        self.q_head = nn.Linear(config.hidden_size, output_dim)
+
+    def forward(self, x):
+        if x.dim() == 2:
+            x = x.unsqueeze(1)  # (batch, 1, input_dim)
+
+        # Project states to hidden size
+        x = self.input_proj(x)  # (batch, steps, hidden)
+
+        # Pass directly to GPT2 backbone
+        outputs = self.backbone(inputs_embeds=x)
+
+        # Take last hidden state
+        last_hidden = outputs.last_hidden_state[:, -1]
+        return self.q_head(last_hidden)
+
 
 
 class DeepQLearning(ModelRL):
 
     def __init__(self, env, steps=1, log=True, device=None, hidden_dims=(128, 128)):
-        super().__init__(env, log=log)  # Initialize ModelRL logging & utilities
+        super().__init__(env, log=log)
         self.steps = max(1, int(steps))
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
 
         self.state_space = env.observation_space.shape[0]
         self.action_space = env.action_space.n
 
-        # DQN networks
-        input_dim = self.state_space * self.steps
+        # Transformer input is per-step state vector (not flattened!)
+        input_dim = self.state_space
         output_dim = self.action_space
-        self.policy_net = MLP(input_dim, output_dim, hidden_dims).to(self.device)
-        self.target_net = MLP(input_dim, output_dim, hidden_dims).to(self.device)
+
+        self.policy_net = DecisionTransformerQ(input_dim, output_dim).to(self.device)
+        if self.log:
+            print(self.policy_net)
+
+        self.target_net = DecisionTransformerQ(input_dim, output_dim).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
@@ -319,9 +353,9 @@ class DeepQLearning(ModelRL):
     def _stack_state(self, history_deque):
         if len(history_deque) < self.steps:
             pad = [np.zeros(self.state_space, dtype=np.float32)] * (self.steps - len(history_deque))
-            arr = np.concatenate(pad + list(history_deque), axis=0)
+            arr = np.stack(pad + list(history_deque), axis=0)  # (steps, state_dim)
         else:
-            arr = np.concatenate(list(history_deque), axis=0)
+            arr = np.stack(list(history_deque), axis=0)  # (steps, state_dim)
         return arr.astype(np.float32)
 
     @torch.no_grad()
@@ -459,12 +493,12 @@ if __name__ == "__main__":
     )
 
     # Save
-    torch.save(policy_net.state_dict(), "dqn_policy_net.pth")
+    torch.save(policy_net.state_dict(), "transformer_policy_net.pth")
     
 
     # Later, to load
     model_loaded = DeepQLearning(env)
-    model_loaded.policy_net.load_state_dict(torch.load("dqn_policy_net.pth"))
+    model_loaded.policy_net.load_state_dict(torch.load("transformer_policy_net.pth"))
     model_loaded.policy_net.eval()
 
     model_loaded.plot(df, model = model_loaded.policy_net, name="O", save=True)

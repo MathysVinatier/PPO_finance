@@ -501,6 +501,498 @@ Initialize Q-table
 
 \noindent These steps will establish a robust foundation for evaluating advanced reinforcement learning algorithms in the trading domain and inform subsequent research and publication efforts.
 
+\newpage
+
+\chapter{Week 11}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{Deep Q-Learning}
+
+\subsection{Problem Formulation}
+\ind We cast single-asset trading as a finite-horizon Markov Decision Process (MDP) on time-indexed observations $\{o_t\}_{t=1}^T$. At each discrete time step $t$, the agent observes a state $s_t \in \mathcal{S}$ (Price, Close, High, Low,Open and Volume), takes an action $a_t \in \mathcal{A}$(Buy, Old or Sell), receives a reward $r_t \in \mathbb{R}$.
+
+\paragraph{State.}
+To incorporate temporal context, we define
+\[
+s_t = \big[\phi(o_{t-w+1}),\,\ldots,\,\phi(o_{t})\big] \in \mathbb{R}^{w\times d},
+\]
+where $w$ is a rolling window length and $\phi(\cdot)$ is a feature map including (but not limited to): log-returns, rolling z-scores, realized volatility estimates, microstructure features (e.g., imbalance), and technical indicators. To avoid lookahead bias, all rolling statistics are computed using past data only and fit on the training split.
+
+\paragraph{Action Space.}
+We consider a discrete policy with position control and an optional \emph{hold} action:
+\[
+\mathcal{A}=\{-K,\ldots,-1,0,1,\ldots,K\},
+\]
+where $a_t$ represents the target position (short to long) in normalized units subject to a position limit $|a_t|\leq K$. An alternative is the set $\{\textsc{Short}, \textsc{Flat}, \textsc{Long}\}$ with an additional \textsc{Hold} that preserves the prior position.
+
+\paragraph{Reward.}
+Let $P_t$ be the execution price proxy, $\Delta P_{t+1}=P_{t+1}-P_t$, and $\Delta a_t=a_t-a_{t-1}$. A trading-aware reward that accounts for P\&L, costs, and risk is
+\begin{equation}
+\label{eq:reward}
+r_t \;=\; a_t \cdot \Delta P_{t+1}
+\;-\; c\,|\Delta a_t|
+\;-\; \lambda_{\mathrm{risk}}\,\hat{\sigma}_{t}^2
+\;-\; \lambda_{\mathrm{dd}}\,\max(0, \mathrm{DD}_t - \mathrm{DD}_{\max}),
+\end{equation}
+where $c$ is per-unit transaction/slippage cost, $\hat{\sigma}_t^2$ is an ex-ante volatility estimate, and $\mathrm{DD}_t$ is running drawdown. The last term softly penalizes breach of a drawdown budget $\mathrm{DD}_{\max}$.
+
+\subsection{Deep Q-Network (DQN)}
+DQN approximates the action-value function $Q^\star(s,a)$ with a neural network $Q_\theta(s,a)$ trained to minimize the temporal-difference (TD) error using a replay buffer $\mathcal{D}$ and a target network $Q_{\bar{\theta}}$.
+
+\paragraph{Bellman Target.}
+For terminal indicator $d_{t+1}\in\{0,1\}$,
+\begin{align}
+y_t^{\text{DQN}} &= r_t + \gamma (1-d_{t+1}) \max_{a'} Q_{\bar{\theta}}(s_{t+1}, a'), \\
+\mathcal{L}(\theta) &= \mathbb{E}_{(s_t,a_t,r_t,s_{t+1},d_{t+1})\sim \mathcal{D}}
+\left[ \ell_\kappa\big(y_t - Q_{\theta}(s_t,a_t)\big) \right],
+\end{align}
+where $\ell_\kappa(\cdot)$ is the Huber loss for robustness to heavy-tailed TD errors. The discount $\gamma\in(0,1)$ should reflect the trading horizon (e.g., $\gamma\in[0.95,0.999]$ for intraday vs. swing horizons).
+
+\paragraph{Double DQN.}
+To reduce overestimation, we use Double DQN with decoupled action selection/evaluation:
+\begin{equation}
+\label{eq:double-dqn}
+y_t^{\text{DDQN}} = r_t + \gamma (1-d_{t+1})\;
+Q_{\bar{\theta}}\!\left(s_{t+1}, \arg\max_{a'} Q_\theta(s_{t+1},a')\right).
+\end{equation}
+
+\paragraph{Architecture.}
+For time-series, $Q_\theta$ can be (i) a 1D-CNN over the window $w$, (ii) an LSTM/GRU encoder with the last hidden state feeding an MLP head that outputs $|\mathcal{A}|$ Q-values, or (iii) a Transformer encoder for long-range dependencies. Layer normalization and dropout mitigate non-stationarity; \texttt{ReLU}/\texttt{GELU} activations are typical.
+
+\paragraph{Stabilization.}
+We employ (i) target network smoothing with soft updates
+$\bar{\theta} \leftarrow \tau \theta + (1-\tau)\bar{\theta}$, $\tau\!\ll\!1$,
+(ii) prioritized replay with sampling probability $\propto | \delta_t |^\alpha$ and importance weights, and (iii) action masking when risk or inventory limits are hit.
+
+\subsection{Exploration and Constraints}
+We use $\epsilon$-greedy with linear or cosine decay from $\epsilon_{\max}$ to $\epsilon_{\min}$; in practice, \emph{noisy layers} can replace explicit $\epsilon$ for state-dependent exploration. Trading-specific constraints (max position $K$, max turnover, exposure to news embargo windows) are enforced via an action mask $m_t(a)\in\{0,1\}$ and
+\[
+a_t \;=\; \arg\max_{a \in \mathcal{A}: m_t(a)=1} Q_\theta(s_t,a).
+\]
+
+\subsection{Training Algorithm}
+
+\subsection{Practical Considerations for Time-Series}
+\paragraph{Data Splitting \& Leakage.}
+Use chronological splits and \emph{walk-forward} evaluation: rolling train/validation windows with a held-out test period. All preprocessing (scalers, PCA, feature selection) must be fit on training only and applied forward.
+
+\paragraph{Stationarity \& Regimes.}
+Markets are non-stationary; periodic target network updates ($\tau$) and shorter replay horizons help. Consider re-training or fine-tuning across regimes and adding a \emph{regime feature} (e.g., volatility state) to $s_t$.
+
+\paragraph{Costs \& Slippage.}
+Model costs explicitly in $r_t$ and optionally inject execution noise during training to bridge the sim-to-real gap. Limit turnover via the $|\Delta a_t|$ penalty.
+
+\paragraph{Risk Controls.}
+In addition to reward penalties, enforce hard caps: max position $K$, max leverage, and a circuit breaker when rolling drawdown exceeds $\mathrm{DD}_{\max}$.
+
+\subsection{Evaluation Metrics}
+Let $\{R_t\}$ be realized returns from the executed strategy. Report:
+\begin{itemize}
+  \item Annualized Sharpe: $\displaystyle \mathrm{SR}=\frac{\sqrt{A}\,\mathbb{E}[R_t]}{\mathrm{Std}[R_t]}$ with $A$ the periods-per-year factor.
+  \item Sortino, Calmar, hit ratio, average trade, turnover, max drawdown, and profit factor.
+  \item Stability: rolling SR and drawdown; sensitivity to cost $c$; ablations (no costs, no risk term, no mask).
+\end{itemize}
+Always compare to baselines (buy-and-hold, momentum/mean-reversion heuristics) and include a \emph{purged, embargoed} cross-validation if you use overlapping windows.
+
+\subsection{Model Variants (Optional)}
+\begin{itemize}
+  \item \textbf{Dueling DQN:} Decompose $Q_\theta(s,a)=V_\theta(s)+A_\theta(s,a)-\frac{1}{|\mathcal{A}|}\sum_{a'}A_\theta(s,a')$ to stabilize value estimation.
+  \item \textbf{N-step Returns:} Replace $y$ with $n$-step target $r_t+\gamma r_{t+1}+\cdots+\gamma^{n-1} r_{t+n-1}+\gamma^n \max_{a'} Q_{\bar{\theta}}(s_{t+n},a')$.
+  \item \textbf{Distributional RL:} Learn the return distribution $Z(s,a)$ for better risk-sensitive control.
+  \item \textbf{Noisy Nets:} Parameterized noise in linear layers for exploration without $\epsilon$-schedules.
+\end{itemize}
+
+\subsection{Reference Hyperparameters (Typical Ranges)}
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}ll@{}}
+\toprule
+Parameter & Typical value \\ \midrule
+Window length $w$ & 32--256 steps \\
+Discount $\gamma$ & 0.95--0.999 \\
+Optimizer / LR & Adam, $10^{-4}$ to $3\cdot 10^{-4}$ \\
+Batch size $B$ & 64--256 \\
+Replay size $|\mathcal{D}|$ & $10^5$--$10^6$ \\
+Target update & soft $\tau \in [10^{-3}, 10^{-2}]$ (or hard every 1--5k steps) \\
+$\epsilon$ schedule & from 1.0 to 0.05 over $10^5$ steps (or NoisyNets) \\
+Cost $c$ & set by venue; stress $\times 2\text{--}4$ for robustness \\
+Risk weights & $\lambda_{\mathrm{risk}}, \lambda_{\mathrm{dd}}$ via grid search on validation \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Limitations}
+DQN assumes a stationary $Q^\star$ and Markovian dynamics, both often violated in markets. Performance can degrade under regime shifts, changing costs/liquidity, or adversarial feedback. Robustness checks (stress costs, volatility spikes, delayed fills) and conservative deployment (small capital, shadow trading) are essential.
+
+\section{Transformer-Based Deep Q-Learning for Time-Series Trading}
+\label{sec:transformer-dqn-trading}
+
+\subsection{Problem Formulation}
+We frame single-asset trading as a finite-horizon Markov Decision Process (MDP) over price and feature sequences $\{o_t\}_{t=1}^T$. At each time $t$, the agent observes a state $s_t \in \mathcal{S}$, selects an action $a_t \in \mathcal{A}$, receives reward $r_t$, and transitions to $s_{t+1}$. 
+
+\paragraph{State.}  
+The state is a sequence of past observations:
+\[
+s_t = \big[\phi(o_{t-w+1}), \dots, \phi(o_t)\big] \in \mathbb{R}^{w \times d},
+\]
+where $w$ is the window size, $d$ the feature dimension, and $\phi(\cdot)$ includes log-returns, volatility, and other technical indicators.
+
+\paragraph{Action Space.}  
+We use a discrete set of position actions:
+\[
+\mathcal{A} = \{-K, \dots, -1, 0, 1, \dots, K\},
+\]
+representing target positions (short to long) subject to max position $K$.
+
+\paragraph{Reward.}  
+The reward accounts for P\&L, trading costs, and risk:
+\[
+r_t = a_t \cdot \Delta P_{t+1} - c |\Delta a_t| - \lambda_{\mathrm{risk}} \hat{\sigma}_t^2 - \lambda_{\mathrm{dd}} \max(0, \mathrm{DD}_t - \mathrm{DD}_{\max}).
+\]
+
+\subsection{Transformer Q-Network}
+Instead of a traditional CNN/LSTM, we use a Transformer encoder to model long-range dependencies in time-series. The network $Q_\theta(s_t, a_t)$ is parameterized as:
+
+\begin{itemize}
+    \item Input: sequence of feature vectors $s_t$.
+    \item Positional encodings added to preserve temporal order.
+    \item Stacked Transformer encoder layers with multi-head attention.
+    \item Final MLP head outputs $|\mathcal{A}|$ Q-values.
+\end{itemize}
+
+Formally, let $\text{Transformer}_\theta(\cdot)$ denote the output embedding for the last token:
+\[
+Q_\theta(s_t, a) = \text{MLP}_\theta\big(\text{Transformer}_\theta(s_t)\big)_a.
+\]
+
+\subsection{Training with Double DQN Targets}
+The Transformer Q-network is trained using Double DQN targets:
+\[
+y_t = r_t + \gamma (1 - d_{t+1}) Q_{\bar{\theta}}\Big(s_{t+1}, \arg\max_{a'} Q_\theta(s_{t+1}, a')\Big),
+\]
+where $\bar{\theta}$ is a target network updated softly: $\bar{\theta} \gets \tau \theta + (1-\tau)\bar{\theta}$.
+
+The loss is the Huber loss over a replay buffer $\mathcal{D}$:
+\[
+\mathcal{L}(\theta) = \mathbb{E}_{(s_t,a_t,r_t,s_{t+1},d_{t+1}) \sim \mathcal{D}} \big[ \ell_\kappa(y_t - Q_\theta(s_t, a_t)) \big].
+\]
+
+\subsection{Exploration and Constraints}
+\begin{itemize}
+    \item \textbf{Exploration:} $\epsilon$-greedy or parameter noise (NoisyNet layers) in the MLP head.
+    \item \textbf{Constraints:} Action masks enforce max position, turnover, and risk limits.
+\end{itemize}
+
+\subsection{Practical Considerations}
+\begin{itemize}
+    \item \textbf{Data Splitting:} Walk-forward evaluation to prevent lookahead bias.
+    \item \textbf{Stationarity:} Transformers can capture longer temporal dependencies but may still require retraining on regime shifts.
+    \item \textbf{Costs \& Slippage:} Include in the reward function to improve robustness.
+    \item \textbf{Hyperparameters:} Window length $w$, number of Transformer layers, number of attention heads, hidden dimensions, learning rate, batch size, replay buffer size.
+\end{itemize}
+
+\subsection{Evaluation Metrics}
+Use the same trading metrics as before: Sharpe, Sortino, maximum drawdown, hit ratio, turnover, and profit factor. Compare against buy-and-hold and heuristic baselines.
+
+\subsection{Remarks}
+Replacing the RNN/CNN with a Transformer enables the agent to capture longer-range dependencies in time-series, which is beneficial for assets with complex temporal patterns or irregular cycles. Care must be taken to limit overfitting due to increased model capacity.
+
+
+
+\begin{algorithm}[H]
+\caption{Deep Q-Learning Training}
+\KwIn{Environment $env$, data frame $df$, training size $train\_size$, episode $N$}
+\KwOut{Trained Q-table $Q$}
+
+Split data: $df_{train} \leftarrow$ $train\_size$ of $df$\;
+
+Calculate bins for discretization : $bins \leftarrow$ compute bins from $df_{train}$\;
+
+Initialize Q-table
+
+\For{$episode \leftarrow 1$ \KwTo $N$}{
+    Exploration rate : $\epsilon \leftarrow \epsilon_{min} + (\epsilon_{max} - \epsilon_{min}) \cdot \exp(-decay\_rate \times episode)$\;
+    
+    Reset environment : $state_{cont} \leftarrow env.reset()$\;
+    
+    Discretize initial state : $state_{disc} \leftarrow discretize(state_{cont}, bins)$\;
+    
+    Convert to index : $state_{idx} \leftarrow state\_to\_index(state_{disc}, bins)$\;
+    
+    \For{$step \leftarrow 1$ \KwTo $max\_steps$}{
+        
+        Choose action $a$ using epsilon-greedy policy :
+        \[
+        a \leftarrow
+        \begin{cases}
+            \arg\max_{a'} Q[state_{idx}, a'] & \text{with probability } 1 - \epsilon \\
+            \text{random valid action} & \text{with probability } \epsilon
+        \end{cases}
+        \]
+        
+        Take action : $(next_{state_{cont}}, r, done, info) \leftarrow env.step(a)$\;
+        
+        Discretize next state : $next_{state_{disc}} \leftarrow discretize(next_{state_{cont}}, bins)$\;
+        
+        Convert to index : $next_{state_{idx}} \leftarrow state\_to\_index(next_{state_{disc}}, bins)$\;
+        
+        Update Q-value :$Q[state_{idx}, a] \leftarrow Q[state_{idx}, a] + \alpha \left( r + \gamma \max_{a'} Q[next_{state_{idx}}, a'] - Q[state_{idx}, a] \right)$\;
+        
+        $state_{idx} \leftarrow next_{state_{idx}}$\;
+        
+        \If{$done$}{
+            \textbf{break}\;
+        }
+    }
+}
+
+\Return $Q$
+\end{algorithm}
+
+
+
+
+\newpage
+
+\chapter{Week 12}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+
+\section{Deep Q-Learning}
+
+\subsection{Deep Q-Learning introduction}
+
+\ind In order to approximate optimal decision-making in complex environments, we employ Deep Q-Learning, an extension of Q-Learning that integrates state discretization with function approximation techniques. Unlike traditional tabular Q-Learning, which directly maintains a Q-table over discrete states, Deep Q-Learning is capable of handling continuous or high-dimensional state spaces by discretizing them into manageable bins. The algorithm balances exploration and exploitation using an $\epsilon$-greedy strategy with exponential decay, ensuring sufficient exploration during early episodes while gradually converging toward exploitation of learned policies. At each training step, the Q-table is updated via the Bellman equation, incorporating observed rewards and estimated future returns. The following pseudocode outlines the full training procedure.
+
+\vfill
+
+\begin{algorithm}[H]
+\caption{Deep Q-Learning Training}
+\KwIn{Environment $env$, data frame $df$, training size $train\_size$, episode $N$}
+\KwOut{Trained Q-table $Q$}
+
+Split data: $df_{train} \leftarrow$ $train\_size$ of $df$\;
+
+Calculate bins for discretization : $bins \leftarrow$ compute bins from $df_{train}$\;
+
+Initialize Q-table
+
+\For{$episode \leftarrow 1$ \KwTo $N$}{
+    Exploration rate : $\epsilon \leftarrow \epsilon_{min} + (\epsilon_{max} - \epsilon_{min}) \cdot \exp(-decay\_rate \times episode)$\;
+    
+    Reset environment : $state_{cont} \leftarrow env.reset()$\;
+    
+    Discretize initial state : $state_{disc} \leftarrow discretize(state_{cont}, bins)$\;
+    
+    Convert to index : $state_{idx} \leftarrow state\_to\_index(state_{disc}, bins)$\;
+    
+    \For{$step \leftarrow 1$ \KwTo $max\_steps$}{
+        
+        Choose action $a$ using epsilon-greedy policy :
+        \[
+        a \leftarrow
+        \begin{cases}
+            \arg\max_{a'} Q[state_{idx}, a'] & \text{with probability } 1 - \epsilon \\
+            \text{random valid action} & \text{with probability } \epsilon
+        \end{cases}
+        \]
+        
+        Take action : $(next_{state_{cont}}, r, done, info) \leftarrow env.step(a)$\;
+        
+        Discretize next state : $next_{state_{disc}} \leftarrow discretize(next_{state_{cont}}, bins)$\;
+        
+        Convert to index : $next_{state_{idx}} \leftarrow state\_to\_index(next_{state_{disc}}, bins)$\;
+        
+        Update Q-value :$Q[state_{idx}, a] \leftarrow Q[state_{idx}, a] + \alpha \left( r + \gamma \max_{a'} Q[next_{state_{idx}}, a'] - Q[state_{idx}, a] \right)$\;
+        
+        $state_{idx} \leftarrow next_{state_{idx}}$\;
+        
+        \If{$done$}{
+            \textbf{break}\;
+        }
+    }
+}
+
+\Return $Q$
+\end{algorithm}
+
+\vfill
+
+\newpage
+
+\subsection{Deep Q-Learning Process}
+
+\ind To implement this method, we will use the same Q-Learning algorithm object and change during the training to a Neural Network. As a first example we will use a MLP.
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=2.5cm,
+    box/.style={
+        draw,
+        rounded corners,
+        minimum width=2.5cm,
+        minimum height=1cm,
+        align=center,
+        font=\small,
+        fill=blue!10
+    },
+    arrow/.style={
+        -{Stealth[length=2mm]},
+        thick
+    }
+]
+
+% Nodes
+\node[box] (state) {State};
+\node[box, right=of state] (dqn) {DeepQ*Learning};
+\node[box, above right=1.5cm and 2.5cm of dqn] (sell) {Sell};
+\node[box, right=of dqn] (hold) {Hold};
+\node[box, below right=1.5cm and 2.5cm of dqn] (buy) {Buy};
+
+% Connectors and Labels
+\coordinate (connect) at ($(dqn)!0.5!(hold)$);
+\draw[arrow] (state) -- (dqn.west);
+\draw[arrow] (connect) |- (sell);
+\draw[arrow] (connect) |- (buy);
+\draw[arrow] (dqn.east) -- (hold);
+
+\end{tikzpicture}
+\end{center}
+
+\subsection{MLP layer}
+
+\ind The Multi-Layer Perceptron (MLP) layer serves as the core of the neural network, responsible for learning and transforming input data through a series of connected, dense layers. It is composed of multiple fully-connected layers, each followed by a non-linear activation function. This non-linearity is crucial as it allows the network to model complex, non-linear relationships in the data that a simple linear model could not capture.\\
+
+\ind The \texttt{MLP} class is defined as a PyTorch module, which is a standard approach for building neural network components. The constructor, \texttt{\_\_init\_\_}, initializes the network's architecture. It takes three key arguments: \texttt{input\_dim} (the dimensionality of the input data), \texttt{output\_dim} (the number of output units), and \texttt{hidden\_dims} (a tuple specifying the number of units in each hidden layer, which defaults to \texttt{(128, 128)}). The implementation uses a loop to dynamically build the hidden layers. For each dimension specified in \texttt{hidden\_dims}, it adds a \texttt{nn.Linear} layer (a fully-connected layer) followed by a \texttt{nn.ReLU} activation function. The Rectified Linear Unit (ReLU) is chosen for its computational efficiency and its effectiveness in preventing the vanishing gradient problem.\\
+
+\ind After the hidden layers are constructed, a final \texttt{nn.Linear} layer is added. This last layer maps the output of the final hidden layer to the desired \texttt{output\_dim} of the network. The entire sequence of layers is then encapsulated into a single \texttt{nn.Sequential} container, which ensures that the data will be passed through the layers in the correct order during the forward pass.\\
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l l|}
+        \toprule
+        \textbf{Layer} & \textbf{Type}\\
+        \midrule
+        \texttt{nn.Linear} & Linear Layer \\
+        \texttt{nn.ReLU} & Activation Function \\
+        \texttt{nn.Sequential} & Container \\
+        \bottomrule
+    \end{tabular}
+    \caption{Explanation of the MLP layers}
+    \label{tab:mlp_layers}
+\end{table}
+
+\newpage
+
+
+\ind After a 2-hour training period, the model's performance was evaluated on a test dataset. The results are visualized in the following plot :
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/MLP_result/QLearning_BTC-USD_2014.png}
+    \caption{Performance of the Q-Learning Model on a BTC-USD test set}
+    \label{fig:performance_plot}
+\end{figure}
+
+\ind The plot demonstrates that the model was able to generate positive returns, indicating a degree of success in the training. However, it is critical to note that this test was conducted on data from an overall uptrend market. This suggests the model's profitability may be a result of the market's general direction rather than its ability to make strategic decisions in both bullish and bearish conditions.\\
+
+\ind A closer inspection of the training log and the trading history reveals that the model made a significant number of "illegal moves." These unauthorized actions, which violate the predefined trading constraints or rules of the environment, are a clear indication of a failure in the model's policy and training process. This result suggests that while the model found a way to profit, it did so by exploiting an oversight in the environment or by not correctly learning the full set of trading rules. Further work is required to correct these behaviors and ensure the model operates within the defined constraints, leading to a more robust and generalizable trading policy.\\
+
+
+\ind To further analyze the model's performance across different market conditions, we present additional trading simulations on various stock datasets :
+
+\vfill
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/MLP_result/QLearning_AAPL_2010.png}
+    \caption{Performance on Apple (AAPL) data from 2010.}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\begin{figure}[h]
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../img/MLP_result/QLearning_ATOS_2017.png}
+        \caption{Performance on ATOS data from 2017.}
+        \label{fig:performance_atos}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../img/MLP_result/QLearning_O_2016.png}
+        \caption{Performance on Realty Income (O) data from 2016.}
+        \label{fig:performance_o}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../img/MLP_result/QLearning_RNO_2016.png}
+        \caption{Performance on Renault (RNO) data from 2016.}
+        \label{fig:performance_rno}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../img/MLP_result/QLearning_TSLA_2019.png}
+        \caption{Performance on Tesla (TSLA) data from 2019.}
+        \label{fig:performance_tsla}
+    \end{subfigure}
+
+    \caption{Model performance across various market conditions.}
+    \label{fig:performance_plots_all}
+\end{figure}
+
+\ind The plots demonstrate that the model was able to generate positive returns, indicating a degree of success in the training. However, it is critical to note that the test on the BTC-USD data was conducted on an overall uptrend market. This suggests the model's profitability may be a result of the market's general direction rather than its ability to make strategic decisions in both bullish and bearish conditions.\\
+
+\noindent A closer inspection of the training log and the trading history reveals that the model made a significant number of "illegal moves." These unauthorized actions, which violate the predefined trading constraints or rules of the environment, are a clear indication of a failure in the model's policy and training process. This result suggests that while the model found a way to profit, it did so by exploiting an oversight in the environment or by not correctly learning the full set of trading rules. Further work is required to correct these behaviors and ensure the model operates within the defined constraints, leading to a more robust and generalizable trading policy.
+
+
+\subsection{Decision Transformer Layer}
+
+\ind Unlike a traditional Multi-Layer Perceptron (MLP) that processes a single state at a time, the DecisionTransformerQ layer is designed to handle sequential data, leveraging the powerful architecture of a transformer. This approach frames reinforcement learning as a sequence modeling problem, where the model learns to predict future actions based on a history of past states and desired returns.\\
+
+\noindent The \texttt{DecisionTransformerQ} class is built upon a pre-trained transformer model from Hugging Face's library, which serves as the core `backbone`. The constructor, \texttt{\_\_init\_\_}, initializes a configuration for the transformer and loads the corresponding model (`DecisionTransformerGPT2Model`). This approach allows the network to benefit from the pre-trained weights, which are already effective at capturing complex patterns in sequential data.\\
+
+\noindent Before the input is fed into the transformer, it passes through a `self.input\_proj` linear layer. This layer's purpose is to project the raw input data, which has a dimensionality of \texttt{input\_dim}, into an embedding space that matches the transformer's hidden size. This ensures the input is correctly formatted for the transformer architecture.\\
+
+\noindent The \texttt{forward} method outlines the data flow. First, it ensures the input tensor \texttt{x} is in the correct shape for the transformer (a 3D tensor representing a batch, sequence of steps, and features). The input is then passed to the `self.input\_proj` layer for projection. The core of the computation happens when the projected data is fed into the transformer `backbone`. The transformer processes the entire sequence and its output's `last\_hidden\_state` is used. This final hidden state is a rich representation that has attended to the entire sequence history, making it ideal for the final decision. Finally, the `self.q\_head` linear layer takes this comprehensive representation and projects it to the desired \texttt{output\_dim}, providing the predicted Q-values.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l l|}
+        \toprule
+        \textbf{Layer} & \textbf{Type} \\
+        \midrule
+        \texttt{DecisionTransformerGPT2Model} & Transformer Backbone \\
+        \texttt{nn.Linear} (Input) & Linear Layer \\
+        \texttt{nn.Linear} (Q-Head) & Linear Layer \\
+        \bottomrule
+    \end{tabular}
+    \caption{Explanation of the Decision Transformer layers}
+    \label{tab:decision_transformer_layers}
+\end{table}
+
+
+\ind After a 4-hour training period, the model's performance was evaluated on a test dataset. The results are visualized in the following plot:
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/DeepQLearning_O_2016.png}
+    \caption{Performance of the Deep Q-Learning Model on Realty Income (O) data from 2016.}
+    \label{fig:deep_q_performance}
+\end{figure}
+
+\ind This model achieved its best results on the Realty Income (O) stock during both training and testing. While the model was able to generate positive returns, further analysis is required because the stock's volatility is high due to a large number of trades. The next step will be to add broker fees to the model to limit the number of trades and make the results more representative of real-world trading conditions.\\
 
 %\newpage
 
