@@ -12,7 +12,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from transformers import AutoModel, AutoConfig
 from transformers import DecisionTransformerConfig, DecisionTransformerGPT2Model
 
 class ModelRL:
@@ -29,7 +28,7 @@ class ModelRL:
             print("Number of features:", self.state_space)
             print("\nAction Space:", self.env.action_space.n)
             print("Sample action:", self.env.action_space.sample())
-            print('============================================\n')
+            print('==============================================\n')
 
 
     def __bar_graph(self, label, count, max_count):
@@ -64,7 +63,7 @@ class ModelRL:
 
         df_train, df_test = self.split_data(df, train_size)
 
-        # Now returns actions, prices, dates, and equity curve directly
+        # Now returns actions, prices, dates and equity curve directly
         actions_train, prices_train, dates_train, equity_train = self.get_actions_and_prices(model, df_train)
         actions_test, prices_test, dates_test, equity_test = self.get_actions_and_prices(model, df_test, initial_cash=equity_train[-1])
 
@@ -304,7 +303,7 @@ class DecisionTransformerQ(nn.Module):
         super().__init__()
         # Load config for hidden size, layers, etc.
         config = DecisionTransformerConfig.from_pretrained(model_name)
-        self.backbone = DecisionTransformerGPT2Model(config)  # <-- raw transformer (no embed_state)
+        self.backbone = DecisionTransformerGPT2Model(config)
 
         # Our own projection
         self.input_proj = nn.Linear(input_dim, config.hidden_size)
@@ -336,7 +335,7 @@ class DeepQLearning(ModelRL):
         self.state_space = env.observation_space.shape[0]
         self.action_space = env.action_space.n
 
-        # Transformer input is per-step state vector (not flattened!)
+        # Transformer input is per-step state vector
         input_dim = self.state_space
         output_dim = self.action_space
 
@@ -479,7 +478,7 @@ class DeepQLearning(ModelRL):
 if __name__ == "__main__":
     from Environment import TradingEnv, DataLoader
 
-    df = DataLoader().read("data/General/O_2016_2024.csv")
+    df = DataLoader().read("data/General/AAPL_2010_2024.csv")
     env = TradingEnv(df)
 
     model = DeepQLearning(env, log=True)
@@ -494,11 +493,11 @@ if __name__ == "__main__":
 
     # Save
     torch.save(policy_net.state_dict(), "transformer_policy_net.pth")
-    
+
 
     # Later, to load
     model_loaded = DeepQLearning(env)
     model_loaded.policy_net.load_state_dict(torch.load("transformer_policy_net.pth"))
     model_loaded.policy_net.eval()
 
-    model_loaded.plot(df, model = model_loaded.policy_net, name="O", save=True)
+    model_loaded.plot(df, model = model_loaded.policy_net, name="AAPL", save=True)
