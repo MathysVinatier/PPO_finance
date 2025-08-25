@@ -77,7 +77,7 @@ class DataLoader:
 
 
 class TradingEnv(gym.Env):
-    def __init__(self, df):
+    def __init__(self, df, broker_fee=False, share = 1):
         super(TradingEnv, self).__init__()
 
         self.df = df.reset_index()
@@ -87,6 +87,11 @@ class TradingEnv(gym.Env):
         self.balance = self.initial_balance
         self.position = 0  # 0 = flat, 1 = holding
         self.last_action = 0  # Track last valid action (0 = hold, 1 = buy, 2 = sell)
+        self.share = share
+        if broker_fee :
+            self.broker_fee = 0.1 # commission percentage
+        else :
+            self.broker_fee = 0
 
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(5,), dtype=np.float32)
         self.action_space = spaces.Discrete(3)  # 0 = Hold, 1 = Buy, 2 = Sell
@@ -118,25 +123,24 @@ class TradingEnv(gym.Env):
 
         price = self.df.iloc[self.current_step]["Close"]
         prev_portfolio_value = self.balance + self.position * price
-        penalty = 0
+        commission = self.broker_fee*price
 
-        # Enforce legality
         if action == 1:  # BUY
             if self.position == 0:
-                self.balance -= price
+                self.balance += (-price - commission)*self.share
                 self.position = 1
                 self.last_action = 1
             else:
-                penalty = -5  # stronger penalty for redundant buy
-                action = 0    # force to HOLD
+                action = 0
         elif action == 2:  # SELL
             if self.position == 1:
-                self.balance += price
+                self.balance += (price - commission)*self.share
                 self.position = 0
                 self.last_action = 2
             else:
-                penalty = -5  # stronger penalty for redundant sell
-                action = 0    # force to HOLD
+                action = 0
+
+        #print(f"{price} - {commission} -> {self.balance}")
 
         # Advance time
         self.current_step += 1
@@ -148,8 +152,8 @@ class TradingEnv(gym.Env):
         new_price = self.df.iloc[self.current_step]["Close"]
         current_portfolio_value = self.balance + self.position * new_price
 
-        # Reward = change in portfolio value + penalty
-        reward = (current_portfolio_value - prev_portfolio_value) + penalty
+        reward_raw = current_portfolio_value
+        reward = np.log(reward_raw)
 
         return self._get_obs(), reward, done, {
             "portfolio_value": current_portfolio_value,
@@ -181,7 +185,7 @@ if __name__ == '__main__':
     }
 
     def get_next_step(env, log=True):
-        action = env.sample_valid_action()
+        action = np.random.choice([0, 1, 2], p=[0.9, 0.05, 0.05])
         next_obs, reward, done, info = env.step(action)
 
         if log:
@@ -194,10 +198,10 @@ if __name__ == '__main__':
         return info, reward
 
     data_loader = DataLoader()
-    df = data_loader.read('AAPL_2020_2023.csv')  # This is the DataFrame to use
+    df = data_loader.read('data/General/AAPL_2010_2024.csv')  # This is the DataFrame to use
 
     # Step 2: Initialize the environment
-    env = TradingEnv(df)
+    env = TradingEnv(df, broker_fee=True)
     obs = env.reset()
     print("Initial observation:", obs)
 
@@ -215,7 +219,7 @@ if __name__ == '__main__':
         list_action.append(current_info['action'])
         list_portfolio.append(current_info['portfolio_value'])
         list_reward.append(current_reward)
-    
+
     array_action = np.array(list_action)
     array_x_buy = np.where(array_action==1)
     array_y_buy = list_close[array_x_buy]

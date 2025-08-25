@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import os
 
 import shutil
 from tqdm import tqdm
@@ -13,6 +14,11 @@ import torch.nn as nn
 import torch.optim as optim
 
 from transformers import DecisionTransformerConfig, DecisionTransformerGPT2Model
+
+if __name__ == "__main__":
+    from Models import MLP
+else:
+    from utils.Models import MLP
 
 class ModelRL:
     def __init__(self, env, log=True):
@@ -64,8 +70,8 @@ class ModelRL:
         df_train, df_test = self.split_data(df, train_size)
 
         # Now returns actions, prices, dates and equity curve directly
-        actions_train, prices_train, dates_train, equity_train = self.get_actions_and_prices(model, df_train)
-        actions_test, prices_test, dates_test, equity_test = self.get_actions_and_prices(model, df_test, initial_cash=equity_train[-1])
+        actions_train, prices_train, dates_train, equity_train, reward_train = self.get_actions_and_prices(model, df_train)
+        actions_test, prices_test, dates_test, equity_test, reward_test = self.get_actions_and_prices(model, df_test, initial_cash=equity_train[-1])
 
         # --- Subplot 1 : Price + Buy/Sell ---
         plt.subplot(2, 1, 1)
@@ -126,10 +132,24 @@ class ModelRL:
         plt.legend()
         plt.grid(True)
         plt.xticks(rotation=45)
-
         plt.tight_layout()
+
         if save:
             plt.savefig(f'./{self.__class__.__name__}_{name}_{df.index[0][:4]}')
+
+        plt.figure(figsize=(14, 6))
+
+        plt.plot(x_train, reward_train, label="Reward Train", linewidth=1)
+        plt.plot(x_test, reward_test, label="Reward Test", linewidth=1)
+
+        plt.title("Reward Evolution")
+        plt.xlabel("Time Step")
+        plt.ylabel("Reward")
+        plt.legend()
+        plt.grid(True)
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+
         if show:
             plt.show()
 
@@ -223,7 +243,7 @@ class QLearning(ModelRL):
         state_disc = self.discretize_state(state_cont, bins)
         state_idx = self.state_to_index(state_disc, bins)
 
-        actions_taken, prices, df_indices, equity_curve = [], [], [], []
+        actions_taken, prices, df_indices, equity_curve, reward_list = [], [], [], [], []
         cash, stock = initial_cash, 0
         done, step = False, 0
 
@@ -235,7 +255,8 @@ class QLearning(ModelRL):
             if action not in self.env.get_valid_actions():
                 action = 0
 
-            next_obs, _, done, _ = self.env.step(action)
+            next_obs, reward, done, _ = self.env.step(action)
+            reward_list.append(reward)
             price = df["Close"].iloc[self.env.current_step - 1]
 
             actions_taken.append((step, action))
@@ -254,7 +275,7 @@ class QLearning(ModelRL):
             state_idx = self.state_to_index(state_disc, bins)
             step += 1
 
-        return actions_taken, prices, df_indices, equity_curve
+        return actions_taken, prices, df_indices, equity_curve, reward_list
 
 
 class ReplayBuffer:
@@ -281,22 +302,6 @@ class ReplayBuffer:
 
     def __len__(self):
         return len(self.buffer)
-
-
-class MLP(nn.Module):
-    def __init__(self, input_dim, output_dim, hidden_dims=(128, 128)):
-        super().__init__()
-        layers = []
-        last_dim = input_dim
-        for h in hidden_dims:
-            layers += [nn.Linear(last_dim, h), nn.ReLU()]
-            last_dim = h
-        layers += [nn.Linear(last_dim, output_dim)]
-        self.net = nn.Sequential(*layers)
-
-    def forward(self, x):
-        return self.net(x)
-    
 
 class DecisionTransformerQ(nn.Module):
     def __init__(self, input_dim, output_dim, model_name="edbeeching/decision-transformer-gym-hopper-medium"):
@@ -444,7 +449,7 @@ class DeepQLearning(ModelRL):
         history.append(np.asarray(state_cont, dtype=np.float32))
         state_vec = self._stack_state(history)
 
-        actions_taken, prices, df_indices, equity_curve = [], [], [], []
+        actions_taken, prices, df_indices, equity_curve, reward_list = [], [], [], [], []
         cash, stock, step = initial_cash, 0, 0
         done = False
         while not done:
@@ -454,6 +459,7 @@ class DeepQLearning(ModelRL):
             q = policy_net(state_t)[0].cpu().numpy()
             action = int(np.argmax(q))
             next_obs, reward, done, info = self.env.step(action)
+            reward_list.append(reward)
             price = df["Close"].iloc[self.env.current_step - 1]
 
             actions_taken.append((step, action))
@@ -473,31 +479,31 @@ class DeepQLearning(ModelRL):
             state_vec = self._stack_state(history)
             step += 1
 
-        return actions_taken, prices, df_indices, equity_curve
+        return actions_taken, prices, df_indices, equity_curve, reward_list
 
 if __name__ == "__main__":
     from Environment import TradingEnv, DataLoader
 
-    df = DataLoader().read("data/General/AAPL_2010_2024.csv")
+    df = DataLoader().read("data/General/TSLA_2019_2024.csv")
     env = TradingEnv(df)
 
     model = DeepQLearning(env, log=True)
-    
+    '''
     policy_net = model.train(
-        df=df,                 # dataframe
-        train_size=0.8,        # 80% train split
-        n_training_episodes=500, # number of episodes
+        df=df,
+        train_size=0.8,
+        n_training_episodes=500,
         learning_rate=1e-3,
         gamma=0.99
     )
 
     # Save
     torch.save(policy_net.state_dict(), "transformer_policy_net.pth")
-
+    '''
 
     # Later, to load
     model_loaded = DeepQLearning(env)
     model_loaded.policy_net.load_state_dict(torch.load("transformer_policy_net.pth"))
     model_loaded.policy_net.eval()
 
-    model_loaded.plot(df, model = model_loaded.policy_net, name="AAPL", save=True)
+    model_loaded.plot(df, model = model_loaded.policy_net, name="TSLA", save=True)
