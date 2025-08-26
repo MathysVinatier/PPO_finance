@@ -2,6 +2,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage[myheadings]{fullpage}
 \DeclareUnicodeCharacter{0301}{\hspace{-1ex}\'{ }}
+
+\usepackage{silence}
+
 % Package for headers 
 \usepackage{fancyhdr}
 \usepackage{lastpage}
@@ -43,6 +46,7 @@
 %% Language and font encodings
 \usepackage[english]{babel}
 \usepackage{csquotes}
+\usepackage{indentfirst}
 
 %Tabular
 \usepackage{tabularx}
@@ -68,6 +72,7 @@
 \setcounter{tocdepth}{0}        % Only show chapters in the main ToC
 \setcounter{minitocdepth}{2}    % Show sections and subsections in mini ToCs
 \dominitoc                      % Enable mini ToCs
+\WarningFilter{minitoc(hints)}{W0024}
 
 \definecolor{terminalbg}{RGB}{0,0,0}
 \definecolor{terminalfg}{RGB}{255, 255, 255} 
@@ -874,7 +879,6 @@ Initialize Q-table
 \indent The Multi-Layer Perceptron (MLP) layer serves as the core of the neural network, responsible for learning and transforming input data through a series of connected, dense layers. It is composed of multiple fully-connected layers, each followed by a non-linear activation function. This non-linearity is crucial as it allows the network to model complex, non-linear relationships in the data that a simple linear model could not capture.\par
 
 
-\ind After the hidden layers are constructed, a final \texttt{nn.Linear} layer is added. This last layer maps the output of the final hidden layer to the desired \texttt{output\_dim} of the network. The entire sequence of layers is then encapsulated into a single \texttt{nn.Sequential} container, which ensures that the data will be passed through the layers in the correct order during the forward pass.\\
 \indent The \texttt{MLP} class is defined as a PyTorch module, which is a standard approach for building neural network components. The constructor, \texttt{\_\_init\_\_}, initializes the network's architecture. It takes three key arguments: \texttt{input\_dim} (the dimensionality of the input data), \texttt{output\_dim} (the number of output units), and \texttt{hidden\_dims} (a tuple specifying the number of units in each hidden layer, which defaults to \texttt{(128, 128)}). The implementation uses a loop to dynamically build the hidden layers. For each dimension specified in \texttt{hidden\_dims}, it adds a \texttt{nn.Linear} layer (a fully-connected layer) followed by a \texttt{nn.ReLU} activation function. The Rectified Linear Unit (ReLU) is chosen for its computational efficiency and its effectiveness in preventing the vanishing gradient problem.\par
 
 \indent After the hidden layers are constructed, a final \texttt{nn.Linear} layer is added. This last layer maps the output of the final hidden layer to the desired \texttt{output\_dim} of the network. The entire sequence of layers is then encapsulated into a single \texttt{nn.Sequential} container, which ensures that the data will be passed through the layers in the correct order during the forward pass.\par
@@ -965,7 +969,55 @@ Initialize Q-table
 
 \noindent The \texttt{DecisionTransformerQ} class is built upon a pre-trained transformer model from Hugging Face's library, which serves as the core `backbone`. The constructor, \texttt{\_\_init\_\_}, initializes a configuration for the transformer and loads the corresponding model (`DecisionTransformerGPT2Model`). This approach allows the network to benefit from the pre-trained weights, which are already effective at capturing complex patterns in sequential data.\par
 
-\noindent Before the input is fed into the transformer, it passes through a `self.input\_proj` linear layer. This layer's purpose is to project the raw input data, which has a dimensionality of \texttt{input\_dim}, into an embedding space that matches the transformer's hidden size. This ensures the input is correctly formatted for the transformer architecture.\\
+\noindent Before the input is fed into the transformer, it passes through a `self.input\_proj` linear layer. This layer's purpose is to project the raw input data, which has a dimensionality of \texttt{input\_dim}, into an embedding space that matches the transformer's hidden size. This ensures the input is correctly formatted for the transformer architecture.\par
+
+\noindent The \texttt{forward} method outlines the data flow. First, it ensures the input tensor \texttt{x} is in the correct shape for the transformer (a 3D tensor representing a batch, sequence of steps, and features). The input is then passed to the `self.input\_proj` layer for projection. The core of the computation happens when the projected data is fed into the transformer `backbone`. The transformer processes the entire sequence and its output's `last\_hidden\_state` is used. This final hidden state is a rich representation that has attended to the entire sequence history, making it ideal for the final decision. Finally, the `self.q\_head` linear layer takes this comprehensive representation and projects it to the desired \texttt{output\_dim}, providing the predicted Q-values.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|l l|}
+        \toprule
+        \textbf{Layer} & \textbf{Type} \\
+        \midrule
+        \texttt{DecisionTransformerGPT2Model} & Transformer Backbone \\
+        \texttt{nn.Linear} (Input) & Linear Layer \\
+        \texttt{nn.Linear} (Q-Head) & Linear Layer \\
+        \bottomrule
+    \end{tabular}
+    \caption{Explanation of the Decision Transformer layers}
+\end{table}
+
+
+\indent After a 4-hour training period, the model's performance was evaluated on a test dataset. The results are visualized in the following plot:
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/GPT_transformer_results/DeepQLearning_O_2016_v2.png}
+    \caption{Performance of the Deep Q-Learning Model on Realty Income (O) data from 2016.}
+    \label{fig:deep_q_performance}
+\end{figure}
+
+\indent This model achieved its best results on the Realty Income (O) stock during both training and testing. While the model was able to generate positive returns, further analysis is required because the stock's volatility is high due to a large number of trades. The next step will be to add broker fees to the model to limit the number of trades and make the results more representative of real-world trading conditions.\par
+
+\newpage
+
+\chapter{Week 13}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+
+\section{Deep Q-Learning}
+\subsection{Decision Transformer Layer}
+
+\indent Unlike a traditional Multi-Layer Perceptron (MLP) that processes a single state at a time, the DecisionTransformerQ layer is designed to handle sequential data, leveraging the powerful architecture of a transformer. This approach frames reinforcement learning as a sequence modeling problem, where the model learns to predict future actions based on a history of past states and desired returns.\par
+
+\noindent The \texttt{DecisionTransformerQ} class is built upon a pre-trained transformer model from Hugging Face's library, which serves as the core `backbone`. The constructor, \texttt{\_\_init\_\_}, initializes a configuration for the transformer and loads the corresponding model (`DecisionTransformerGPT2Model`). This approach allows the network to benefit from the pre-trained weights, which are already effective at capturing complex patterns in sequential data.\par
+
+\noindent Before the input is fed into the transformer, it passes through a `self.input\_proj` linear layer. This layer's purpose is to project the raw input data, which has a dimensionality of \texttt{input\_dim}, into an embedding space that matches the transformer's hidden size. This ensures the input is correctly formatted for the transformer architecture.\par
 
 \noindent The \texttt{forward} method outlines the data flow. First, it ensures the input tensor \texttt{x} is in the correct shape for the transformer (a 3D tensor representing a batch, sequence of steps, and features). The input is then passed to the `self.input\_proj` layer for projection. The core of the computation happens when the projected data is fed into the transformer `backbone`. The transformer processes the entire sequence and its output's `last\_hidden\_state` is used. This final hidden state is a rich representation that has attended to the entire sequence history, making it ideal for the final decision. Finally, the `self.q\_head` linear layer takes this comprehensive representation and projects it to the desired \texttt{output\_dim}, providing the predicted Q-values.
 
@@ -984,17 +1036,368 @@ Initialize Q-table
     \label{tab:decision_transformer_layers}
 \end{table}
 
+\subsection{GPT2 Transformer description}
 
-\ind After a 4-hour training period, the model's performance was evaluated on a test dataset. The results are visualized in the following plot:
+\vspace{0.5cm}
 
+\begin{center}
+\begin{tikzpicture}[
+    scale=0.70,
+    transform shape,
+    node distance=0.5cm,
+    box/.style={
+        draw,
+        rounded corners,
+        minimum width=2.5cm,
+        minimum height=1cm,
+        align=center,
+        font=\small,
+        fill=blue!10
+    },
+    arrow/.style={
+        -{Stealth[length=2mm]},
+        thick
+    }
+]
+
+% Nodes
+\node[box, fill=blue!30] (input) {INPUT};
+\node[box, right=of input, scale=0.8] (embedding) {Embedding};
+\node[box, right=0.2cm of embedding, scale=0.8] (drop) {Drop Out};
+\node[box, right=of drop, fill=gray, scale=1.4] (attention) {GPT Attention};
+\node[box, right=of attention, scale = 0.8] (normalization1) {Normalization};
+\node[box, right=of normalization1, fill=gray, scale=1.4] (transformer) {GPT Transformer};
+\node[box, right=of transformer, scale=0.8] (normalization2) {Normalization};
+\node[box, right=of normalization2, fill=blue!30] (out) {OUTPUT};
+
+% Connectors and Labels
+\draw[arrow] (input) -- (embedding);
+\draw[arrow] (embedding) -- (drop);
+\draw[arrow] (drop) -- (attention);
+\draw[arrow] (attention) -- (normalization1);
+\draw[arrow] (normalization1) -- (transformer);
+\draw[arrow] (transformer) -- (normalization2);
+\draw[arrow] (normalization2) -- (out);
+
+\end{tikzpicture}
+\end{center}
+
+\noindent As we can see, the GPT2 transformer is a basic transformer, however the good performance of this particular transformer is that the model has been created using the GPT2 opensource transformer available on hugging face. Here are some results of the model on different stocks.
+
+\newpage
+
+\vfill
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.8\textwidth]{../img/DeepQLearning_O_2016.png}
-    \caption{Performance of the Deep Q-Learning Model on Realty Income (O) data from 2016.}
-    \label{fig:deep_q_performance}
+    \includegraphics[width=\textwidth]{../img/GPT_transformer_results/DeepQLearning_AAPL_2010.png}
+    \caption{Performance of the Transofrmer Model on Apple data from 2010.}
+\end{figure}
+\vfill
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/GPT_transformer_results/DeepQLearning_O_2016_v2.png}
+    \caption{Performance of the Transofrmer Model on Realty income data from 2016.}
+\end{figure}
+\vfill
+\newpage
+\vfill
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/GPT_transformer_results/DeepQLearning_renault_2016.png}
+    \caption{Performance of the Transofrmer Model on Renault data from 2016.}
+\end{figure}
+\vfill
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/GPT_transformer_results/DeepQLearning_TSLA_2019.png}
+    \caption{Performance of the Transofrmer Model on Tesla data from 2019.}
+\end{figure}
+\vfill
+
+\indent As we can see, there is a too many trades that are made during the training and testing part, this is an issue caused by the penalty of the model ; there is no penalty on the number of trade the bot will make, this suggest that we need to find a way to make the bot understand that a trade should be made wiser. For that we suggest to add the broker's commission for a buy or sell action. Let's take a 10\% commission which make the bot considering the number of trade made.
+
+\vfill
+
+\newpage
+
+\subsection{Result for QLearning (with commission)}
+
+\indent We changed the environment behavior to provide a 10 \% commission for each buy and sell movements. Also we changed the reward to provide only the difference between the initial wallet et the current portfolio so that the agent learn also on the market behavior directly without any outside penalties that could makes him learn false dynamic. The problem here could be that the agent does not learn about the rules of the set of action. For example, the issue here could be that the model do lot of illegals moves such as buying twice in a row, if that happen, we will change the reward back with penalties. Here are the results on the QLearning agent :
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.7\textwidth]{../img/expriment_on_commission/QLearning_AAPL_2010_commission.png}
+    \caption{Performance of the QLearning Model on Apple data from 2010 with commission}
 \end{figure}
 
-\ind This model achieved its best results on the Realty Income (O) stock during both training and testing. While the model was able to generate positive returns, further analysis is required because the stock's volatility is high due to a large number of trades. The next step will be to add broker fees to the model to limit the number of trades and make the results more representative of real-world trading conditions.\\
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.7\textwidth]{../img/expriment_on_commission/QLearning_BTC-USD_2014_commission.png}
+    \caption{Performance of the QLearning Model on Bitcoin data from 2014 with commission}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.7\textwidth]{../img/expriment_on_commission/QLearning_TSLA_2019_commission.png}
+    \caption{Performance of the QLearning Model on Tesla data from 2019 with commission}
+\end{figure}
+
+\noindent As we can see the number of trades reduced, however the performance is still poor since it is still following the trend of the actual stock. This last observation could be explained by the fact that QLearning is a basic Machine Learning algorithm.
+
+
+\subsection{Result for DeepQLearning - GPT Transformer (with commission)}
+
+\indent We did the same experiment on the transformer model. However this model takes a while to train, we could not have a lot of output results so we will analyze only two experiments :
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/expriment_on_commission/DeepQLearning_O_2016_commission.png}
+    \caption{Performance of the Transformer Model on Real income data from 2016 with commission}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/expriment_on_commission/DeepQLearning_TSLA_2019_commission.png}
+    \caption{Performance of the Transformer Model on Tesla data from 2019 with commission}
+\end{figure}
+
+\noindent As we can see the performance on the training part of Real income is really good, the agent seems to understand the dynamic of the stock as a comparison, the current market made 80\% profit on this period while our model made 98\%, which means that on the training part our model get very well the dynamic aspect of the market. However we can see the limitation of the model during the testing part where our model made -2\% and the current market lost 6\% which indicates that our model also outperform the market but made us lose money still.\par
+
+\noindent On another hand, on the Tesla market, the agent has completely been broke on his behaviour. The difference with the previous agent is that the environement is giving a reward based on the difference in between the initial wallet and the actual portfolio, which later in a report, is suggested as a better reward based for a trading bot using transformer. This could also be an issue from the transofrmer model itself (bad intergation of the model / bad purpose of the model), we will analyze this issue later.
+
+\newpage
+
+\section{Paper : Transformers in Reinforcement Learning : A survey}
+
+
+\indent Transformers have emerged as a dominant architecture in modern machine learning, revolutionizing natural language processing, computer vision, and a growing number of other domains. Their ability to model long-range dependencies, capture contextual information, and scale effectively has prompted increasing interest in applying them to reinforcement learning (RL). In RL, agents must learn sequential decision-making policies under uncertainty, a setting that aligns naturally with the sequence modeling capabilities of transformers. Over the past few years, researchers have proposed a variety of transformer-based methods for RL tasks, ranging from policy optimization and value estimation to model-based approaches.\par
+
+\noindent This survey, written in 2023 by Pranav Agarwal (École de Technologie Supérieure/Mila, Canada), Aamer Abdul Rahman (École de Technologie Supérieure/Mila, Canada), Pierre-Luc St-Charles (Mila, Applied ML Research Team, Canada), Simon J.D. Prince (University of Bath, United Kingdom) and Samira Ebrahimi Kahou (École de Technologie Supérieure/Mila/CIFAR, Canada), provides a comprehensive overview of this rapidly developing research area. The paper reviews how transformers have been adapted for reinforcement learning, highlights emerging architectures and methodologies, and categorizes them according to their applications. It also discusses empirical results, key challenges such as scalability and sample efficiency, and potential future research directions.\par
+
+\noindent By situating transformer-based RL within the broader landscape of sequence modeling and decision-making, this survey contributes to a deeper understanding of both the opportunities and limitations of applying transformers in reinforcement learning. It serves as a reference point for researchers and practitioners seeking to build on the foundations of this promising intersection of fields. This paper talk about the transformer on many different fields but the interesting part for us is the trading part.
+
+\subsection{Transformer RL in Trading}
+
+\indent Portfolio optimization aims to balance returns and risks when selecting assets but this is difficult due to market volatility and external factors. Reinforcement learning (RL) has been explored to automate trading decisions by learning from historical market data, such as price trends, volumes and sentiment.\par
+
+\noindent Transformers are particularly suited for this task because they can capture both sequential patterns in asset prices and correlations between different assets. It has been introduced that the Relation-Aware Transformer (RAT) for portfolio selection, where the encoder extracts sequential and relational features, and the decoder makes trading decisions (including leverage and short sales). The approach was evaluated on real-world stock and cryptocurrency data, showing competitive performance compared to state-of-the-art portfolio selection methods. The given model would is described as an encoder-decoder transformer like so :
+
+\vspace{1cm}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[
+        scale=0.9,
+        transform shape,
+        node distance=0.5cm,
+        box/.style={
+            draw,
+            rounded corners,
+            minimum width=2.5cm,
+            minimum height=1cm,
+            align=center,
+            font=\small,
+            fill=blue!10
+            },
+            arrow/.style={
+                -{Stealth[length=2mm]},
+        thick
+        }
+        ]
+        
+        % Nodes
+        \node[box, fill=blue!30] (input) {INPUT};
+        \node[box, right=of input, scale=0.8] (embedding) {Embedding};
+        \node[box, right=of embedding, fill=gray, scale=1.4] (encoder) {Encoder};
+        \node[box, right=of encoder, fill=gray, scale=1.4] (decoder) {Decoder};
+        \node[box, right=of decoder, scale=0.8] (normalization) {Normalization};
+        \node[box, right=of normalization, fill=blue!30] (out) {OUTPUT};
+        
+        % Connectors and Labels
+        \draw[arrow] (input) -- (embedding);
+        \draw[arrow] (embedding) -- (encoder);
+        \draw[arrow] (encoder) -- (decoder);
+        \draw[arrow] (decoder) -- (normalization);
+        \draw[arrow] (normalization) -- (out);
+        
+    \end{tikzpicture}
+    \caption{Encoder-Decoder Stack of the transofrmer model}
+\end{figure}
+
+\newpage
+
+\noindent Let us now dive into the encoder stack to understand how these sequential and relational features are extracted and represented for reinforcement learning-based portfolio optimization.
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+    \centering
+    \begin{tikzpicture}[
+        scale=1,
+        transform shape,
+        node distance=0.5cm,
+        box/.style={
+            draw,
+            rounded corners,
+            minimum width=2.5cm,
+            minimum height=1cm,
+            align=center,
+            font=\small,
+            fill=blue!10
+            },
+            arrow/.style={-{Stealth[length=2mm]}, thick},
+            line/.style={thick}
+            ]
+
+        % Nodes
+        \node[box, fill=blue!30] (input) {INPUT};
+        \node[coordinate, above=of input] (junction1) {} ;
+        \node[box, above=of junction1,fill=gray ,scale=1.4] (mha) {Multi-Head\\ Attention};
+        \node[box, above=of mha, scale=0.9] (AddNorm1) {Add \& Norm};
+        \node[coordinate, above=of AddNorm1] (junction2) {} ;
+        \node[box, above=of junction2] (ff) {Feed Forward} ;
+        \node[box, above=of ff] (AddNorm2) {Add \& Norm} ;
+        \node[box, above=of AddNorm2, fill=blue!30] (output) {OUTPUT};
+
+        % Connectors
+        \draw[line] (input.north) -- (junction1);
+        \draw[arrow] (junction1) -- (mha);
+        \draw[arrow] (mha) -- (AddNorm1);
+        \draw[arrow] (junction1.west) -- ++(-2.5, 0) |- (AddNorm1.west);
+        \draw[arrow] (AddNorm1) -- (junction2);
+        \draw[line] (junction2) -- (ff);
+        \draw[arrow] (ff) -- (AddNorm2);
+        \draw[arrow] (junction2.west) -- ++(-2.5, 0) |- (AddNorm2.west);
+        \draw[arrow] (AddNorm2) -- (output);
+
+\end{tikzpicture}
+\caption{Encoder stack}
+\vspace{-.8cm}
+\end{wrapfigure}
+
+\indent In the context of trading and portfolio optimization, the encoder plays a crucial role in capturing the complex patterns present in historical market data. It processes sequences of asset prices, trading volumes and other market indicators to model both short-term trends and long-term dependencies. By leveraging the self-attention mechanism inherent to transformers, the encoder can identify important relationships not only within a single asset's time series but also across multiple assets, effectively capturing correlations that are critical for informed trading decisions.\par
+
+\noindent In the context of a transformer model, we are using the Attention architecture to capture temporal dependencies and correlations in sequential trading data. The attention mechanism allows the model to weigh the importance of past states and actions when predicting future trading decisions, which is particularly useful in financial markets where certain events or trends can have long-term effects. The Multi-Head Attention (MHA) layer enables the model to simultaneously focus on different aspects of the input sequences, such as price trends, trading volumes and market sentiment. By splitting the attention into multiple heads, the network can learn diverse representations of the data, improving its ability to capture complex relationships between assets.\par
+
+\noindent Let's now describe the two main component of these layers which are the Multi-Head Attention layer and the Feed Forward layer. We will also describe the basis of original Attention layer that is included into the Multi-Head Attention :
+
+\begin{figure}[ht]
+    \centering
+    \begin{tikzpicture}[
+        scale=0.7,
+        transform shape,
+        node distance=0.5cm,
+        box/.style={
+            draw,
+            rounded corners,
+            minimum width=5cm,
+            minimum height=1cm,
+            align=center,
+            font=\small,
+            fill=blue!10
+            },
+            arrow/.style={-{Stealth[length=2mm]}, thick},
+            line/.style={thick}
+            ]
+
+        % Nodes
+        \node[box, fill=blue!30, minimum width=12cm] (input) {INPUT};
+
+        %Attention head #1
+        \node[box, above=2cm of input.west] (linear1) {Linear};
+        \node[box, above=of linear1, fill=orange!80, scale=1.4] (attention1) {\\Attention \#1\\ \\ $softmax\left( \frac{QK^T}{\sqrt{d_k}} \right)V$};
+
+        %Dot x8
+        \node[above=4cm of input, scale=1.4] (dots) {$\cdots\vspace{3mm}\times 8$};
+
+        %Attention head #8
+        \node[box, above=2cm of input.east] (linear8) {Linear};
+        \node[box, above=of linear8, fill=orange!80, scale=1.4] (attention8) {\\Attention \#8\\ \\ $softmax\left( \frac{QK^T}{\sqrt{d_k}} \right)V$};
+
+        % Output
+        \node[box, above=7cm of input, minimum width=12cm] (concat) {Concat};
+        \node[box, above=of concat] (linear3) {Linear};
+        \node[box, above=of linear3, fill=blue!30] (output) {OUTPUT};
+
+        % ========================================================================================
+
+        % Connectors
+        \draw[arrow]  ([xshift=-20mm]input.north)  -- ++(0, 0.5) -|  (linear1) ;
+        \draw[dashed] (input.north)  --   ([yshift=-10mm]dots.south) ;
+        \draw[arrow]  ([xshift=20mm]input.north)  -- ++(0, 0.5) -|  (linear8) ;
+    
+        %Attention head #1
+        \draw[arrow] ([xshift=5mm]linear1.north west)  --  ([xshift=15mm]attention1.south west) node[midway, right] {$Q_1$};
+        \draw[arrow] (linear1.north)                   --  (attention1) node[midway, right] {$H_1$};
+        \draw[arrow] ([xshift=-5mm]linear1.north east) --  ([xshift=-15mm]attention1.south east) node[midway, right] {$V_1$};
+        \draw[arrow] (attention1.north)                -- ++(0, 0.5) -|  ([xshift=20mm]concat.south west) ;
+    
+        %Dot x8
+        \draw[dashed] ([yshift=+10mm]dots.north)  --   (concat) ;
+    
+        %Attention head #2
+        \draw[arrow] ([xshift=5mm]linear8.north west)  --  ([xshift=15mm]attention8.south west) node[midway, right] {$Q_8$};
+        \draw[arrow] (linear8.north)                   --  (attention8) node[midway, right] {$H_8$};
+        \draw[arrow] ([xshift=-5mm]linear8.north east) --  ([xshift=-15mm]attention8.south east) node[midway, right] {$V_8$};
+        \draw[arrow] (attention8.north)                -- ++(0, 0.5) -|  ([xshift=-20mm]concat.south east) ;
+
+
+        \draw[arrow] (concat)                          --  (linear3) ;
+        \draw[arrow] (linear3)                         --  (output) ;
+
+\end{tikzpicture}
+\caption{Multi-Head Attention stack (x8 heads)}
+\vspace{-.8cm}
+\end{figure}
+
+\newpage
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[
+        scale=1,
+        transform shape,
+        node distance=0.5cm,
+        box/.style={
+            draw,
+            rounded corners,
+            minimum width=3cm,
+            minimum height=1cm,
+            align=center,
+            font=\small,
+            fill=blue!10
+            },
+            arrow/.style={-{Stealth[length=2mm]}, thick},
+            line/.style={thick}
+            ]
+
+        % Nodes
+        \node[box, fill=blue!30] (input) {INPUT};
+        \node[box, above=of input.north, minimum width=5cm] (linear) {Linear};
+        \node[box, above=of linear.north, anchor=south west, minimum width=1cm] (q) at (linear.north west) {Q};
+        \node[box, above=of linear.north, minimum width = 1cm]      (k) {K};
+        \node[box, above=of linear.north, anchor=south east, minimum width=1cm] (v) at (linear.north east) {V};
+        \node[box, above=of q] (matmul) at ($(q)!0.5!(k) + (0,0.5)$) {matmul};
+        \node[box, above=of matmul] (scale) {scale};
+        \node[box, above=of scale] (softmax) {softmax};
+        \node[box, above=8cm of input, minimum width=5cm] (matmulOut) {matmul};
+        \node[box, above=of matmulOut, fill=blue!30] (output) {OUTPUT};
+
+        % Connectors
+        \draw[arrow] (input.north) -- (linear);
+        \draw[arrow] ([xshift=5mm]linear.north west)  -- (q);
+        \draw[arrow] (linear.north) -- (k);
+        \draw[arrow] ([xshift=-5mm]linear.north east) -- (v);
+        \draw[arrow] (q.north)     -- ([xshift=5mm]matmul.south west);
+        \draw[arrow] (k.north)     -- ([xshift=-5mm]matmul.south east);
+        \draw[arrow] (matmul)      -- (scale);
+        \draw[arrow] (scale)       -- (softmax);
+        \draw[arrow] (softmax)     -- ([xshift=-10mm]matmulOut.south);
+        \draw[arrow] (v)           -- ([xshift=-5mm]matmulOut.south east);
+        \draw[arrow] (matmulOut)   -- (output);
+
+    \end{tikzpicture}
+    \caption{Attention stack}
+\end{figure}
+
 
 %\newpage
 
