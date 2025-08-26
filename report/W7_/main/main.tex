@@ -102,9 +102,9 @@
     \end{center}
 }
 
-\newcommand{\ind}{
-    \noindent\hspace{1cm}
-}
+
+\setlength{\parskip}{10pt}
+\setlength{\parindent}{1cm}
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -214,13 +214,13 @@ After enough training episodes, the Q-table converges to the optimal Q-function,
 
 \section{Implementation Progress and Experiments}
 
-\ind This week was dedicated to the initial implementation and experimentation phase of the project, focusing primarily on the Proximal Policy Optimization (PPO) basis algorithms. Using the Hugging Face classes, we developed a prototype with greedy policy agent and integrated it into a custom trading environment inspired by the concepts discussed in previous weeks.
+\indent This week was dedicated to the initial implementation and experimentation phase of the project, focusing primarily on the Proximal Policy Optimization (PPO) basis algorithms. Using the Hugging Face classes, we developed a prototype with greedy policy agent and integrated it into a custom trading environment inspired by the concepts discussed in previous weeks.
 
 \vspace{0.3cm}
 
 \subsection{Environment Setup}
 
-\ind The custom environment was designed to simulate stock market trading dynamics with the following key elements :
+\indent The custom environment was designed to simulate stock market trading dynamics with the following key elements :
 
 \begin{itemize}
 \item \textbf{State representation} including historical price data, technical indicators (moving averages, RSI) and Kalman filtered signals.
@@ -363,13 +363,13 @@ Initialize Q-table
 
 \newpage
 
-\ind In the context of Q-learning for trading environments, bins are used to discretize the continuous state space into a finite number of discrete states. This discretization is essential because the Q-table requires a finite and manageable number of states to store and update the expected rewards for each state-action pair. Continuous variables, such as stock prices or technical indicators, have infinite possible values, which makes it impractical to represent them directly in a Q-table. To address this, we divide the range of each continuous feature into a fixed number of intervals called bins. Each bin represents a segment of the feature's value range, allowing us to map any continuous observation into a discrete category. For implementation, we analyze the training dataset and create evenly spaced bins (10 bins) for each feature by computing linearly spaced intervals between the minimum and maximum values of that feature. Then, during training or evaluation, the observed continuous state is converted into a discrete state by determining which bin each feature value falls into. This discretized state is subsequently converted into a unique index to access and update the Q-table. The use of bins thus enables effective Q-learning in continuous state environments by simplifying the state representation while preserving essential information.
+\indent In the context of Q-learning for trading environments, bins are used to discretize the continuous state space into a finite number of discrete states. This discretization is essential because the Q-table requires a finite and manageable number of states to store and update the expected rewards for each state-action pair. Continuous variables, such as stock prices or technical indicators, have infinite possible values, which makes it impractical to represent them directly in a Q-table. To address this, we divide the range of each continuous feature into a fixed number of intervals called bins. Each bin represents a segment of the feature's value range, allowing us to map any continuous observation into a discrete category. For implementation, we analyze the training dataset and create evenly spaced bins (10 bins) for each feature by computing linearly spaced intervals between the minimum and maximum values of that feature. Then, during training or evaluation, the observed continuous state is converted into a discrete state by determining which bin each feature value falls into. This discretized state is subsequently converted into a unique index to access and update the Q-table. The use of bins thus enables effective Q-learning in continuous state environments by simplifying the state representation while preserving essential information.
 
 \vspace{0.3cm}
 
 \subsection{Preliminary Results for Q-Learning Greedy Policy}
 
-\ind Initial experiments aimed to evaluate the training behavior and reward progression of the Q-Learning agent following a greedy policy. Results were compared over two time horizons : a shorter training period of 100 episodes and an extended training of 1000 episodes.
+\indent Initial experiments aimed to evaluate the training behavior and reward progression of the Q-Learning agent following a greedy policy. Results were compared over two time horizons : a shorter training period of 100 episodes and an extended training of 1000 episodes.
 
 \subsubsection{100 episodes}
 
@@ -477,7 +477,7 @@ Initialize Q-table
 
 \section{Challenges and Solutions}
 
-\ind The Q-Learning experiments faced several challenges specific to the greedy policy and the trading environment :
+\indent The Q-Learning experiments faced several challenges specific to the greedy policy and the trading environment :
 
 \begin{itemize}
 \item \textbf{Limited exploration due to greediness} : The strictly greedy policy limited the agent's ability to discover better actions, particularly early in training. Future work will include incorporating greedy or softmax action selection to balance exploration.
@@ -488,7 +488,7 @@ Initialize Q-table
 
 \section{Next Steps}
 
-\ind Building on the current progress with Q-Learning and the greedy policy, the immediate next steps focus on advancing the model complexity and preparing for PPO :
+\indent Building on the current progress with Q-Learning and the greedy policy, the immediate next steps focus on advancing the model complexity and preparing for PPO :
 
 \begin{itemize}
 \item Designing and integrating a deep neural network architecture to implement Deep Q-Learning (DQN), enabling function approximation for larger and continuous state spaces.
@@ -514,7 +514,7 @@ Initialize Q-table
 \section{Deep Q-Learning}
 
 \subsection{Problem Formulation}
-\ind We cast single-asset trading as a finite-horizon Markov Decision Process (MDP) on time-indexed observations $\{o_t\}_{t=1}^T$. At each discrete time step $t$, the agent observes a state $s_t \in \mathcal{S}$ (Price, Close, High, Low,Open and Volume), takes an action $a_t \in \mathcal{A}$(Buy, Old or Sell), receives a reward $r_t \in \mathbb{R}$.
+\indent We cast single-asset trading as a finite-horizon Markov Decision Process (MDP) on time-indexed observations $\{o_t\}_{t=1}^T$. At each discrete time step $t$, the agent observes a state $s_t \in \mathcal{S}$ (Price, Close, High, Low,Open and Volume), takes an action $a_t \in \mathcal{A}$(Buy, Old or Sell), receives a reward $r_t \in \mathbb{R}$.
 
 \paragraph{State.}
 To incorporate temporal context, we define
@@ -772,7 +772,7 @@ Initialize Q-table
 
 \subsection{Deep Q-Learning introduction}
 
-\ind In order to approximate optimal decision-making in complex environments, we employ Deep Q-Learning, an extension of Q-Learning that integrates state discretization with function approximation techniques. Unlike traditional tabular Q-Learning, which directly maintains a Q-table over discrete states, Deep Q-Learning is capable of handling continuous or high-dimensional state spaces by discretizing them into manageable bins. The algorithm balances exploration and exploitation using an $\epsilon$-greedy strategy with exponential decay, ensuring sufficient exploration during early episodes while gradually converging toward exploitation of learned policies. At each training step, the Q-table is updated via the Bellman equation, incorporating observed rewards and estimated future returns. The following pseudocode outlines the full training procedure.
+\indent In order to approximate optimal decision-making in complex environments, we employ Deep Q-Learning, an extension of Q-Learning that integrates state discretization with function approximation techniques. Unlike traditional tabular Q-Learning, which directly maintains a Q-table over discrete states, Deep Q-Learning is capable of handling continuous or high-dimensional state spaces by discretizing them into manageable bins. The algorithm balances exploration and exploitation using an $\epsilon$-greedy strategy with exponential decay, ensuring sufficient exploration during early episodes while gradually converging toward exploitation of learned policies. At each training step, the Q-table is updated via the Bellman equation, incorporating observed rewards and estimated future returns. The following pseudocode outlines the full training procedure.
 
 \vfill
 
@@ -832,7 +832,7 @@ Initialize Q-table
 
 \subsection{Deep Q-Learning Process}
 
-\ind To implement this method, we will use the same Q-Learning algorithm object and change during the training to a Neural Network. As a first example we will use a MLP.
+\indent To implement this method, we will use the same Q-Learning algorithm object and change during the training to a Neural Network. As a first example we will use a MLP.
 
 \begin{center}
 \begin{tikzpicture}[
@@ -871,11 +871,13 @@ Initialize Q-table
 
 \subsection{MLP layer}
 
-\ind The Multi-Layer Perceptron (MLP) layer serves as the core of the neural network, responsible for learning and transforming input data through a series of connected, dense layers. It is composed of multiple fully-connected layers, each followed by a non-linear activation function. This non-linearity is crucial as it allows the network to model complex, non-linear relationships in the data that a simple linear model could not capture.\\
+\indent The Multi-Layer Perceptron (MLP) layer serves as the core of the neural network, responsible for learning and transforming input data through a series of connected, dense layers. It is composed of multiple fully-connected layers, each followed by a non-linear activation function. This non-linearity is crucial as it allows the network to model complex, non-linear relationships in the data that a simple linear model could not capture.\par
 
-\ind The \texttt{MLP} class is defined as a PyTorch module, which is a standard approach for building neural network components. The constructor, \texttt{\_\_init\_\_}, initializes the network's architecture. It takes three key arguments: \texttt{input\_dim} (the dimensionality of the input data), \texttt{output\_dim} (the number of output units), and \texttt{hidden\_dims} (a tuple specifying the number of units in each hidden layer, which defaults to \texttt{(128, 128)}). The implementation uses a loop to dynamically build the hidden layers. For each dimension specified in \texttt{hidden\_dims}, it adds a \texttt{nn.Linear} layer (a fully-connected layer) followed by a \texttt{nn.ReLU} activation function. The Rectified Linear Unit (ReLU) is chosen for its computational efficiency and its effectiveness in preventing the vanishing gradient problem.\\
 
 \ind After the hidden layers are constructed, a final \texttt{nn.Linear} layer is added. This last layer maps the output of the final hidden layer to the desired \texttt{output\_dim} of the network. The entire sequence of layers is then encapsulated into a single \texttt{nn.Sequential} container, which ensures that the data will be passed through the layers in the correct order during the forward pass.\\
+\indent The \texttt{MLP} class is defined as a PyTorch module, which is a standard approach for building neural network components. The constructor, \texttt{\_\_init\_\_}, initializes the network's architecture. It takes three key arguments: \texttt{input\_dim} (the dimensionality of the input data), \texttt{output\_dim} (the number of output units), and \texttt{hidden\_dims} (a tuple specifying the number of units in each hidden layer, which defaults to \texttt{(128, 128)}). The implementation uses a loop to dynamically build the hidden layers. For each dimension specified in \texttt{hidden\_dims}, it adds a \texttt{nn.Linear} layer (a fully-connected layer) followed by a \texttt{nn.ReLU} activation function. The Rectified Linear Unit (ReLU) is chosen for its computational efficiency and its effectiveness in preventing the vanishing gradient problem.\par
+
+\indent After the hidden layers are constructed, a final \texttt{nn.Linear} layer is added. This last layer maps the output of the final hidden layer to the desired \texttt{output\_dim} of the network. The entire sequence of layers is then encapsulated into a single \texttt{nn.Sequential} container, which ensures that the data will be passed through the layers in the correct order during the forward pass.\par
 
 \begin{table}[h!]
     \centering
@@ -895,7 +897,7 @@ Initialize Q-table
 \newpage
 
 
-\ind After a 2-hour training period, the model's performance was evaluated on a test dataset. The results are visualized in the following plot :
+\indent After a 2-hour training period, the model's performance was evaluated on a test dataset. The results are visualized in the following plot :
 
 \begin{figure}[h!]
     \centering
@@ -904,12 +906,12 @@ Initialize Q-table
     \label{fig:performance_plot}
 \end{figure}
 
-\ind The plot demonstrates that the model was able to generate positive returns, indicating a degree of success in the training. However, it is critical to note that this test was conducted on data from an overall uptrend market. This suggests the model's profitability may be a result of the market's general direction rather than its ability to make strategic decisions in both bullish and bearish conditions.\\
+\indent The plot demonstrates that the model was able to generate positive returns, indicating a degree of success in the training. However, it is critical to note that this test was conducted on data from an overall uptrend market. This suggests the model's profitability may be a result of the market's general direction rather than its ability to make strategic decisions in both bullish and bearish conditions.\par
 
-\ind A closer inspection of the training log and the trading history reveals that the model made a significant number of "illegal moves." These unauthorized actions, which violate the predefined trading constraints or rules of the environment, are a clear indication of a failure in the model's policy and training process. This result suggests that while the model found a way to profit, it did so by exploiting an oversight in the environment or by not correctly learning the full set of trading rules. Further work is required to correct these behaviors and ensure the model operates within the defined constraints, leading to a more robust and generalizable trading policy.\\
+\indent A closer inspection of the training log and the trading history reveals that the model made a significant number of "illegal moves." These unauthorized actions, which violate the predefined trading constraints or rules of the environment, are a clear indication of a failure in the model's policy and training process. This result suggests that while the model found a way to profit, it did so by exploiting an oversight in the environment or by not correctly learning the full set of trading rules. Further work is required to correct these behaviors and ensure the model operates within the defined constraints, leading to a more robust and generalizable trading policy.\par
 
 
-\ind To further analyze the model's performance across different market conditions, we present additional trading simulations on various stock datasets :
+\indent To further analyze the model's performance across different market conditions, we present additional trading simulations on various stock datasets :
 
 \vfill
 
@@ -952,16 +954,16 @@ Initialize Q-table
     \label{fig:performance_plots_all}
 \end{figure}
 
-\ind The plots demonstrate that the model was able to generate positive returns, indicating a degree of success in the training. However, it is critical to note that the test on the BTC-USD data was conducted on an overall uptrend market. This suggests the model's profitability may be a result of the market's general direction rather than its ability to make strategic decisions in both bullish and bearish conditions.\\
+\indent The plots demonstrate that the model was able to generate positive returns, indicating a degree of success in the training. However, it is critical to note that the test on the BTC-USD data was conducted on an overall uptrend market. This suggests the model's profitability may be a result of the market's general direction rather than its ability to make strategic decisions in both bullish and bearish conditions.\par
 
 \noindent A closer inspection of the training log and the trading history reveals that the model made a significant number of "illegal moves." These unauthorized actions, which violate the predefined trading constraints or rules of the environment, are a clear indication of a failure in the model's policy and training process. This result suggests that while the model found a way to profit, it did so by exploiting an oversight in the environment or by not correctly learning the full set of trading rules. Further work is required to correct these behaviors and ensure the model operates within the defined constraints, leading to a more robust and generalizable trading policy.
 
 
 \subsection{Decision Transformer Layer}
 
-\ind Unlike a traditional Multi-Layer Perceptron (MLP) that processes a single state at a time, the DecisionTransformerQ layer is designed to handle sequential data, leveraging the powerful architecture of a transformer. This approach frames reinforcement learning as a sequence modeling problem, where the model learns to predict future actions based on a history of past states and desired returns.\\
+\indent Unlike a traditional Multi-Layer Perceptron (MLP) that processes a single state at a time, the DecisionTransformerQ layer is designed to handle sequential data, leveraging the powerful architecture of a transformer. This approach frames reinforcement learning as a sequence modeling problem, where the model learns to predict future actions based on a history of past states and desired returns.\par
 
-\noindent The \texttt{DecisionTransformerQ} class is built upon a pre-trained transformer model from Hugging Face's library, which serves as the core `backbone`. The constructor, \texttt{\_\_init\_\_}, initializes a configuration for the transformer and loads the corresponding model (`DecisionTransformerGPT2Model`). This approach allows the network to benefit from the pre-trained weights, which are already effective at capturing complex patterns in sequential data.\\
+\noindent The \texttt{DecisionTransformerQ} class is built upon a pre-trained transformer model from Hugging Face's library, which serves as the core `backbone`. The constructor, \texttt{\_\_init\_\_}, initializes a configuration for the transformer and loads the corresponding model (`DecisionTransformerGPT2Model`). This approach allows the network to benefit from the pre-trained weights, which are already effective at capturing complex patterns in sequential data.\par
 
 \noindent Before the input is fed into the transformer, it passes through a `self.input\_proj` linear layer. This layer's purpose is to project the raw input data, which has a dimensionality of \texttt{input\_dim}, into an embedding space that matches the transformer's hidden size. This ensures the input is correctly formatted for the transformer architecture.\\
 
