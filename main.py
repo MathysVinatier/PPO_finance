@@ -1,12 +1,11 @@
-from utils.Environment import DataLoader, TradingEnv
-from utils.RLMethod import QLearning
+from utils import DataLoader, TradingEnv,  QLearning
 
 import optuna
 import multiprocessing
 
 import os
 
-def test_QLearning(fdir):
+def test_QLearning(fdir, with_broker=False):
 
     dataloader = DataLoader()
     dataloader.save_companies()
@@ -15,7 +14,7 @@ def test_QLearning(fdir):
     
     for data in list_dir :
         df = dataloader.read(fdir+data)
-        env = TradingEnv(df)
+        env = TradingEnv(df, broker_fee=with_broker)
         print(f"TRAINING ON {data}")
         QL = QLearning(env)
         Qtable = QL.train(df=df, train_size=0.8, n_training_episodes=1000)
@@ -110,7 +109,7 @@ def optimization1():
         )
 
         df_train, df_test = QL.split_data(df, train_size)
-        _, _, _, equity_test = QL.get_actions_and_prices(Qtable, df_test)
+        _, _, _, equity_test, reward_test = QL.get_actions_and_prices(Qtable, df_test)
         score_equity = (equity_test[-1]-equity_test[0])/equity_test[0]
         score = score_equity - score_market
         print(f"TRIAL #{trial.number} -> market : {score_market} / equity : {score_equity} / score {score}")
@@ -153,4 +152,4 @@ def get_best_parameter(storage_url):
 
 
 if __name__ == '__main__':
-    test_QLearning("data/General/")
+    test_QLearning("data/General/", with_broker=True)
