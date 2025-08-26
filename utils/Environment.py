@@ -152,8 +152,8 @@ class TradingEnv(gym.Env):
         new_price = self.df.iloc[self.current_step]["Close"]
         current_portfolio_value = self.balance + self.position * new_price
 
-        reward_raw = current_portfolio_value
-        reward = np.log(reward_raw)
+        reward_raw = current_portfolio_value-self.initial_balance
+        reward = reward_raw
 
         return self._get_obs(), reward, done, {
             "portfolio_value": current_portfolio_value,
