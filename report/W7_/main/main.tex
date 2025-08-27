@@ -1354,6 +1354,8 @@ Initialize Q-table
 
 \newpage
 
+\vspace{2cm}
+
 \begin{figure}[h]
     \centering
     \begin{minipage}{.45\linewidth}
@@ -1440,6 +1442,9 @@ Initialize Q-table
     \end{minipage}
 \end{figure}
 
+\vspace{1cm}
+
+\noindent Finally, after implementing these layers in PyTorch, we will be able to start building the algorithm for a Deep Q-Learning agent using our own model, which should be capable of training on trading markets. The training strategy is as follows: the price assets are used as input to the encoder, which extracts features that are then passed to the decoder and the decision-making layer to produce the final action for a given input. We then compare the resulting portfolio with the initial one and assign a reward based on the evolution of the portfolio's value.
 
 %\newpage
 
