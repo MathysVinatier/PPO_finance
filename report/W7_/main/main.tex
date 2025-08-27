@@ -1321,7 +1321,9 @@ Initialize Q-table
 
         % Connectors
         \draw[arrow]  ([xshift=-20mm]input.north)  -- ++(0, 0.5) -|  (linear1) ;
+        \draw[dashed] ([yshift=+5mm]input.north) -- ++(-0.5,0.5)  --   ([xshift=-5.3mm ,yshift=-8mm]dots.south) ;
         \draw[dashed] (input.north)  --   ([yshift=-10mm]dots.south) ;
+        \draw[dashed] ([yshift=+5mm]input.north) -- ++(0.5,0.5)  --   ([xshift=+5.3mm ,yshift=-8mm]dots.south) ;
         \draw[arrow]  ([xshift=20mm]input.north)  -- ++(0, 0.5) -|  (linear8) ;
     
         %Attention head #1
@@ -1331,7 +1333,9 @@ Initialize Q-table
         \draw[arrow] (attention1.north)                -- ++(0, 0.5) -|  ([xshift=20mm]concat.south west) ;
     
         %Dot x8
+        \draw[dashed] ([xshift=-5.3mm, yshift=+8mm]dots.north) -- ([xshift=-5.3mm]concat.south) ;
         \draw[dashed] ([yshift=+10mm]dots.north)  --   (concat) ;
+        \draw[dashed] ([xshift=+5.3mm ,yshift=+8mm]dots.north) -- ([xshift=+5.3mm]concat.south) ;
     
         %Attention head #2
         \draw[arrow] ([xshift=5mm]linear8.north west)  --  ([xshift=15mm]attention8.south west) node[midway, right] {$Q_8$};
@@ -1352,50 +1356,88 @@ Initialize Q-table
 
 \begin{figure}[h]
     \centering
-    \begin{tikzpicture}[
-        scale=1,
-        transform shape,
-        node distance=0.5cm,
-        box/.style={
-            draw,
-            rounded corners,
-            minimum width=3cm,
-            minimum height=1cm,
-            align=center,
-            font=\small,
-            fill=blue!10
-            },
-            arrow/.style={-{Stealth[length=2mm]}, thick},
-            line/.style={thick}
-            ]
+    \begin{minipage}{.45\linewidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1,
+            transform shape,
+            node distance=0.5cm,
+            box/.style={
+                draw,
+                rounded corners,
+                minimum width=3cm,
+                minimum height=1cm,
+                align=center,
+                font=\small,
+                fill=blue!10
+                },
+                arrow/.style={-{Stealth[length=2mm]}, thick},
+                line/.style={thick}
+                ]
 
-        % Nodes
-        \node[box, fill=blue!30] (input) {INPUT};
-        \node[box, above=of input.north, minimum width=5cm] (linear) {Linear};
-        \node[box, above=of linear.north, anchor=south west, minimum width=1cm] (q) at (linear.north west) {Q};
-        \node[box, above=of linear.north, minimum width = 1cm]      (k) {K};
-        \node[box, above=of linear.north, anchor=south east, minimum width=1cm] (v) at (linear.north east) {V};
-        \node[box, above=of q] (matmul) at ($(q)!0.5!(k) + (0,0.5)$) {matmul};
-        \node[box, above=of matmul] (scale) {scale};
-        \node[box, above=of scale] (softmax) {softmax};
-        \node[box, above=8cm of input, minimum width=5cm] (matmulOut) {matmul};
-        \node[box, above=of matmulOut, fill=blue!30] (output) {OUTPUT};
+            % Nodes
+            \node[box, fill=blue!30] (input) {INPUT};
+            \node[box, above=of input.north, minimum width=5cm] (linear) {Linear};
+            \node[box, above=of linear.north, anchor=south west, minimum width=1cm] (q) at (linear.north west) {Q};
+            \node[box, above=of linear.north, minimum width = 1cm]      (k) {K};
+            \node[box, above=of linear.north, anchor=south east, minimum width=1cm] (v) at (linear.north east) {V};
+            \node[box, above=of q] (matmul) at ($(q)!0.5!(k) + (0,0.5)$) {matmul};
+            \node[box, above=of matmul] (scale) {scale};
+            \node[box, above=of scale] (softmax) {softmax};
+            \node[box, above=8cm of input, minimum width=5cm] (matmulOut) {matmul};
+            \node[box, above=of matmulOut, fill=blue!30] (output) {OUTPUT};
 
-        % Connectors
-        \draw[arrow] (input.north) -- (linear);
-        \draw[arrow] ([xshift=5mm]linear.north west)  -- (q);
-        \draw[arrow] (linear.north) -- (k);
-        \draw[arrow] ([xshift=-5mm]linear.north east) -- (v);
-        \draw[arrow] (q.north)     -- ([xshift=5mm]matmul.south west);
-        \draw[arrow] (k.north)     -- ([xshift=-5mm]matmul.south east);
-        \draw[arrow] (matmul)      -- (scale);
-        \draw[arrow] (scale)       -- (softmax);
-        \draw[arrow] (softmax)     -- ([xshift=-10mm]matmulOut.south);
-        \draw[arrow] (v)           -- ([xshift=-5mm]matmulOut.south east);
-        \draw[arrow] (matmulOut)   -- (output);
+            % Connectors
+            \draw[arrow] (input.north) -- (linear);
+            \draw[arrow] ([xshift=5mm]linear.north west)  -- (q);
+            \draw[arrow] (linear.north) -- (k);
+            \draw[arrow] ([xshift=-5mm]linear.north east) -- (v);
+            \draw[arrow] (q.north)     -- ([xshift=5mm]matmul.south west);
+            \draw[arrow] (k.north)     -- ([xshift=-5mm]matmul.south east);
+            \draw[arrow] (matmul)      -- (scale);
+            \draw[arrow] (scale)       -- (softmax);
+            \draw[arrow] (softmax)     -- ([xshift=-10mm]matmulOut.south);
+            \draw[arrow] (v)           -- ([xshift=-5mm]matmulOut.south east);
+            \draw[arrow] (matmulOut)   -- (output);
 
-    \end{tikzpicture}
-    \caption{Attention stack}
+        \end{tikzpicture}
+        \caption{Attention stack}
+    \end{minipage}\hspace{.5cm}
+    \begin{minipage}{.45\linewidth}
+        \centering
+        \begin{tikzpicture}[
+            scale=1.4,
+            transform shape,
+            node distance=0.5cm,
+            box/.style={
+                draw,
+                rounded corners,
+                minimum width=2.5cm,
+                minimum height=1cm,
+                align=center,
+                font=\small,
+                fill=blue!10
+                },
+                arrow/.style={-{Stealth[length=2mm]}, thick},
+                line/.style={thick}
+                ]
+
+                % Nodes
+                \node[box, fill=blue!30] (input) {INPUT};
+                \node[box, above=of input] (mlp1) {MLP};
+                \node[box, above=of mlp1] (relu) {ReLU};
+            \node[box, above=of relu] (mlp2) {MLP};
+            \node[box, above=of mlp2, fill=blue!30] (output) {OUTPUT};
+
+            % Connectors
+            \draw[arrow] (input.north) -- (mlp1);
+            \draw[arrow] (mlp1)        -- (relu);
+            \draw[arrow] (relu)        -- (mlp2);
+            \draw[arrow] (mlp2)        -- (output);
+
+        \end{tikzpicture}
+        \caption{Feed-Forward stack}
+    \end{minipage}
 \end{figure}
 
 
