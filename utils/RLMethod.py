@@ -16,9 +16,9 @@ import torch.optim as optim
 from transformers import DecisionTransformerConfig, DecisionTransformerGPT2Model
 
 if __name__ == "__main__":
-    from Models import MLP
+    from Models import MLP, DEVICE
 else:
-    from utils.Models import MLP
+    from utils.Models import MLP, DEVICE
 
 class ModelRL:
     def __init__(self, env, log=True):
@@ -135,7 +135,7 @@ class ModelRL:
         plt.tight_layout()
 
         if save:
-            plt.savefig(f'./{self.__class__.__name__}_{name}_{df.index[0][:4]}')
+            plt.savefig(f'./{self.__class__.__name__}_{name.split("."[0])}_{df.index[0][:4]}')
 
         plt.figure(figsize=(14, 6))
 
@@ -185,15 +185,20 @@ class QLearning(ModelRL):
     def greedy_policy(self, Qtable, state_idx):
         return np.argmax(Qtable[state_idx])
 
-    def epsilon_greedy_policy(self, Qtable, state_idx, epsilon):
+    def epsilon_greedy_policy(self, Qtable, state_idx, epsilon=0):
         if np.random.rand() > epsilon:
-            return np.argmax(Qtable[state_idx])
+            valid_actions = self.env.get_valid_actions()
+            action        = np.argmax(Qtable[state_idx])
+            if action in valid_actions:
+                return action
+            else:
+                return 0
         else:
             return self.env.sample_valid_action()
 
     def train(self, df, train_size=0.8, n_training_episodes=1000,
               learning_rate=0.1, gamma=0.92, max_epsilon=1.0,
-              min_epsilon=0.05, decay_rate=0.0015):
+              min_epsilon=0.1, decay_rate=0.0015):
 
         self.df = df
         self.df_train, _ = self.split_data(self.df.copy(), train_size)
@@ -221,8 +226,10 @@ class QLearning(ModelRL):
                 next_state_disc = self.discretize_state(next_state_cont, bins)
                 next_state_idx = self.state_to_index(next_state_disc, bins)
 
-                Qtable[state_idx][action] += learning_rate * (
-                    reward + gamma * np.max(Qtable[next_state_idx]) - Qtable[state_idx][action]
+                valid_next_actions = self.env.get_valid_actions()
+                max_next_q = np.max(Qtable[next_state_idx, valid_next_actions])
+                Qtable[state_idx, action] += learning_rate * (
+                    reward + gamma * max_next_q - Qtable[state_idx, action]
                 )
                 state_idx = next_state_idx
 
@@ -244,33 +251,24 @@ class QLearning(ModelRL):
         state_idx = self.state_to_index(state_disc, bins)
 
         actions_taken, prices, df_indices, equity_curve, reward_list = [], [], [], [], []
-        cash, stock = initial_cash, 0
         done, step = False, 0
 
         while not done:
             if self.env.current_step >= len(df) - 1:
                 break
 
-            action = np.argmax(Qtable[state_idx])
-            if action not in self.env.get_valid_actions():
-                action = 0
+            action = self.epsilon_greedy_policy(Qtable, state_idx)
 
-            next_obs, reward, done, _ = self.env.step(action)
+            next_obs, reward, done, current_portfolio = self.env.step(action)
             reward_list.append(reward)
+            equity_curve.append(current_portfolio)
+
             price = df["Close"].iloc[self.env.current_step - 1]
 
             actions_taken.append((step, action))
             prices.append(price)
             df_indices.append(self.env.current_step)
 
-            if action == 1:
-                stock += 1
-                cash -= price
-            elif action == 2:
-                stock -= 1
-                cash += price
-
-            equity_curve.append(cash + stock * price)
             state_disc = self.discretize_state(next_obs, bins)
             state_idx = self.state_to_index(state_disc, bins)
             step += 1
@@ -332,10 +330,9 @@ class DecisionTransformerQ(nn.Module):
 
 class DeepQLearning(ModelRL):
 
-    def __init__(self, env, steps=1, log=True, device=None, hidden_dims=(128, 128)):
+    def __init__(self, env, steps=1, log=True, hidden_dims=(128, 128)):
         super().__init__(env, log=log)
         self.steps = max(1, int(steps))
-        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
 
         self.state_space = env.observation_space.shape[0]
         self.action_space = env.action_space.n
@@ -344,11 +341,11 @@ class DeepQLearning(ModelRL):
         input_dim = self.state_space
         output_dim = self.action_space
 
-        self.policy_net = DecisionTransformerQ(input_dim, output_dim).to(self.device)
+        self.policy_net = DecisionTransformerQ(input_dim, output_dim).to(DEVICE)
         if self.log:
             print(self.policy_net)
 
-        self.target_net = DecisionTransformerQ(input_dim, output_dim).to(self.device)
+        self.target_net = DecisionTransformerQ(input_dim, output_dim).to(DEVICE)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
@@ -364,26 +361,29 @@ class DeepQLearning(ModelRL):
 
     @torch.no_grad()
     def _q_values(self, state_batch):
-        return self.policy_net(torch.as_tensor(state_batch, dtype=torch.float32, device=self.device))
+        return self.policy_net(torch.as_tensor(state_batch, dtype=torch.float32, device=DEVICE))
 
     def _select_action_eps_greedy(self, state_vec, epsilon):
         if np.random.rand() < epsilon:
-            if hasattr(self.env, 'sample_valid_action'):
-                return self.env.sample_valid_action()
-            return np.random.randint(self.action_space)
-        state_t = torch.as_tensor(state_vec, dtype=torch.float32, device=self.device).unsqueeze(0)
-        q = self.policy_net(state_t)[0].detach().cpu().numpy()
-        return int(np.argmax(q))
+            return self.env.sample_valid_action()
+
+        state_t = torch.as_tensor(state_vec, dtype=torch.float32, device=DEVICE).unsqueeze(0)
+        q_values = self.policy_net(state_t)[0].detach().cpu().numpy()
+
+        valid_actions = self.env.get_valid_actions()
+        q_valid = q_values[valid_actions]
+
+        return int(valid_actions[np.argmax(q_valid)])
 
     def _optimize(self, optimizer, buffer, batch_size, gamma):
         if len(buffer) < batch_size:
             return 0.0
         states, actions, rewards, next_states, dones = buffer.sample(batch_size)
-        states_t = torch.as_tensor(states, dtype=torch.float32, device=self.device)
-        actions_t = torch.as_tensor(actions, dtype=torch.int64, device=self.device).unsqueeze(1)
-        rewards_t = torch.as_tensor(rewards, dtype=torch.float32, device=self.device).unsqueeze(1)
-        next_states_t = torch.as_tensor(next_states, dtype=torch.float32, device=self.device)
-        dones_t = torch.as_tensor(dones, dtype=torch.float32, device=self.device).unsqueeze(1)
+        states_t = torch.as_tensor(states, dtype=torch.float32, device=DEVICE)
+        actions_t = torch.as_tensor(actions, dtype=torch.int64, device=DEVICE).unsqueeze(1)
+        rewards_t = torch.as_tensor(rewards, dtype=torch.float32, device=DEVICE).unsqueeze(1)
+        next_states_t = torch.as_tensor(next_states, dtype=torch.float32, device=DEVICE)
+        dones_t = torch.as_tensor(dones, dtype=torch.float32, device=DEVICE).unsqueeze(1)
 
         q_sa = self.policy_net(states_t).gather(1, actions_t)
         with torch.no_grad():
@@ -455,7 +455,7 @@ class DeepQLearning(ModelRL):
         while not done:
             if self.env.current_step >= len(df) - 1:
                 break
-            state_t = torch.as_tensor(state_vec, dtype=torch.float32, device=self.device).unsqueeze(0)
+            state_t = torch.as_tensor(state_vec, dtype=torch.float32, device=DEVICE).unsqueeze(0)
             q = policy_net(state_t)[0].cpu().numpy()
             action = int(np.argmax(q))
             next_obs, reward, done, info = self.env.step(action)
@@ -488,7 +488,7 @@ if __name__ == "__main__":
     env = TradingEnv(df)
 
     model = DeepQLearning(env, log=True)
-    '''
+    
     policy_net = model.train(
         df=df,
         train_size=0.8,
@@ -499,7 +499,6 @@ if __name__ == "__main__":
 
     # Save
     torch.save(policy_net.state_dict(), "transformer_policy_net.pth")
-    '''
 
     # Later, to load
     model_loaded = DeepQLearning(env)
