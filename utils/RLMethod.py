@@ -135,7 +135,7 @@ class ModelRL:
         plt.tight_layout()
 
         if save:
-            plt.savefig(f'./{self.__class__.__name__}_{name.split("."[0])}_{df.index[0][:4]}')
+            plt.savefig(f'./{self.__class__.__name__}_{name.split(".")[0]}_{df.index[0][:4]}')
 
         plt.figure(figsize=(14, 6))
 
