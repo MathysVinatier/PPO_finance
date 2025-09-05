@@ -484,11 +484,11 @@ class DeepQLearning(ModelRL):
 if __name__ == "__main__":
     from Environment import TradingEnv, DataLoader
 
-    df = DataLoader().read("data/General/TSLA_2019_2024.csv")
+    df = DataLoader().read("./data/General/O_2016_2024.csv")
     env = TradingEnv(df)
 
     model = DeepQLearning(env, log=True)
-    
+
     policy_net = model.train(
         df=df,
         train_size=0.8,
@@ -502,7 +502,7 @@ if __name__ == "__main__":
 
     # Later, to load
     model_loaded = DeepQLearning(env)
-    model_loaded.policy_net.load_state_dict(torch.load("transformer_policy_net.pth"))
+    model_loaded.policy_net.load_state_dict(torch.load("model/transformer/transformer_policy_o.pth"))
     model_loaded.policy_net.eval()
 
-    model_loaded.plot(df, model = model_loaded.policy_net, name="TSLA", save=True)
+    model_loaded.plot(df, model = model_loaded.policy_net, name="O", save=True)

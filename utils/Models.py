@@ -147,15 +147,35 @@ class Encoder_Transformer(nn.Module):
 # Example usage
 # -----------------------------
 if __name__ == "__main__":
+
+    from Environment import TradingEnv, DataLoader
+    import matplotlib.pyplot as plt
+    from sklearn.preprocessing import StandardScaler
+
+    df = DataLoader().read("data/General/TSLA_2019_2024.csv")
+    features = df[["Close", "High", "Low", "Open", "Volume"]].values
+    scaler = StandardScaler()
+    features = scaler.fit_transform(features)
+    features = torch.tensor(features, dtype=torch.float32, device=DEVICE)
+
+    seq_len = 10
+    X_seq = []
+    for i in range(len(features) - seq_len):
+        X_seq.append(features[i:i+seq_len])  # shape: (10, 5)
+
+    X_seq = torch.stack(X_seq)
+
+    projector = nn.Linear(5, 512).to(DEVICE)
+    X_proj = projector(X_seq.to(DEVICE))  # (num_samples, 10, 512)
+
     # Initialize model
     model = Encoder_Transformer(num_features=512, d_model=512, num_heads=8, num_classes=3).to(DEVICE)
     print(model)
 
     # Fake input: batch of 2 sequences, 10 timesteps, 512 features
     X = torch.rand(2, 10, 512, device=DEVICE)
-
     # Forward pass
-    logits = model(X)
+    logits = model(X_proj)
 
     # Convert logits to probabilities and predicted class
     pred_probab = nn.Softmax(dim=1)(logits)

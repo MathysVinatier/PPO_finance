@@ -86,10 +86,14 @@ class TradingEnv(gym.Env):
         self.initial_balance = 100
         self.balance = self.initial_balance
         self.position = 0  # 0 = flat, 1 = holding
-        self.last_action = 0  # Track last valid action (0 = hold, 1 = buy, 2 = sell)
         self.share = share
+        self.current_evolution = 0
+        self.last_price = 0
+        self.step_since_last_action = 0
+        self.reward = 0
+
         if broker_fee :
-            self.broker_fee = 0.1 # commission percentage
+            self.broker_fee = 0.03 # commission percentage
         else :
             self.broker_fee = 0
 
@@ -122,43 +126,54 @@ class TradingEnv(gym.Env):
         done = False
 
         price = self.df.iloc[self.current_step]["Close"]
-        prev_portfolio_value = self.balance + self.position * price
+
+        prev_portfolio_value = self.balance + self.position * price * self.share
+        reward = 0
         commission = self.broker_fee*price
 
-        if action == 1:  # BUY
-            if self.position == 0:
-                self.balance += (-price - commission)*self.share
-                self.position = 1
-                self.last_action = 1
-            else:
-                action = 0
-        elif action == 2:  # SELL
-            if self.position == 1:
-                self.balance += (price - commission)*self.share
-                self.position = 0
-                self.last_action = 2
-            else:
-                action = 0
+        if (action == 1) & (self.position == 0):   # BUY
+            self.balance -= (price + commission) * self.share
+            self.position = 1
+            self.last_price = price
+            self.step_since_last_action = 0
 
-        #print(f"{price} - {commission} -> {self.balance}")
+        elif (action == 2) & (self.position == 1): # SELL
+            self.balance += (price - commission) * self.share
+            self.position = 0
+            self.last_price = price
+            self.step_since_last_action = 0
+
 
         # Advance time
+        if self.current_step == 0:
+            self.last_price = price
         self.current_step += 1
+        self.step_since_last_action += 1
         if self.current_step >= self.n_steps:
             done = True
-            return self._get_obs(), 0, True, {"portfolio_value": prev_portfolio_value, "action": action}
 
         # New price after step
-        new_price = self.df.iloc[self.current_step]["Close"]
-        current_portfolio_value = self.balance + self.position * new_price
+        new_price = self.df.iloc[self.current_step]["Close"] if not done else price
 
-        reward_raw = current_portfolio_value-self.initial_balance
-        reward = reward_raw
+        if self.position == 1:
+            self.current_evolution = -(self.last_price - price) * self.share / self.step_since_last_action
+        else:
+            self.current_evolution = (self.last_price - price) * self.share / self.step_since_last_action
 
-        return self._get_obs(), reward, done, {
-            "portfolio_value": current_portfolio_value,
-            "action": action
-        }
+        current_portfolio_value = self.balance + self.position * new_price * self.share
+
+        raw_reward = current_portfolio_value
+        #raw_reward = current_portfolio_value - prev_portfolio_value
+        #raw_reward = current_portfolio_value*np.sign(self.current_evolution)
+
+        if raw_reward == 0:
+            self.reward += 0
+        else:
+            self.reward = np.sign(raw_reward)*(np.abs(raw_reward))
+            #self.reward += np.sign(raw_reward)*(np.abs(raw_reward))
+            #self.reward += np.sign(raw_reward)*np.log(np.abs(raw_reward))
+
+        return self._get_obs(), self.reward, done, current_portfolio_value
 
 
     def set_data(self, df):
@@ -185,27 +200,32 @@ if __name__ == '__main__':
     }
 
     def get_next_step(env, log=True):
-        action = np.random.choice([0, 1, 2], p=[0.9, 0.05, 0.05])
-        next_obs, reward, done, info = env.step(action)
+        possible_action = env.get_valid_actions()
+
+        if len(possible_action) == 3 :
+            action = np.random.choice(possible_action, p=[0.95, 0.025, 0.025])
+        else:
+            action = np.random.choice(possible_action, p=[0.95, 0.05])
+
+        next_obs, reward, done, current_portfolio = env.step(action)
 
         if log:
             print(f'Action is {action_dict[action]}')
-            print(info)
             print("Next observation:", next_obs)
             print("Reward:", reward)
             print("Done:", done)
 
-        return info, reward
+        return action, current_portfolio, reward
 
     data_loader = DataLoader()
-    df = data_loader.read('data/General/AAPL_2010_2024.csv')  # This is the DataFrame to use
+    df = data_loader.read('data/General/O_2016_2024.csv')  # This is the DataFrame to use
 
     # Step 2: Initialize the environment
-    env = TradingEnv(df, broker_fee=True)
+    env = TradingEnv(df, broker_fee=False)
     obs = env.reset()
     print("Initial observation:", obs)
 
-    total_step = 750
+    total_step = len(df)-1
 
     list_action    = list()
     list_portfolio = list()
@@ -214,10 +234,10 @@ if __name__ == '__main__':
 
     for i in range(1, total_step+1):
         #print(f'\nSTEP {i}')
-        current_info, current_reward = get_next_step(env, log=False)
+        current_action, current_portfolio, current_reward = get_next_step(env, log=False)
 
-        list_action.append(current_info['action'])
-        list_portfolio.append(current_info['portfolio_value'])
+        list_action.append(current_action)
+        list_portfolio.append(current_portfolio)
         list_reward.append(current_reward)
 
     array_action = np.array(list_action)
