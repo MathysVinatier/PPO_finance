@@ -1446,6 +1446,86 @@ Initialize Q-table
 
 \noindent Finally, after implementing these layers in PyTorch, we will be able to start building the algorithm for a Deep Q-Learning agent using our own model, which should be capable of training on trading markets. The training strategy is as follows: the price assets are used as input to the encoder, which extracts features that are then passed to the decoder and the decision-making layer to produce the final action for a given input. We then compare the resulting portfolio with the initial one and assign a reward based on the evolution of the portfolio's value.
 
+\newpage
+
+\chapter{Week 14}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\subsection{Model Behavior Issues}
+
+\indent After adding the commission fees, we noticed several issues, as shown below:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.6\textwidth]{../img/expriment_on_commission/DeepQLearning_TSLA_2019_commission.png}
+\end{figure}
+
+\subsection{Environment Issues}
+
+\noindent We initially suspected that the problems might come from the environment's behavior and reward design. The original reward was defined as simply returning the portfolio value (equity curve), so that the agent maximizes its final value. This produced the following reward:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.6\textwidth]{../img/reward_portfolio.png}
+    \caption{Reward based on the portfolio value}
+\end{figure}
+
+\noindent However, this reward led to issues in position selection. Another idea was to maximize the immediate action by comparing the past portfolio with the current one, encouraging the agent to increase portfolio value step by step:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.6\textwidth]{../img/reward_portfolio_difference.png}
+    \caption{Reward based on portfolio differences}
+\end{figure}
+
+\newpage
+
+\noindent The problem with this approach is that it does not account for the overall final portfolio value. To address this, we kept the portfolio-based reward but multiplied it by the sign of the portfolio's derivative since the last decision, thereby favoring decisions aligned with short-term trends:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.6\textwidth]{../img/reward_portfolio_times_derivate.png}
+    \caption{Reward based on the portfolio value and its derivative sign}
+\end{figure}
+
+\noindent Yet, this method still ignored the final portfolio value. Instead of just multiplying, we then added the portfolio value multiplied by the derivative, combining long-term growth with short-term movement:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.6\textwidth]{../img/reward_portfolio_times_derivate_additive.png}
+    \caption{Reward combining portfolio value and its derivative}
+\end{figure}
+
+\noindent This reward performed better, but to further emphasize step-to-step differences, we applied a logarithmic transformation:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.6\textwidth]{../img/reward_portfolio_times_derivate_additive_log.png}
+    \caption{Reward with logarithmic adjustment}
+\end{figure}
+
+\section{Fixing the Issues}
+
+\indent To systematically address the previously identified issues, we are currently designing a series of experiments to compare the performance of standard Q-Learning across the different reward formulations discussed in the previous section. The goal is to identify which reward structure provides the most stable learning process and the best trade-off between short-term decision-making and long-term portfolio growth.
+
+\noindent Our methodology proceeds in two main stages:
+
+\begin{enumerate}
+    \item \textbf{Reward Function Evaluation.}  
+    Each proposed reward function (portfolio value, portfolio differences, portfolio with derivative sign, additive combination, and logarithmic adjustment) will be tested under identical market conditions and training parameters. Performance metrics will include cumulative portfolio return, maximum drawdown, Sharpe ratio, and policy stability across training runs. This evaluation will allow us to assess whether a reward function encourages overfitting to short-term fluctuations, ignores long-term profitability, or achieves a balance between the two.
+    
+    \item \textbf{Hyperparameter Optimization.}  
+    After identifying the most promising reward functions, we will perform systematic hyperparameter tuning to further improve model performance. For this purpose, we will use \textit{Optuna}, a state-of-the-art hyperparameter optimization framework that leverages efficient sampling and pruning strategies. Key hyperparameters to be tuned include learning rate, discount factor ($\gamma$), exploration rate ($\epsilon$) and its decay schedule, as well as network architecture parameters (e.g., number of layers and neurons in the Deep Q-Learning setting).
+\end{enumerate}
+
+\noindent By combining reward function selection with rigorous hyperparameter optimization, we aim to obtain a more reliable and generalizable reinforcement learning agent. Ultimately, this approach should reduce the instability observed when transaction costs are introduced and lead to a policy that remains robust under realistic market conditions.
+
+
 %\newpage
 
 %\appendix
