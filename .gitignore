@@ -27,3 +27,4 @@
 /report/**/*.blg
 /report/**/*.glg
 /report/**/*.gls
+/report/**/*SAVE-ERROR
