@@ -28,3 +28,5 @@
 /report/**/*.glg
 /report/**/*.gls
 /report/**/*SAVE-ERROR
+
+monitor.py

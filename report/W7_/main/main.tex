@@ -1525,6 +1525,180 @@ Initialize Q-table
 
 \noindent By combining reward function selection with rigorous hyperparameter optimization, we aim to obtain a more reliable and generalizable reinforcement learning agent. Ultimately, this approach should reduce the instability observed when transaction costs are introduced and lead to a policy that remains robust under realistic market conditions.
 
+\newpage
+
+\chapter{Week 15}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{The Best Reward}
+
+\indent Last week, we investigated which reward function would be most effective for our Q-Learning model in learning the dynamics of a given market. To evaluate the best reward, we developed a script that simultaneously launches 100 training sessions, allowing us to gather statistical measures for comparing each reward. All training sessions are conducted on the same dataset.
+
+\noindent Since one batch of 100 training sessions takes an entire day to complete, we restricted our experiments to an upward trending market : the Apple stock market from 2010 to 2024. Each batch will be compared using three main criteria : the average equity curve output, the reward function output and the distribution of final profits. These metrics will help assess the robustness of each reward function.
+
+\noindent In addition, we will analyze the maximum drawdown observed during training. To achieve this, we will compare the drawdown estimates and their distribution across all training batches.
+
+\subsection{Reward on Raw Portfolio Returns}
+
+\indent The "Raw Portfolio Return" reward is defined as the direct change in the portfolio value over time. In this setup, the reward signal is proportional to the basic evolution of the equity curve, without any normalization or transformation. This approach provides the most straightforward way to measure performance, as the agent's decisions are directly linked to increases or decreases in portfolio value.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/reward_portfolio.png}
+    \caption{Reward based on the portfolio value.}
+\end{figure}
+
+\noindent By construction, this type of reward strongly reflects the underlying dynamics of the market. If the agent is able to capture upward trends and avoid downturns, the reward signal will naturally increase, reinforcing profitable strategies. Conversely, poor decisions that reduce the portfolio value will be immediately penalized.
+
+\[
+    \mathcal{R} = x_{portfolio}
+\]
+
+\noindent One expected advantage of this reward is that it encourages the agent to directly maximize final profit, as the cumulative reward is aligned with absolute portfolio growth. However, this alignment also comes with limitations. Since the reward is unscaled, extreme variations in portfolio value may dominate the training signal, potentially leading to instability or overfitting. Additionally, because the reward does not explicitly account for risk-adjusted performance, the agent may adopt overly aggressive strategies that expose the portfolio to large drawdowns.
+
+\noindent In summary, the raw portfolio return reward is intuitive and easy to implement, making it a natural baseline for comparison. It emphasizes pure profitability and offers a clear benchmark against which more sophisticated reward functions can be evaluated, particularly those designed to balance profit with risk management.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio.png}
+    \caption{Analysis of the portfolio value reward.}
+\end{figure}
+
+\noindent The results indicate that using the raw portfolio value as a reward leads to a model with inconsistent performance. The profit distribution is centered around zero, suggesting that in most cases the agent's probability of generating profit is close to random (approximately 50\%). Such behavior is undesirable for a trading system, as it implies that the model is not consistently learning profitable strategies.
+
+\noindent In terms of risk, the analysis reveals a maximum drawdown of $-63\%$, while the average drawdown remains close to zero as confirmed by the distribution plot. This pattern suggests that although many training runs do not experience large losses, when drawdowns occur ($-18\%$), they can be severe and catastrophic for the portfolio.
+
+\noindent One of the key issues with this type of reward is that it provides the model with a very limited learning signal. Since the reward is tied only to the absolute portfolio value at each step, the agent struggles to evaluate the true contribution of individual actions within the broader market dynamics. In other words, the model cannot easily distinguish whether a specific action was beneficial or harmful in the long run, especially when short-term fluctuations dominate the reward signal.
+
+\noindent To address this limitation, it would be necessary to design reward functions that place greater emphasis on the relative impact of actions, for example by considering both past performance and expected future outcomes. Overall, while the raw portfolio reward offers a direct link to profitability, its lack of sensitivity to action-level contributions and its exposure to extreme drawdowns make it an unreliable choice for robust trading strategies.
+
+
+\subsection{Reward on Portfolio Differences}
+
+\indent From the previous experiment, we observed that the raw portfolio value as a reward does not adequately represent the impact of individual actions. To better capture this impact, we introduce the "Portfolio Difference" reward. This reward is defined as the change in portfolio value between two consecutive steps ; the difference between the portfolio value after the current action and that after the previous action.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/reward_portfolio_difference.png}
+    \caption{Reward based on portfolio differences.}
+\end{figure}
+
+\noindent By construction, this reward function places greater emphasis on the immediate consequence of a decision. A profitable action will yield a positive reward, while a poor action will be penalized instantly. This local sensitivity is expected to increase the exploitation capacity of the learning agent, as it provides clearer feedback on which decisions are beneficial at each time step.
+
+\[
+    \mathcal{R} = x_{portfolio}[t] - x_{portfolio}[t-1]
+\]
+
+\noindent However, the portfolio difference reward also introduces certain limitations. Since it focuses only on the relative change from one step to the next, it does not directly optimize for long-term profitability. In other words, the agent may learn to favor short-term improvements in portfolio value without necessarily maximizing the final cumulative profit. Furthermore, this reward function may encourage reactive rather than strategic behavior, as the agent optimizes primarily with respect to the most recent outcome rather than considering broader market dynamics.
+
+\noindent Despite these drawbacks, the portfolio difference reward offers a valuable intermediate step in reward design. It provides sharper feedback for the agent's actions compared to raw portfolio value, making it easier to distinguish between good and bad decisions in the short run. This reward can therefore serve as a useful benchmark, especially when combined or compared with more sophisticated functions that explicitly incorporate risk management and long-term profit objectives.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_diff.png}
+    \caption{Analysis of the portfolio value reward}
+\end{figure}
+
+\noindent The results show that the mean equity curve is improved compared to the raw portfolio reward, with fewer portfolios ending below $0\%$ profit, let us notice that the average equity curve is always above $0\%$. This improvement is also reflected in the profit distribution, which centers around $25\%$, suggesting that the portfolio difference reward produces more robust outcomes than the previous approach.  
+
+\noindent In terms of risk, the average drawdown remains relatively similar and stable, indicating that the strategy is not yet explicitly accounting for risk management. Nevertheless, we observe a significant improvement in the maximum drawdown, which decreases to $-25.06\%$. This indicates that while large losses can still occur, their severity has been substantially reduced compared to the raw portfolio reward.
+
+\noindent However, as noted earlier, this reward design does not explicitly maximize the final portfolio value. Instead, it emphasizes the relative impact of each action with respect to the previous step. While this provides clearer short-term learning signals, it may limit the agent's ability to optimize for long-term growth and overall profitability.
+
+\noindent These findings suggest that while the portfolio difference reward improves robustness and reduces extreme losses, it remains incomplete as a standalone solution. A potential improvement would be to design a hybrid reward that combines short-term action sensitivity with long-term profitability objectives. Such a function could better capture the dynamic relationship between individual decisions and the final portfolio value, thereby aligning immediate learning signals with strategic performance goals.
+
+\subsection{Reward on Slope Sign}
+
+\indent Building on the previous reward functions, we introduce the "Slope Sign" reward, which attempts to combine the benefits of both raw portfolio returns and portfolio differences. The idea is to evaluate the direction of the equity curve by computing the slope between the portfolio value after the previous action and the current portfolio value. The sign of this slope (positive or negative) is then multiplied by the current portfolio value to generate the reward signal. In this way, profitable actions are reinforced, while unprofitable ones are directly penalized.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/reward_portfolio_times_derivate.png}
+    \caption{Reward based on the portfolio value and its derivative sign}
+\end{figure}
+
+\noindent The main advantage of this reward function is that it provides clear and immediate feedback regarding the quality of an action. Good decisions that align with upward movements in the equity curve are strongly rewarded, while poor decisions are heavily punished. This sharp distinction creates a larger gap between successful and unsuccessful actions, which can accelerate the learning process and improve the agent's ability to exploit profitable opportunities.
+
+\[
+    \mathcal{R} = \text{sign}\left(\frac{\delta}{\delta t} \left(x_{portfolio}[t_{\text{last action}}] - x_{portefolio}[t]\right)\right) * x_{portfolio}[t]
+\]
+
+\noindent However, this approach also comes with limitations. Since the slope sign is highly sensitive to short-term fluctuations, the reward signal can be noisy and unstable. Market oscillations that do not reflect meaningful long-term trends may mislead the agent, causing it to overreact to minor changes rather than learning robust strategies. In addition, because this reward focuses primarily on the direction of the immediate slope, it may neglect broader portfolio dynamics such as cumulative profit growth or drawdown control.
+
+\noindent In summary, the slope sign reward introduces a more decisive feedback mechanism compared to previous designs, enhancing the distinction between good and bad actions. Nevertheless, its sensitivity to market oscillations makes it less reliable in volatile environments.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_sign.png}
+    \caption{Analysis of the portfolio value reward}
+\end{figure}
+
+\noindent This type of reward performs poorly. The likely reason is the high frequency of changes in the portfolio, which results in excessive volatility. Consequently, we observe a high drawdown and negative profits across nearly all trials. Due to these unfavorable outcomes, this reward function will not be used in subsequent analyses.
+
+\subsection{Reward on Portfolio Value and Direct Slope}
+
+\indent To reduce the instability introduced by using only the slope sign, we extend the reward definition by incorporating the actual slope value. Specifically, the reward is computed as the sum of the current portfolio value and the slope of the equity curve, scaled by the portfolio value at each step. This formulation preserves the influence of market trends while reducing the sensitivity to minor oscillations.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/reward_portfolio_times_derivate_additive.png}
+    \caption{Reward combining portfolio value and its derivative.}
+\end{figure}
+
+\noindent With this design, the reward function captures both profitability and directional momentum. On one hand, the portfolio value ensures that the agent remains focused on long-term growth. On the other hand, the slope provides immediate feedback on whether the most recent action is aligned with the current market trend. Wrong decisions are punished proportionally to the negative slope, while good decisions are reinforced when the trend is favorable.
+
+\[
+    \mathcal{R} = \frac{\delta}{\delta t} \left(x_{portfolio}[t_{\text{last action}}] - x_{portefolio}[t]\right) * x_{portfolio}[t]
+\]
+
+\noindent The intuition behind this approach is inspired by human-like reasoning in trading : investors do not only look at their total portfolio value but also assess whether their most recent actions are still performing well relative to the ongoing market movement. By combining both perspectives, this reward function aims to balance long-term profit maximization with short-term action validation.
+
+\noindent However, this method is not without limitations. The slope remains sensitive to volatility, and sudden short-term fluctuations can still distort the reward signal. Additionally, because the reward is scaled by the portfolio value, large portfolios may produce exaggerated feedback compared to smaller ones, potentially leading to unstable learning dynamics. A possible refinement would be to normalize the slope contribution or apply smoothing techniques to better filter out noise from transient oscillations.  
+
+\noindent In summary, the portfolio value and direct slope reward offers a more balanced feedback mechanism than previous formulations, combining overall profitability with immediate trend sensitivity. It provides a promising middle ground, though further adjustments may be required to improve stability in highly volatile markets.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_slope.png}
+    \caption{Analysis of the portfolio value reward}
+\end{figure}
+
+\noindent As we can see, the profit is often positive ; however, there are also significant periods of negative returns. This suggests that the reward function is not as robust as initially expected when compared to the second approach. Moreover, the maximum drawdown is particularly severe ($-87\%$), which is considerably higher than what we typically observed in previous experiments. Finally, the strategy tends to converge to a profit level close to $50\%$ of the original wallet value.
+
+
+\subsection{Reward on Portfolio Value and Direct Slope (Logarithmic Function)}
+
+\indent Having established a good balance between portfolio value and immediate action feedback, we introduce a logarithmic adjustment to further refine the reward. This modification allows us to leverage the punishment depending on the magnitude of the slope, emphasizing significant deviations while reducing sensitivity to minor fluctuations.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/reward_portfolio_times_derivate_additive_log.png}
+    \caption{Reward with logarithmic adjustment.}
+\end{figure}
+
+\noindent The core idea behind applying a logarithmic function is to amplify the impact of large positive or negative slopes. Large upward movements are rewarded more strongly, encouraging the agent to capitalize on strong trends. Conversely, steep downward movements are penalized more severely, ensuring that poor decisions with major negative consequences are recognized and discouraged.
+
+\[
+    \mathcal{R} = \text{log}\left(\frac{\delta}{\delta t} \left(x_{portfolio}[t_{\text{last action}}] - x_{portefolio}[t]\right) * x_{portfolio}[t]\right)
+\]
+
+\noindent By scaling the slope contribution logarithmically, the agent receives a more nuanced learning signal. Small fluctuations, which might otherwise generate noise in the reward, have a reduced impact, while extreme events exert a proportionally greater influence. This approach helps the agent focus on meaningful actions that significantly affect portfolio growth, rather than reacting to minor market oscillations.
+
+\noindent In summary, the logarithmic adjustment enhances the previous reward formulation by improving sensitivity to important market movements while dampening the effect of minor, potentially misleading fluctuations. This makes the reward signal more informative and robust, leading to better alignment between immediate action evaluation and long-term portfolio performance.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_slope_log.png}
+    \caption{Analysis of the portfolio value reward}
+\end{figure}
+
+
+\noindent This new reward yields results that are broadly similar to the previous case, but with slight improvements. In particular, the maximum drawdown is reduced to $-74\%$, and the profit distribution is more balanced, indicating greater robustness. Additionally, the proportion of positive outcomes has increased, with profits tending to stabilize around $70\%$ of the original wallet value.
 
 %\newpage
 

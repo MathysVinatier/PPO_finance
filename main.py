@@ -193,34 +193,39 @@ def worker(trial_id: int, df, fname, db_name):
     return output
 
 def get_last_trial_id(db_name):
-    conn = sqlite3.connect(db_name)
-    cursor = conn.cursor()
-    cursor.execute("SELECT MAX(trial_id) FROM results")
-    row = cursor.fetchone()
-    conn.close()
-    if row and row[0]:
-        return row[0]
+    print(db_name)
+    print(os.listdir("./"))
+    if db_name in os.listdir("./"):
+        conn = sqlite3.connect(db_name)
+        cursor = conn.cursor()
+        cursor.execute("SELECT MAX(trial_id) FROM results")
+        row = cursor.fetchone()
+        conn.close()
+        if row and row[0]:
+            return row[0]
     return 0
 
-def optimization2():
-    fname = "AAPL_2010_2024.csv"
+def optimization2(fname):
     data = "data/General/"+fname
     dataloader = DataLoader()
     df = dataloader.read(data)
     print(f"TRAINING ON {data}")
-    db_name = f"results_{fname.split('.')[0]}_on_reward_portefolio.db"
+    db_name = f"results_{fname.split('.')[0]}_on_reward_portefolio_slope_log.db"
 
     number_of_trial = 100
     last_trial = get_last_trial_id(db_name)
-    trials = range(last_trial + 1, number_of_trial)
+    if last_trial == 0 :
+        trials = range(0, number_of_trial)
+    else:
+        trials = range(last_trial + 1, number_of_trial)
 
     with ProcessPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(worker, t, df, fname, db_name) for t in trials]
         for future in futures:
             _ = future.result()
 
-def read_db():
-    conn = sqlite3.connect("results_AAPL_2010_2024_on_reward_portefolio.db")
+def read_db(fname):
+    conn = sqlite3.connect(fname)
     cursor = conn.cursor()
     cursor.execute("SELECT trial_id, result, equity, reward FROM results")
     rows = cursor.fetchall()
@@ -241,89 +246,123 @@ def read_db():
     df = pd.DataFrame(records).set_index("id")
     return df
 
-def compute_max_drawdown(equity_curve):
-    equity_curve = np.array(equity_curve, dtype=float)
-    running_max = np.maximum.accumulate(equity_curve)
-    drawdowns = (equity_curve - running_max) / running_max
-    max_dd = drawdowns.min()  # worst drawdown
-    return max_dd, drawdowns
+def compute_drawdown(equity_curve):
+    peak = np.maximum.accumulate(np.nan_to_num(equity_curve, nan=-np.inf))
+    dd = (equity_curve - peak) / peak
+    return dd
 
-def optimization2_plot(df, num_trials_to_show=None):
-    if num_trials_to_show == None :
+
+def optimization2_plot(df, fname, num_trials_to_show=None):
+    if num_trials_to_show is None:
         num_trials_to_show = len(df)
 
-    base_color='steelblue'
+    base_color = 'steelblue'
 
-    fig, axes = plt.subplots(2, 2, figsize=(13, 7))
+    fig, axes = plt.subplots(2, 3, figsize=(18, 7))
     axes = axes.flatten()
 
     # --- Prepare equity matrix ---
     max_len = max(len(r) for r in df["equity"])
-    padded_equity = [r + [np.nan]*(max_len - len(r)) for r in df["equity"]]
+    padded_equity = [r + [np.nan] * (max_len - len(r)) for r in df["equity"]]
     equity_matrix = np.array(padded_equity, dtype=float)
 
-    # --- Compute global last value ---
+    # --- Prepare reward matrix ---
+    max_len = max(len(r) for r in df["reward"])
+    padded_reward = [r + [np.nan] * (max_len - len(r)) for r in df["reward"]]
+    reward_matrix = np.array(padded_reward, dtype=float)
+    mean_reward = np.nanmean(reward_matrix, axis=0)
+    std_reward = np.nanstd(reward_matrix, axis=0)
+
+    # --- Compute mean equity ---
     mean_equity = np.nanmean(equity_matrix, axis=0)
 
-    # Take the last value of the mean equity
-    mean_last_value = mean_equity[-1]
+    # --- Compute Drawdown ---
+    drawdown_matrix = np.array([compute_drawdown(curve) for curve in equity_matrix])
+    mean_drawdown = np.nanmean(drawdown_matrix, axis=0)
+    arg_mmd = np.argmax(np.abs(mean_drawdown))
+    mmd = mean_drawdown[arg_mmd]
+    final_drawdowns = drawdown_matrix[:, -1]
 
-    # Compute distance of each trial's last equity to the mean last value
-    trial_last_values = equity_matrix[:, -1]
-    distances = np.abs(trial_last_values - mean_last_value)
-
-    # Optional: log scale for intensity
-    epsilon = 1e-10
-    log_distances = (distances + epsilon)
-    norm_log = (log_distances - log_distances.min()) / (log_distances.max() - log_distances.min() + 1e-9)
-    alphas = 1.0 - 0.8 * norm_log
-
-    # --- Plot individual equity curves with intensity ---
-    for i, row in enumerate(equity_matrix[:num_trials_to_show]):
-        axes[1].plot(row, color=base_color, alpha=alphas[i])
-    axes[1].set_title(f"Equity Curves ({num_trials_to_show} curves)")
-    axes[1].set_xlabel("Time Step")
-    axes[1].set_ylabel("Equity")
-    axes[1].grid()
-
-    # --- Top-left: Average Equity Curve ± Std ---
+    # =====================================================
+    # Top-left: Equity heatmap
+    # =====================================================
     std_equity = np.nanstd(equity_matrix, axis=0)
-    axes[0].plot(mean_equity, color="darkorange", lw=2, label="Mean Equity")
-    axes[0].fill_between(range(len(mean_equity)),
-                         mean_equity - std_equity,
-                         mean_equity + std_equity,
-                         color="orange", alpha=0.3, label="±1 Std Dev")
-    mdd, _ = compute_max_drawdown(mean_equity)
-    axes[0].set_title(f"Average Equity Curve ± Std (Max Drawdown={mdd:.2%})")
+    axes[0].plot(mean_equity, color="steelblue", lw=2, label="Mean Equity")
+    axes[0].fill_between(
+        range(len(mean_equity)),
+        mean_equity - std_equity,
+        mean_equity + std_equity,
+        color="blue", alpha=0.3, label="±1 Std Dev"
+    )
+    axes[0].set_title(f"Average Equity Curve ± Std (Max Drawdown={mmd:.2%})")
     axes[0].set_xlabel("Time Step")
     axes[0].set_ylabel("Equity")
     axes[0].legend()
     axes[0].grid()
 
-    # --- Bottom-left: Average Reward Curve ± Std ---
-    max_len = max(len(r) for r in df["reward"])
-    padded_reward = [r + [np.nan]*(max_len - len(r)) for r in df["reward"]]
-    reward_matrix = np.array(padded_reward, dtype=float)
-    mean_reward = np.nanmean(reward_matrix, axis=0)
-    std_reward = np.nanstd(reward_matrix, axis=0)
-    axes[2].plot(mean_reward, color="darkgreen", lw=2, label="Mean Reward")
-    axes[2].fill_between(range(len(mean_reward)),
-                         mean_reward - std_reward,
-                         mean_reward + std_reward,
-                         color="green", alpha=0.3, label="±1 Std Dev")
-    axes[2].set_title("Average Reward Curve ± Std")
-    axes[2].set_xlabel("Time Step")
-    axes[2].set_ylabel("Reward")
-    axes[2].legend()
+    # =====================================================
+    # Top-middle: Spaghetti equity curves
+    # =====================================================
+    for row in equity_matrix[:num_trials_to_show]:
+        axes[1].plot(row, color=base_color, alpha=0.2)
+    axes[1].plot(mean_equity, color="blue", lw=2, label="Mean Equity", alpha=0.5)
+    axes[1].set_title(f"Equity Curves ({num_trials_to_show} trials)")
+    axes[1].set_xlabel("Time Step")
+    axes[1].set_ylabel("Equity")
+    axes[1].legend()
+    axes[1].grid()
+
+    # =====================================================
+    # Top-right: Drawdown heatmap
+    # =====================================================
+    sns.histplot(df["score"] - 100, bins=40, kde=True,
+                 ax=axes[2], color="steelblue")
+    axes[2].set_title("Distribution of Equity Profit Robustness")
+    axes[2].set_xlabel("Equity Profit")
+    axes[2].set_ylabel("Count")
     axes[2].grid()
 
-    # --- Bottom-right: Distribution of final equity ---
-    sns.histplot(df["score"], bins=20, kde=True, ax=axes[3], color="steelblue")
-    axes[3].set_title("Distribution of Final Equity (Model Robustness)")
-    axes[3].set_xlabel("Final Equity / Score")
-    axes[3].set_ylabel("Count")
+    # =====================================================
+    # Bottom-left: Reward curve
+    # =====================================================
+    axes[3].plot(mean_reward, color="darkgreen", lw=2, label="Mean Reward")
+    axes[3].fill_between(
+        range(len(mean_reward)),
+        mean_reward - std_reward,
+        mean_reward + std_reward,
+        color="green", alpha=0.3, label="±1 Std Dev"
+    )
+    axes[3].set_title("Average Reward Curve ± Std")
+    axes[3].set_xlabel("Time Step")
+    axes[3].set_ylabel("Reward")
+    axes[3].legend()
     axes[3].grid()
 
+    # =====================================================
+    # Bottom-middle: Spaghetti drawdown curves
+    # =====================================================
+    for row in drawdown_matrix[:num_trials_to_show]:
+        axes[4].plot(row, color="red", alpha=0.15)
+    axes[4].plot(mean_drawdown, color="black", lw=2, label="Mean Drawdown")
+    axes[4].set_title(f"Drawdown Curves ({num_trials_to_show} trials)")
+    axes[4].set_xlabel("Time Step")
+    axes[4].set_ylabel("Drawdown (fraction)")
+    axes[4].legend()
+    axes[4].grid()
+
+    # =====================================================
+    # Bottom-right: Final drawdown distribution
+    # =====================================================
+    sns.histplot(final_drawdowns, bins=40, kde=True,
+                 ax=axes[5], color="red")
+    axes[5].set_title("Distribution of Final Drawdowns")
+    axes[5].set_xlabel("Drawdown (fraction)")
+    axes[5].set_ylabel("Count")
+    axes[5].grid()
+
+    title = fname.split(".")[0]
+    title = " ".join(title.split("_"))
+    fig.suptitle(title)
     plt.tight_layout()
     plt.show()
 
@@ -332,7 +371,9 @@ if __name__ == '__main__':
     import seaborn as sns
     import numpy as np
 
-    optimization2()
+    fname = "AAPL_2010_2024.csv"
+    #optimization2(fname=fname)
 
-    #df = read_db()
-    #optimization2_plot(df)
+    fname_db = "results_AAPL_2010_2024_on_reward_portefolio_slope_log.db"
+    df = read_db(fname=fname_db)
+    optimization2_plot(df, fname = fname_db)

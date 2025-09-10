@@ -1,0 +1,207 @@
+\documentclass[11pt]{beamer}
+\usetheme{Madrid}
+\usefonttheme{serif}
+
+\usepackage[utf8]{inputenc}       % Encoding
+\usepackage[english]{babel}       % Language
+\usepackage[T1]{fontenc}          % Font encoding
+
+\usepackage{amsmath, amsfonts, amssymb} % Math packages
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{subcaption}
+
+\usepackage{tikz}
+\usepackage{tikz-uml}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{blkarray}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+%Tabular
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+
+% Code formatting
+\usepackage{minted}
+\usepackage{adjustbox}
+\usepackage[ruled,vlined]{algorithm2e}
+\SetKwProg{While}{while}{}{}
+\SetKwProg{For}{for}{}{}
+\SetKwProg{Function}{function}{}{}
+
+% Custom math operators
+\DeclareMathOperator{\sen}{sen}
+\DeclareMathOperator{\tg}{tg}
+
+% Numbered captions in figures/tables
+\setbeamertemplate{caption}[numbered]
+
+% Metadata
+\author[Mathys Vinatier]{Mathys Vinatier}
+\title{Optimized Kalman Filter}
+\setbeamercovered{transparent}
+\setbeamertemplate{navigation symbols}{}
+\logo{\includegraphics[scale=.05]{../img/logoSNU.png}}
+\institute[]{Seoul National University}
+\date{\today}
+
+% Bibliography
+\usepackage{biblatex} 
+\addbibresource{../references.bib}
+
+%Glossary
+\usepackage[acronym]{glossaries}
+\makeglossaries
+\input{../glossary.tex}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Reward on Raw Portfolio Returns}
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=.8\textwidth]{../img/reward_portfolio.png}
+        \caption{Reward based on the portfolio value.}
+    \end{figure}
+    \vspace{-.3cm}
+    \[
+        \mathcal{R} = x_{portfolio}
+    \]
+
+\end{frame}
+
+\begin{frame}{Reward on Raw Portfolio Returns (Analysis)}
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio.png}
+
+    \vspace{1em}
+    \begin{tabular}{llc}
+        \textit{Maximum Drawdown} & : & $-64$ \% \\
+        \textit{Profit} & : & $10$ \$ \\
+        \textit{Average Drawdown} & : & $-10$ \% \\
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Reward on Raw Portfolio Differences}
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=.8\textwidth]{../img/reward_portfolio_difference.png}
+        \caption{Reward based on the portfolio differences}
+    \end{figure}
+    \vspace{-.3cm}
+    \[
+        \mathcal{R} = x_{portfolio}[t] - x_{portfolio}[t-1]
+    \]
+
+\end{frame}
+
+\begin{frame}{Reward on Raw Portfolio Differences (Analysis)}
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_diff.png}
+
+    \vspace{1em}
+    \begin{tabular}{llc}
+        \textit{Maximum Drawdown} & : & $-25$ \% \\
+        \textit{Profit} & : & $30$ \$ \\
+        \textit{Average Drawdown} & : & $-3$ \% \\
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Reward on Raw Portfolio Slope sign}
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=.8\textwidth]{../img/reward_portfolio_times_derivate.png}
+        \caption{Reward based on the portfolio slope sign}
+    \end{figure}
+    \vspace{-.3cm}
+    \[
+        \mathcal{R} = \text{sign}\left(\frac{\delta}{\delta t} \left(x_{portfolio}[t_{\text{last action}}] - x_{portefolio}[t]\right)\right) * x_{portfolio}[t]
+    \]
+
+\end{frame}
+
+\begin{frame}{Reward on Raw Portfolio Slope sign (Analysis)}
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_sign.png}
+
+    \vspace{1em}
+    \begin{tabular}{llc}
+        \textit{Maximum Drawdown} & : & $-120$ \% \\
+        \textit{Profit} & : & $-110$ \$ \\
+        \textit{Average Drawdown} & : & $-60$ \% \\
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Reward on Raw Portfolio Slope}
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=.8\textwidth]{../img/reward_portfolio_times_derivate_additive.png}
+        \caption{Reward based on the portfolio slope sign}
+    \end{figure}
+    \vspace{-.3cm}
+    \[
+        \mathcal{R} = \frac{\delta}{\delta t} \left(x_{portfolio}[t_{\text{last action}}] - x_{portefolio}[t]\right) * x_{portfolio}[t]
+    \]
+
+\end{frame}
+
+\begin{frame}{Reward on Raw Portfolio Slope (Analysis)}
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_slope.png}
+
+    \vspace{1em}
+    \begin{tabular}{llc}
+        \textit{Maximum Drawdown} & : & $-87$ \% \\
+        \textit{Profit} & : & $50$ \$ \\
+        \textit{Average Drawdown} & : & $-10$ \% \\
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Reward on Raw Portfolio Slope log}
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=.8\textwidth]{../img/reward_portfolio_times_derivate_additive_log.png}
+        \caption{Reward based on the portfolio slope (log)}
+    \end{figure}
+    \vspace{-.3cm}
+    \[
+        \mathcal{R} = \text{log}\left(\frac{\delta}{\delta t} \left(x_{portfolio}[t_{\text{last action}}] - x_{portefolio}[t]\right) * x_{portfolio}[t]\right)
+    \]
+
+\end{frame}
+
+\begin{frame}{Reward on Raw Portfolio Slope log (Analysis)}
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_slope_log.png}
+
+    \vspace{1em}
+    \begin{tabular}{llc}
+        \textit{Maximum Drawdown} & : & $-74$ \% \\
+        \textit{Profit} & : & $75$ \$ \\
+        \textit{Average Drawdown} & : & $-10$ \% \\
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Conclusion}
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/reward_analysis/APPL_reward_portefolio_slope_log.png}
+    \includegraphics[width=.8\textwidth]{../img/reward_analysis/APPL_reward_portefolio.png}
+    
+\end{frame}
+
+\begin{frame}
+    \centering
+    \vspace{2cm}
+    {\LARGE Thank You}
+\end{frame}
+
+\end{document}

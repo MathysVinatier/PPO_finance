@@ -162,16 +162,17 @@ class TradingEnv(gym.Env):
 
         current_portfolio_value = self.balance + self.position * new_price * self.share
 
-        raw_reward = current_portfolio_value
+        #raw_reward = current_portfolio_value
         #raw_reward = current_portfolio_value - prev_portfolio_value
         #raw_reward = current_portfolio_value*np.sign(self.current_evolution)
+        raw_reward = current_portfolio_value*self.current_evolution
 
         if raw_reward == 0:
             self.reward += 0
         else:
-            self.reward = np.sign(raw_reward)*(np.abs(raw_reward))
-            #self.reward += np.sign(raw_reward)*(np.abs(raw_reward))
-            #self.reward += np.sign(raw_reward)*np.log(np.abs(raw_reward))
+            #self.reward = np.sign(raw_reward)*(np.abs(raw_reward))
+            #self.reward += (raw_reward)
+            self.reward += np.sign(raw_reward)*(np.log(np.abs(raw_reward)))
 
         return self._get_obs(), self.reward, done, current_portfolio_value
 
