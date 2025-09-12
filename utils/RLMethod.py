@@ -70,8 +70,8 @@ class ModelRL:
         df_train, df_test = self.split_data(df, train_size)
 
         # Now returns actions, prices, dates and equity curve directly
-        actions_train, prices_train, dates_train, equity_train, reward_train = self.get_actions_and_prices(model, df_train)
-        actions_test, prices_test, dates_test, equity_test, reward_test = self.get_actions_and_prices(model, df_test, initial_cash=equity_train[-1])
+        actions_train, prices_train, dates_train, equity_train, reward_train = self.get_actions_and_prices(model, df_train, reward_type="portfolio_diff", reward_evolution="value")
+        actions_test, prices_test, dates_test, equity_test, reward_test = self.get_actions_and_prices(model, df_test, reward_type="portfolio_diff", reward_evolution="value", initial_cash=equity_train[-1])
 
         # --- Subplot 1 : Price + Buy/Sell ---
         plt.subplot(2, 1, 1)
@@ -196,10 +196,12 @@ class QLearning(ModelRL):
         else:
             return self.env.sample_valid_action()
 
-    def train(self, df, train_size=0.8, n_training_episodes=1000,
-              learning_rate=0.1, gamma=0.92, max_epsilon=1.0,
-              min_epsilon=0.1, decay_rate=0.0015):
+    def train(self, df, reward_type, reward_evolution, train_size=0.8, n_training_episodes=1500,
+              learning_rate=0.36, gamma=0.55, max_epsilon=0.5,
+              min_epsilon=0.2, decay_rate=0.005):
 
+        self.env.reward_type = reward_type
+        self.env.reward_evolution = reward_evolution
         self.df = df
         self.df_train, _ = self.split_data(self.df.copy(), train_size)
         max_steps = len(self.df_train['Close'])
@@ -243,8 +245,10 @@ class QLearning(ModelRL):
             print('\n' * 3)
         return Qtable
 
-    def get_actions_and_prices(self, Qtable, df, initial_cash=100):
+    def get_actions_and_prices(self, Qtable, df,reward_type, reward_evolution, initial_cash=100):
         self.env.set_data(df)
+        self.env.reward_type = reward_type
+        self.env.reward_evolution = reward_evolution
         bins = self.__get_bins(df)
         state_cont = self.env.reset()
         state_disc = self.discretize_state(state_cont, bins)
@@ -484,7 +488,7 @@ class DeepQLearning(ModelRL):
 if __name__ == "__main__":
     from Environment import TradingEnv, DataLoader
 
-    df = DataLoader().read("./data/General/O_2016_2024.csv")
+    df = DataLoader().read("./data/General/^VIX_2015_2025.csv")
     env = TradingEnv(df)
 
     model = DeepQLearning(env, log=True)
@@ -498,11 +502,11 @@ if __name__ == "__main__":
     )
 
     # Save
-    torch.save(policy_net.state_dict(), "transformer_policy_net.pth")
+    torch.save(policy_net.state_dict(), "transformer_policy_vix.pth")
 
     # Later, to load
     model_loaded = DeepQLearning(env)
-    model_loaded.policy_net.load_state_dict(torch.load("model/transformer/transformer_policy_o.pth"))
+    model_loaded.policy_net.load_state_dict(torch.load("model/transformer/transformer_policy_vix.pth"))
     model_loaded.policy_net.eval()
 
-    model_loaded.plot(df, model = model_loaded.policy_net, name="O", save=True)
+    model_loaded.plot(df, model = model_loaded.policy_net, name="VIX", save=True)

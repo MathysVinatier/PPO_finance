@@ -156,38 +156,54 @@ def get_best_parameter(storage_url):
     print("Best score:", study.best_value)
 
 
-def compute_function(trial_id: int, df) -> dict:
+def compute_function(trial_id: int, df, reward_type, reward_evolution) -> dict:
 
     env = TradingEnv(df, broker_fee=True)
     QL = QLearning(env, log=True)
-    Qtable = QL.train(df=df, train_size=0.8, n_training_episodes=1000)
-    _, _, _, equity, reward = QL.get_actions_and_prices(Qtable, df)
+    Qtable = QL.train(df=df, reward_type=reward_type, reward_evolution=reward_evolution, train_size=0.8, n_training_episodes=1500)
+    _, _, _, equity, reward = QL.get_actions_and_prices(Qtable, df, reward_type, reward_evolution)
     result = equity[-1]
     return {
-        "trial_id": trial_id,
+        "trial_id": trial_id, 
         "result": result,
         "equity": equity,
-        "reward": reward
+        "reward": reward,
+        "qtable": Qtable
     }
 
 
-def worker(trial_id: int, df, fname, db_name):
-    output = compute_function(trial_id, df)
+def worker(trial_id: int, df, db_name, reward_type, reward_evolution):
+    output = compute_function(trial_id, df, reward_type, reward_evolution)
 
     conn = sqlite3.connect(db_name, timeout=30)  # timeout helps with write locks
     cursor = conn.cursor()
     cursor.execute(
-        "CREATE TABLE IF NOT EXISTS results (trial_id INTEGER, result INTEGER, equity TEXT, reward TEXT)"
+        """CREATE TABLE IF NOT EXISTS results (
+               trial_id INTEGER, 
+               result INTEGER, 
+               equity TEXT, 
+               reward TEXT,
+               qtable TEXT
+           )"""
     )
+
+    # Convert Q-table to JSON (handle numpy arrays)
+    if isinstance(output["qtable"], np.ndarray):
+        qtable_json = json.dumps(output["qtable"].tolist())
+    else:
+        qtable_json = json.dumps(output["qtable"])
+
     cursor.execute(
-        "INSERT INTO results (trial_id, result, equity, reward) VALUES (?, ?, ?, ?)",
+        "INSERT INTO results (trial_id, result, equity, reward, qtable) VALUES (?, ?, ?, ?, ?)",
         (
             output["trial_id"],
             output["result"],
             json.dumps(output["equity"]),
-            json.dumps(output["reward"])
+            json.dumps(output["reward"]),
+            qtable_json,
         ),
     )
+
     conn.commit()
     conn.close()
     return output
@@ -205,12 +221,12 @@ def get_last_trial_id(db_name):
             return row[0]
     return 0
 
-def optimization2(fname):
+def optimization2(fname,reward_type ,reward_evolution):
     data = "data/General/"+fname
     dataloader = DataLoader()
     df = dataloader.read(data)
     print(f"TRAINING ON {data}")
-    db_name = f"results_{fname.split('.')[0]}_on_reward_portefolio_slope_log.db"
+    db_name = f"results_{fname.split('.')[0]}_on_reward_{reward_type}_{reward_evolution}.db"
 
     number_of_trial = 100
     last_trial = get_last_trial_id(db_name)
@@ -220,26 +236,27 @@ def optimization2(fname):
         trials = range(last_trial + 1, number_of_trial)
 
     with ProcessPoolExecutor(max_workers=5) as executor:
-        futures = [executor.submit(worker, t, df, fname, db_name) for t in trials]
+        futures = [executor.submit(worker, t, df, db_name, reward_type, reward_evolution) for t in trials]
         for future in futures:
             _ = future.result()
 
 def read_db(fname):
     conn = sqlite3.connect(fname)
     cursor = conn.cursor()
-    cursor.execute("SELECT trial_id, result, equity, reward FROM results")
+    cursor.execute("SELECT trial_id, result, equity, reward, qtable FROM results")
     rows = cursor.fetchall()
     conn.close()
 
     records = []
-    for trial_id, result, equity, reward in rows:
+    for trial_id, result, equity, reward, qtable in rows:
         equity_list = json.loads(equity)
         reward_list = json.loads(reward)
         records.append({
             "id": trial_id,
             "score": result,
             "equity": equity_list,
-            "reward": reward_list
+            "reward": reward_list,
+            "qtable": qtable
         })
         #print(trial_id, result, equity_list[:5], reward_list[:5])
 
@@ -251,6 +268,24 @@ def compute_drawdown(equity_curve):
     dd = (equity_curve - peak) / peak
     return dd
 
+def optimization2_optimized(fname,reward_type ,reward_evolution):
+    data = "data/General/"+fname
+    dataloader = DataLoader()
+    df = dataloader.read(data)
+    print(f"TRAINING ON {data}")
+    db_name = f"results_{fname.split('.')[0]}_on_reward_{reward_type}_{reward_evolution}_optimized_parameters.db"
+
+    number_of_trial = 100
+    last_trial = get_last_trial_id(db_name)
+    if last_trial == 0 :
+        trials = range(0, number_of_trial)
+    else:
+        trials = range(last_trial + 1, number_of_trial)
+
+    with ProcessPoolExecutor(max_workers=5) as executor:
+        futures = [executor.submit(worker, t, df, db_name, reward_type, reward_evolution) for t in trials]
+        for future in futures:
+            _ = future.result()
 
 def optimization2_plot(df, fname, num_trials_to_show=None):
     if num_trials_to_show is None:
@@ -367,13 +402,27 @@ def optimization2_plot(df, fname, num_trials_to_show=None):
     plt.show()
 
 if __name__ == '__main__':
+    import argparse
     import matplotlib.pyplot as plt
     import seaborn as sns
     import numpy as np
 
-    fname = "AAPL_2010_2024.csv"
-    #optimization2(fname=fname)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--fname", type=str, default="^VIX_2015_2025.csv", help="CSV file")
+    parser.add_argument("--reward_type", type=str, default="portfolio_diff", help="Reward type (e.g. portfolio, portfolio_diff, etc.)")
+    parser.add_argument("--reward_evolution", type=str, default="value", help="Reward evolution type (additive or value)")
+    args = parser.parse_args()
 
-    fname_db = "results_AAPL_2010_2024_on_reward_portefolio_slope_log.db"
-    df = read_db(fname=fname_db)
-    optimization2_plot(df, fname = fname_db)
+    optimization2_optimized(fname=args.fname, reward_type=args.reward_type, reward_evolution=args.reward_evolution)
+
+    #fname_db = "results_^VIX_2015_2025_on_reward_portfolio_diff_value_optimized_parameters.db"
+    #df_db = read_db(fname=fname_db)
+    #qtable = df_db["qtable"][0]
+
+    #optimization2_plot(df_db, fname = fname_db)
+    #dataloader = DataLoader()
+    #df = dataloader.read("data/General/^VIX_2015_2025.csv")
+    #env = TradingEnv(df, broker_fee=True)
+    #QL = QLearning(env)
+    #qtable = QL.train(df=df, train_size=0.8, reward_type="portfolio_diff", reward_evolution="value")
+    #QL.plot(df=df, model=qtable, name="VIX_2015_2025", save=True, show=True)
