@@ -401,11 +401,60 @@ def optimization2_plot(df, fname, num_trials_to_show=None):
     plt.tight_layout()
     plt.show()
 
+def optimization2_optimized_plot():
+    dataloader = DataLoader()
+    df = dataloader.read("data/General/^VIX_2015_2025.csv")
+    df_db = read_db('./results_^VIX_2015_2025_on_reward_portfolio_diff_value_optimized_parameters.db')
+    df_db_best = df_db[df_db["score"] == df_db["score"].max()]
+
+    df_equity = df_db_best["equity"].values[0]
+    df_reward = df_db_best["reward"].values[0]
+
+    fig, axes = plt.subplots(2, 1, figsize=(14, 8))
+
+    training_size = int(0.8 * len(df_equity))
+
+    training_equity = df_equity[:training_size]
+    scaled_training_equity = [val - 100 + df["Close"].iloc[0] for val in training_equity]
+
+    testing_equity = df_equity[training_size-1:]
+    scaled_testing_equity = [val - testing_equity[0] + df["Close"].iloc[training_size-1] for val in testing_equity]
+
+    x_train = df.index[:training_size]
+    x_test  = df.index[training_size:training_size + len(scaled_testing_equity)]
+
+    profit_train = (training_equity[-1]-training_equity[0])/training_equity[0]*100
+    profit_test  = (testing_equity[-1]-testing_equity[0])/testing_equity[0]*100
+    profit_index  = (df["Close"][-1]-df["Close"][0])/df["Close"][0]*100
+
+    axes[0].plot(x_train, scaled_training_equity, label=f"Training Equity Curve ({profit_train:.2f}%)")
+    axes[0].plot(x_test, scaled_testing_equity, label=f"Testing Equity Curve ({profit_test:.2f}%)")
+    axes[0].plot(df.index, df["Close"].values, label=f"Close Price ({profit_index:.2f}%)", alpha=.5)
+    axes[0].set_title("Equity Curve")
+    axes[0].legend()
+    axes[0].set_ylabel("Profit ($)")
+    axes[0].grid(True)
+    axes[0].xaxis.set_major_locator(mdates.AutoDateLocator())
+    axes[0].tick_params(labelbottom=False)
+
+    axes[1].plot(df.index[:-1], df_reward, label="Reward")
+    axes[1].set_title("Reward")
+    axes[1].set_ylabel("Reward")
+    axes[1].set_xlabel("Date")
+    axes[1].xaxis.set_major_locator(mdates.AutoDateLocator())
+    axes[1].grid(True)
+
+    plt.setp(axes[1].xaxis.get_majorticklabels(), rotation=45, ha="right")
+
+    plt.tight_layout()
+    plt.show()
+
 if __name__ == '__main__':
     import argparse
     import matplotlib.pyplot as plt
     import seaborn as sns
     import numpy as np
+    import matplotlib.dates as mdates
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--fname", type=str, default="^VIX_2015_2025.csv", help="CSV file")
@@ -413,7 +462,8 @@ if __name__ == '__main__':
     parser.add_argument("--reward_evolution", type=str, default="value", help="Reward evolution type (additive or value)")
     args = parser.parse_args()
 
-    optimization2_optimized(fname=args.fname, reward_type=args.reward_type, reward_evolution=args.reward_evolution)
+    #optimization2_optimized(fname=args.fname, reward_type=args.reward_type, reward_evolution=args.reward_evolution)
+    optimization2_optimized_plot()
 
     #fname_db = "results_^VIX_2015_2025_on_reward_portfolio_diff_value_optimized_parameters.db"
     #df_db = read_db(fname=fname_db)
@@ -424,5 +474,6 @@ if __name__ == '__main__':
     #df = dataloader.read("data/General/^VIX_2015_2025.csv")
     #env = TradingEnv(df, broker_fee=True)
     #QL = QLearning(env)
-    #qtable = QL.train(df=df, train_size=0.8, reward_type="portfolio_diff", reward_evolution="value")
+    #qtable = QL.(df=df, train_size=0.8, reward_type="portfolio_diff", reward_evolution="value")
     #QL.plot(df=df, model=qtable, name="VIX_2015_2025", save=True, show=True)
+
