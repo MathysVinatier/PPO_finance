@@ -518,4 +518,4 @@ if __name__ == "__main__":
     model_loaded.policy_net.load_state_dict(torch.load("transformer_policy_vix.pth"))
     model_loaded.policy_net.eval()
 
-    model_loaded.plot(df, model = model_loaded.policy_net, name="VIX", save=True)
+    model_loaded.plot(df, model = model_loaded.policy_net, name="VIX", save=False)
