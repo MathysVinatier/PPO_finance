@@ -53,6 +53,7 @@
 \usepackage{multirow}
 \usepackage[table]{xcolor}
 \usepackage{enumitem}
+\usepackage{arydshln}
 
 %Function draw
 
@@ -138,9 +139,15 @@
 
 \maketitle
 
+\newpage
+\blankpage
+\newpage
+
 \tableofcontents
 \blankpage
 
+\newpage
+\blankpage
 \newpage
 
 \setcounter{chapter}{9}
@@ -1555,10 +1562,6 @@ Initialize Q-table
 
 \noindent By construction, this type of reward strongly reflects the underlying dynamics of the market. If the agent is able to capture upward trends and avoid downturns, the reward signal will naturally increase, reinforcing profitable strategies. Conversely, poor decisions that reduce the portfolio value will be immediately penalized.
 
-\[
-    \mathcal{R} = x_{portfolio}
-\]
-
 \noindent One expected advantage of this reward is that it encourages the agent to directly maximize final profit, as the cumulative reward is aligned with absolute portfolio growth. However, this alignment also comes with limitations. Since the reward is unscaled, extreme variations in portfolio value may dominate the training signal, potentially leading to instability or overfitting. Additionally, because the reward does not explicitly account for risk-adjusted performance, the agent may adopt overly aggressive strategies that expose the portfolio to large drawdowns.
 
 \noindent In summary, the raw portfolio return reward is intuitive and easy to implement, making it a natural baseline for comparison. It emphasizes pure profitability and offers a clear benchmark against which more sophisticated reward functions can be evaluated, particularly those designed to balance profit with risk management.
@@ -1699,6 +1702,197 @@ Initialize Q-table
 
 
 \noindent This new reward yields results that are broadly similar to the previous case, but with slight improvements. In particular, the maximum drawdown is reduced to $-74\%$, and the profit distribution is more balanced, indicating greater robustness. Additionally, the proportion of positive outcomes has increased, with profits tending to stabilize around $70\%$ of the original wallet value.
+
+\newpage
+
+\chapter{Week 16}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{VIX index experiments}
+
+\indent This week we focused our agent to work on the VIX index. The \textbf{VIX Index}, also known as the \textit{CBOE Volatility Index}, is a widely followed measure of market expectations of near-term volatility conveyed by S\&P 500 stock index option prices. Introduced by the Chicago Board Options Exchange (CBOE) in 1993, the VIX is often referred to as the "fear gauge" because it tends to rise when markets become uncertain or experience stress.
+
+\noindent Mathematically, the VIX represents the market's expectation of the annualized volatility over the next 30 days, derived from a wide range of S\&P 500 index options. Higher VIX values indicate greater expected market volatility, while lower values suggest calmer market conditions. 
+
+\noindent investors and risk managers use the VIX as a tool for hedging, portfolio allocation, and to gauge market sentiment. It is widely used in both academic research and practical trading strategies to understand and anticipate market risk.
+
+\subsection{Finding the best reward for VIX index}
+
+\indent As we did previously, we need to find the best reward for the VIX index. We will keep the same kind of reward than previously and run a 100 curves for each reward to get the best possible reward.
+
+\noindent \textbf{Portfolio Returns Reward}
+
+\noindent This reward is based on the return of the porfolio which is suppose to maximize the final value of the equity curves associated to the trained agent.
+
+\[
+    \mathcal{R} = x_{portfolio}
+\]
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/VIX_reward_portefolio.png}
+    \caption{Analysis of the portfolio value reward}
+\end{figure}
+
+\noindent This reward will not be considered as it has inly negative profit.
+
+\newpage
+
+\hfill
+
+\noindent \textbf{Portfolio Difference Reward}
+
+\hfill
+
+\[
+    \mathcal{R} = x_{portfolio}[t] - x_{portfolio}[t-1]
+\]
+
+\hfill
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/VIX_reward_portefolio_diff.png}
+    \caption{Analysis of the portfolio value reward}
+\end{figure}
+
+\hfill
+
+\noindent This reward is a good candidate since it has the best trained agent profit that reached almost $300\%$. Also, the drawdown is very low in the distribution graph.
+
+\hfill
+
+\noindent \textbf{Slope Sign Reward}
+
+\hfill
+
+\[
+    \mathcal{R} = \text{sign}\left(\frac{\delta}{\delta t} \left(x_{portfolio}[t_{\text{last action}}] - x_{portefolio}[t]\right)\right) * x_{portfolio}[t]
+\]
+
+\hfill
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/VIX_reward_portefolio_sign.png}
+    \caption{Analysis of the portfolio value reward}
+\end{figure}
+
+\hfill
+
+\noindent The slope sign reward will not be considered since it has to many negative profit.
+
+\hfill
+
+\newpage
+
+\noindent \textbf{Portfolio Value and Direct Slope Reward}
+
+\[
+    \mathcal{R} = \frac{\delta}{\delta t} \left(x_{portfolio}[t_{\text{last action}}] - x_{portefolio}[t]\right) * x_{portfolio}[t]
+\]
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/VIX_reward_portefolio_slope.png}
+    \caption{Analysis of the portfolio value reward}
+\end{figure}
+
+\noindent This reward has an excellent drawdown compared to the last good candidates but the best agent is only reaching $200\%$ of profit which is worse than the previous candidates.
+
+\indent As reward we will use the portfolio difference reward since it has the best profit output and drawdown, which is not the best out of all agents, that is good enough to be considered in real life scenarios.
+
+\newpage
+
+\subsection{Fine-Tuning Q-Learning for the VIX Index}
+
+\indent Now we found the best reward, we need to fine-tune the Q-Learning agent to optimize the Q-matrix outputs for making decisions on a testing dataset. To achieve this, we perform approximately 120 trials of the agent in the same environment in order to identify the best set of hyperparameters across all trials.
+
+\hfill
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/optuna_trials.png}
+    \caption{Optuna output for trials}
+\end{figure}
+
+\hfill
+
+\noindent As observed, the best trial reached a profit exceeding 300\%, indicating that the corresponding parameters are capable of training an agent with strong performance.
+
+\hfill
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{../img/reward_analysis/optuna_parameters.png}
+    \caption{Optuna parameter optimization results}
+\end{figure}
+
+\hfill
+
+\newpage
+
+\hfill
+
+\noindent However, due to the stochastic nature of the greedy policy, agents trained with the same parameters may produce different returns. This means that the 300\% profit is not guaranteed in subsequent training runs. To address this variability, we train a set of 100 agents to compare their performance and select the best among them.
+
+\hfill
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/reward_analysis/optuna_best_param_trials.png}
+    \caption{Performance distribution of agents trained with the best parameters}
+\end{figure}
+
+\hfill
+
+\noindent From the figure, we observe a stable drawdown distribution around 5\% for most trainings, with an average maximum drawdown of $-24\%$. The profit distribution centers around 25\%, which is favorable compared to previous market analyses. Importantly, the best trial out of the 100 trained agents achieved nearly 200\% profit.
+
+\hfill
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.7\textwidth]{../img/reward_analysis/optuna_best_training_trials.png}
+    \caption{Best performing agent from the 100 training trials}
+\end{figure}
+
+\noindent The best trial achieved a training profit of 164\% over 8 years, corresponding to an annualized return of approximately 20\%, and a tested profit of 10\% over 2 years. Observations indicate that the agent captures significant profits while avoiding major market downturns. We can now proceed to train a Deep Q-Learning agent, replacing the basic greedy strategy, to further enhance model decision-making.
+
+\section{Deep Q-Learning Integration}
+
+\indent In previous work, we introduced two Deep Q-Learning agents. The first uses a GPT-based transformer model sourced from Hugging Face, while the second leverages custom model layers designed according to research on constructing models specifically tailored to market actions.
+
+\noindent The GPT transformer model had already achieved promising results but exhibited unpredictable and unstable behavior. We addressed this issue by refining the environment and preventing illegal actions during training, which significantly improved stability. The "homemade" agent incorporates multi-head attention layers and has been developed, although it has not yet been tested. We were, however, able to evaluate the impact of the new reward function and parameter settings on the GPT transformer agent :
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.9\textwidth]{../img/GPT_transformer_results/DeepQLearning_VIX_2015.png}
+    \caption{Deep Q-Learning Agent (non optimized) results}
+\end{figure}
+
+\noindent This agent is limiting the drawdown by itself since it has a very stable uptrend equity curve. We have global profit that is slightly better than the previous basic Q-Learning agent by $1\%$ with a global profit (Training + Testing dataset) of $175\%$.
+
+\begin{center}
+    \begin{tabular}{l@{\hskip 1cm}|c|c|}
+            &  &                                                  \\
+            & \textbf{Q-Learning} & \textbf{Deep Q-Learning}      \\
+            & & \textbf{(not optimized)}                          \\[0.4cm] \hline
+            & &                                                   \\[-0.2cm]
+            \textit{Agent Training Profit} & $163\%$ & $151\%$    \\[0.2cm]
+            \textit{Agent Testing Profit} & $10\%$ & $24\%$       \\[0.5cm] \hdashline
+            & &                                                   \\[-0.2cm]
+            \textbf{\textit{Global Profit}} & \textbf{$173\%$} & \textbf{$175\%$} \\[0.2cm]
+    \end{tabular}
+\end{center}
+
+\noindent Let's noticed that this Deep Q-Learning agent has not been optimized since that for 500 epsiodes training we have to sepdn 40 minutes and the training script needs to be optimized since it is using a lot of RAM. After fixing the RAM issue (if it is possible), we will be able to train multiple agent in the same time to fine-tune the model using optuna. For now the new agent has the best output from every model we used previously, but we suggest that the agent could get better performance after optimization.
+
+
 
 %\newpage
 

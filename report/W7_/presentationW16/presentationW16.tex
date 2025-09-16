@@ -1,0 +1,198 @@
+\documentclass[11pt]{beamer}
+\usetheme{Madrid}
+\usefonttheme{serif}
+
+\usepackage[utf8]{inputenc}       % Encoding
+\usepackage[english]{babel}       % Language
+\usepackage[T1]{fontenc}          % Font encoding
+
+\usepackage{amsmath, amsfonts, amssymb} % Math packages
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{subcaption}
+
+\usepackage{tikz}
+\usepackage{tikz-uml}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{blkarray}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+%Tabular
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{arydshln}
+
+% Code formatting
+\usepackage{minted}
+\usepackage{adjustbox}
+\usepackage[ruled,vlined]{algorithm2e}
+\SetKwProg{While}{while}{}{}
+\SetKwProg{For}{for}{}{}
+\SetKwProg{Function}{function}{}{}
+
+% Custom math operators
+\DeclareMathOperator{\sen}{sen}
+\DeclareMathOperator{\tg}{tg}
+
+% Numbered captions in figures/tables
+\setbeamertemplate{caption}[numbered]
+
+% Metadata
+\author[Mathys Vinatier]{Mathys Vinatier}
+\title{Optimized Kalman Filter}
+\setbeamercovered{transparent}
+\setbeamertemplate{navigation symbols}{}
+\logo{\includegraphics[scale=.05]{../img/logoSNU.png}}
+\institute[]{Seoul National University}
+\date{\today}
+
+% Bibliography
+\usepackage{biblatex} 
+\addbibresource{../references.bib}
+
+%Glossary
+\usepackage[acronym]{glossaries}
+\makeglossaries
+\input{../glossary.tex}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Finding the best reward for VIX}
+    \hfill
+
+    \textbf{Portfolio Difference Reward}
+
+    \hfill
+
+    \[
+        \mathcal{R} = x_{portfolio}[t] - x_{portfolio}[t-1]
+    \]
+
+    \hfill
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=\textwidth]{../img/reward_analysis/VIX_reward_portefolio_diff.png}
+        \caption{Analysis of the portfolio value reward}
+    \end{figure}
+
+    \hfill
+\end{frame}
+
+
+\begin{frame}{Finding the best reward for VIX}
+    \hfill
+
+    \textbf{Portfolio Value and Direct Slope Reward}
+
+    \hfill
+
+    \[
+        \mathcal{R} = \frac{\delta}{\delta t} \left(x_{portfolio}[t_{\text{last action}}] - x_{portefolio}[t]\right) * x_{portfolio}[t]
+    \]
+
+    \hfill
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=\textwidth]{../img/reward_analysis/VIX_reward_portefolio_slope.png}
+        \caption{Analysis of the portfolio value reward}
+    \end{figure}
+
+    \hfill
+\end{frame}
+
+\begin{frame}{Finding the best reward for VIX}
+    \centering
+    \begin{tabular}{l@{\hskip 1cm}|c|c|}
+        & \textbf{Diff Reward} & \textbf{Slope Reward}              \\[0.4cm] \hline
+        & &                                                         \\[0.01cm]
+        \textit{Mean MMD} & $-36.25\%$ & $-30.18\%$                 \\[0.2cm]
+        \textit{MMD Distribution} & $\sim -9\%$ & $\sim -3\%$       \\[0.7cm] \hdashline
+        & &                                                         \\[0.15cm]
+        \textit{Best agent Profit} & $284\%$ & $218\%$              \\[0.2cm]
+        \textit{Profit Distribution} & $\sim 120\%$ & $\sim 10\%$   \\[0.2cm]
+
+    \end{tabular}
+\end{frame}
+
+\begin{frame}{Optuna Hyperparameterization}
+
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.7\textwidth]{../img/reward_analysis/optuna_trials.png}
+    \end{figure}
+
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.7\textwidth]{../img/reward_analysis/optuna_parameters.png}
+    \end{figure}
+
+\end{frame}
+
+\begin{frame}{Optuna Hyperparameterization}
+    \centering
+
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=\textwidth]{../img/reward_analysis/optuna_best_param_trials.png}
+    \end{figure}
+    \scalebox{.9}{
+    \begin{tabular}{l@{\hskip 1cm}|c|}
+        \textit{Mean MMD} & $-27.60\%$              \\[0.2cm]
+        \textit{MMD Distribution} & $\sim -5\%$     \\[0.3cm] \hdashline
+         &                                          \\[-0.2cm]
+        \textit{Best agent Profit} & $290\%$        \\[0.2cm]
+        \textit{Profit Distribution} & $\sim 40\%$  \\
+    \end{tabular}
+    }
+
+\end{frame}
+
+\begin{frame}{Optuna Hyperparameterization}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.9\textwidth]{../img/reward_analysis/optuna_best_training_trials.png}
+        \caption{Best performing agent from the 100 training trials}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Reward and Parameterization test on DeepQLearning}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.9\textwidth]{../img/GPT_transformer_results/DeepQLearning_VIX_2015.png}
+        \caption{Deep Q-Learning Agent}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Agent comparison for VIX}
+    \centering
+    \begin{tabular}{l@{\hskip 1cm}|c|c|}
+        &  &                                                  \\
+        & \textbf{Q-Learning} & \textbf{Deep Q-Learning}      \\
+        & & \textbf{(not optimized)}                          \\[0.4cm] \hline
+        & &                                                   \\[0.01cm]
+        \textit{Agent Training Profit} & $163\%$ & $151\%$    \\[0.2cm]
+        \textit{Agent Testing Profit} & $10\%$ & $24\%$       \\[0.7cm] \hdashline
+        & &                                                   \\[0.15cm]
+        \textbf{\textit{Global Profit}} & \textbf{$173\%$} & \textbf{$175\%$} \\[0.2cm]
+    \end{tabular}
+\end{frame}
+
+\begin{frame}
+    \centering
+    \vspace{2cm}
+    {\LARGE Thank You}
+\end{frame}
+
+\end{document}
