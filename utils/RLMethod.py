@@ -446,8 +446,10 @@ class DeepQLearning(ModelRL):
         return self.policy_net
 
     @torch.no_grad()
-    def get_actions_and_prices(self, policy_net, df, initial_cash=100):
+    def get_actions_and_prices(self, policy_net, df, reward_type, reward_evolution, initial_cash=100):
         self.env.set_data(df)
+        self.env.reward_type = reward_type
+        self.env.reward_evolution = reward_evolution
         state_cont = self.env.reset()
         history = deque(maxlen=self.steps)
         history.append(np.asarray(state_cont, dtype=np.float32))
@@ -460,8 +462,9 @@ class DeepQLearning(ModelRL):
             if self.env.current_step >= len(df) - 1:
                 break
             state_t = torch.as_tensor(state_vec, dtype=torch.float32, device=DEVICE).unsqueeze(0)
+            valid_actions = self.env.get_valid_actions()
             q = policy_net(state_t)[0].cpu().numpy()
-            action = int(np.argmax(q))
+            action = int(valid_actions[np.argmax(q[valid_actions])])
             next_obs, reward, done, info = self.env.step(action)
             reward_list.append(reward)
             price = df["Close"].iloc[self.env.current_step - 1]
@@ -492,21 +495,27 @@ if __name__ == "__main__":
     env = TradingEnv(df)
 
     model = DeepQLearning(env, log=True)
-
     policy_net = model.train(
         df=df,
         train_size=0.8,
-        n_training_episodes=500,
-        learning_rate=1e-3,
-        gamma=0.99
+        n_training_episodes=500,    # much longer training
+        learning_rate=1e-4,         # smaller LR for stability
+        gamma=0.99,                 # discount factor (keep)
+        max_epsilon=1.0,            # start fully random
+        min_epsilon=0.05,           # leave some exploration
+        decay_rate=0.005,           # faster decay (converge to exploitation earlier)
+        buffer_capacity=100_000,    # big replay memory
+        batch_size=128,             # larger batches stabilize updates
+        target_update_every=500,    # update target net more frequently
+        learn_every=4,              # learn every few steps (stabilizes learning)
+        warmup_steps=5_000          # collect random transitions before training
     )
 
     # Save
     torch.save(policy_net.state_dict(), "transformer_policy_vix.pth")
 
-    # Later, to load
     model_loaded = DeepQLearning(env)
-    model_loaded.policy_net.load_state_dict(torch.load("model/transformer/transformer_policy_vix.pth"))
+    model_loaded.policy_net.load_state_dict(torch.load("transformer_policy_vix.pth"))
     model_loaded.policy_net.eval()
 
     model_loaded.plot(df, model = model_loaded.policy_net, name="VIX", save=True)

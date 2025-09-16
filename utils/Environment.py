@@ -145,7 +145,6 @@ class TradingEnv(gym.Env):
             self.last_price = price
             self.step_since_last_action = 0
 
-
         # Advance time
         if self.current_step == 0:
             self.last_price = price
