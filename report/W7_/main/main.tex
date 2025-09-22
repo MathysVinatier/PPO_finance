@@ -890,7 +890,7 @@ Initialize Q-table
 
 \indent After the hidden layers are constructed, a final \texttt{nn.Linear} layer is added. This last layer maps the output of the final hidden layer to the desired \texttt{output\_dim} of the network. The entire sequence of layers is then encapsulated into a single \texttt{nn.Sequential} container, which ensures that the data will be passed through the layers in the correct order during the forward pass.\par
 
-\begin{table}[h!]
+\begin{table}[!ht]
     \centering
     \begin{tabular}{|l l|}
         \toprule
@@ -910,7 +910,7 @@ Initialize Q-table
 
 \indent After a 2-hour training period, the model's performance was evaluated on a test dataset. The results are visualized in the following plot :
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.8\textwidth]{../img/MLP_result/QLearning_BTC-USD_2014.png}
     \caption{Performance of the Q-Learning Model on a BTC-USD test set}
@@ -980,7 +980,7 @@ Initialize Q-table
 
 \noindent The \texttt{forward} method outlines the data flow. First, it ensures the input tensor \texttt{x} is in the correct shape for the transformer (a 3D tensor representing a batch, sequence of steps, and features). The input is then passed to the `self.input\_proj` layer for projection. The core of the computation happens when the projected data is fed into the transformer `backbone`. The transformer processes the entire sequence and its output's `last\_hidden\_state` is used. This final hidden state is a rich representation that has attended to the entire sequence history, making it ideal for the final decision. Finally, the `self.q\_head` linear layer takes this comprehensive representation and projects it to the desired \texttt{output\_dim}, providing the predicted Q-values.
 
-\begin{table}[h!]
+\begin{table}[!ht]
     \centering
     \begin{tabular}{|l l|}
         \toprule
@@ -997,7 +997,7 @@ Initialize Q-table
 
 \indent After a 4-hour training period, the model's performance was evaluated on a test dataset. The results are visualized in the following plot:
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.8\textwidth]{../img/GPT_transformer_results/DeepQLearning_O_2016_v2.png}
     \caption{Performance of the Deep Q-Learning Model on Realty Income (O) data from 2016.}
@@ -1028,7 +1028,7 @@ Initialize Q-table
 
 \noindent The \texttt{forward} method outlines the data flow. First, it ensures the input tensor \texttt{x} is in the correct shape for the transformer (a 3D tensor representing a batch, sequence of steps, and features). The input is then passed to the `self.input\_proj` layer for projection. The core of the computation happens when the projected data is fed into the transformer `backbone`. The transformer processes the entire sequence and its output's `last\_hidden\_state` is used. This final hidden state is a rich representation that has attended to the entire sequence history, making it ideal for the final decision. Finally, the `self.q\_head` linear layer takes this comprehensive representation and projects it to the desired \texttt{output\_dim}, providing the predicted Q-values.
 
-\begin{table}[h!]
+\begin{table}[!ht]
     \centering
     \begin{tabular}{|l l|}
         \toprule
@@ -1094,13 +1094,13 @@ Initialize Q-table
 \newpage
 
 \vfill
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/GPT_transformer_results/DeepQLearning_AAPL_2010.png}
     \caption{Performance of the Transofrmer Model on Apple data from 2010.}
 \end{figure}
 \vfill
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/GPT_transformer_results/DeepQLearning_O_2016_v2.png}
     \caption{Performance of the Transofrmer Model on Realty income data from 2016.}
@@ -1108,13 +1108,13 @@ Initialize Q-table
 \vfill
 \newpage
 \vfill
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/GPT_transformer_results/DeepQLearning_renault_2016.png}
     \caption{Performance of the Transofrmer Model on Renault data from 2016.}
 \end{figure}
 \vfill
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/GPT_transformer_results/DeepQLearning_TSLA_2019.png}
     \caption{Performance of the Transofrmer Model on Tesla data from 2019.}
@@ -1554,7 +1554,7 @@ Initialize Q-table
 
 \indent The "Raw Portfolio Return" reward is defined as the direct change in the portfolio value over time. In this setup, the reward signal is proportional to the basic evolution of the equity curve, without any normalization or transformation. This approach provides the most straightforward way to measure performance, as the agent's decisions are directly linked to increases or decreases in portfolio value.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=.8\textwidth]{../img/reward_portfolio.png}
     \caption{Reward based on the portfolio value.}
@@ -1566,7 +1566,7 @@ Initialize Q-table
 
 \noindent In summary, the raw portfolio return reward is intuitive and easy to implement, making it a natural baseline for comparison. It emphasizes pure profitability and offers a clear benchmark against which more sophisticated reward functions can be evaluated, particularly those designed to balance profit with risk management.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio.png}
     \caption{Analysis of the portfolio value reward.}
@@ -1585,7 +1585,7 @@ Initialize Q-table
 
 \indent From the previous experiment, we observed that the raw portfolio value as a reward does not adequately represent the impact of individual actions. To better capture this impact, we introduce the "Portfolio Difference" reward. This reward is defined as the change in portfolio value between two consecutive steps ; the difference between the portfolio value after the current action and that after the previous action.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=.8\textwidth]{../img/reward_portfolio_difference.png}
     \caption{Reward based on portfolio differences.}
@@ -1601,7 +1601,7 @@ Initialize Q-table
 
 \noindent Despite these drawbacks, the portfolio difference reward offers a valuable intermediate step in reward design. It provides sharper feedback for the agent's actions compared to raw portfolio value, making it easier to distinguish between good and bad decisions in the short run. This reward can therefore serve as a useful benchmark, especially when combined or compared with more sophisticated functions that explicitly incorporate risk management and long-term profit objectives.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_diff.png}
     \caption{Analysis of the portfolio value reward}
@@ -1619,7 +1619,7 @@ Initialize Q-table
 
 \indent Building on the previous reward functions, we introduce the "Slope Sign" reward, which attempts to combine the benefits of both raw portfolio returns and portfolio differences. The idea is to evaluate the direction of the equity curve by computing the slope between the portfolio value after the previous action and the current portfolio value. The sign of this slope (positive or negative) is then multiplied by the current portfolio value to generate the reward signal. In this way, profitable actions are reinforced, while unprofitable ones are directly penalized.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=.8\textwidth]{../img/reward_portfolio_times_derivate.png}
     \caption{Reward based on the portfolio value and its derivative sign}
@@ -1635,7 +1635,7 @@ Initialize Q-table
 
 \noindent In summary, the slope sign reward introduces a more decisive feedback mechanism compared to previous designs, enhancing the distinction between good and bad actions. Nevertheless, its sensitivity to market oscillations makes it less reliable in volatile environments.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_sign.png}
     \caption{Analysis of the portfolio value reward}
@@ -1647,7 +1647,7 @@ Initialize Q-table
 
 \indent To reduce the instability introduced by using only the slope sign, we extend the reward definition by incorporating the actual slope value. Specifically, the reward is computed as the sum of the current portfolio value and the slope of the equity curve, scaled by the portfolio value at each step. This formulation preserves the influence of market trends while reducing the sensitivity to minor oscillations.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=.8\textwidth]{../img/reward_portfolio_times_derivate_additive.png}
     \caption{Reward combining portfolio value and its derivative.}
@@ -1665,7 +1665,7 @@ Initialize Q-table
 
 \noindent In summary, the portfolio value and direct slope reward offers a more balanced feedback mechanism than previous formulations, combining overall profitability with immediate trend sensitivity. It provides a promising middle ground, though further adjustments may be required to improve stability in highly volatile markets.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_slope.png}
     \caption{Analysis of the portfolio value reward}
@@ -1678,7 +1678,7 @@ Initialize Q-table
 
 \indent Having established a good balance between portfolio value and immediate action feedback, we introduce a logarithmic adjustment to further refine the reward. This modification allows us to leverage the punishment depending on the magnitude of the slope, emphasizing significant deviations while reducing sensitivity to minor fluctuations.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=.8\textwidth]{../img/reward_portfolio_times_derivate_additive_log.png}
     \caption{Reward with logarithmic adjustment.}
@@ -1694,7 +1694,7 @@ Initialize Q-table
 
 \noindent In summary, the logarithmic adjustment enhances the previous reward formulation by improving sensitivity to important market movements while dampening the effect of minor, potentially misleading fluctuations. This makes the reward signal more informative and robust, leading to better alignment between immediate action evaluation and long-term portfolio performance.
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/reward_analysis/APPL_reward_portefolio_slope_log.png}
     \caption{Analysis of the portfolio value reward}
@@ -1733,7 +1733,7 @@ Initialize Q-table
     \mathcal{R} = x_{portfolio}
 \]
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/reward_analysis/VIX_reward_portefolio.png}
     \caption{Analysis of the portfolio value reward}
@@ -1755,7 +1755,7 @@ Initialize Q-table
 
 \hfill
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/reward_analysis/VIX_reward_portefolio_diff.png}
     \caption{Analysis of the portfolio value reward}
@@ -1777,7 +1777,7 @@ Initialize Q-table
 
 \hfill
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/reward_analysis/VIX_reward_portefolio_sign.png}
     \caption{Analysis of the portfolio value reward}
@@ -1797,7 +1797,7 @@ Initialize Q-table
     \mathcal{R} = \frac{\delta}{\delta t} \left(x_{portfolio}[t_{\text{last action}}] - x_{portefolio}[t]\right) * x_{portfolio}[t]
 \]
 
-\begin{figure}[h!]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=\textwidth]{../img/reward_analysis/VIX_reward_portefolio_slope.png}
     \caption{Analysis of the portfolio value reward}
@@ -1890,9 +1890,162 @@ Initialize Q-table
     \end{tabular}
 \end{center}
 
-\noindent Let's noticed that this Deep Q-Learning agent has not been optimized since that for 500 epsiodes training we have to sepdn 40 minutes and the training script needs to be optimized since it is using a lot of RAM. After fixing the RAM issue (if it is possible), we will be able to train multiple agent in the same time to fine-tune the model using optuna. For now the new agent has the best output from every model we used previously, but we suggest that the agent could get better performance after optimization.
+\noindent Let's noticed that this Deep Q-Learning agent has not been optimized since that for 500 epsiodes training we have to sepdn 40 minutes and the training script needs to be optimized since it is using a lot of RAM. After fixing the RAM issue (if it is possible), we will be able to train multiple agent in the same time to fine-tune the model using optuna. For now the new agent has the best output from every model we used previously, but we suggest that the agent could get better performance after optimization.wallet value.
+
+\newpage
+
+\chapter{Week 17}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{Encoder Transformer}
 
 
+\begin{figure}[!ht]
+    \centering
+    \begin{tikzpicture}[
+        scale=0.9,
+        transform shape,
+        node distance=0.5cm,
+        box/.style={
+            draw,
+            rounded corners,
+            minimum width=2.5cm,
+            minimum height=1cm,
+            align=center,
+            font=\small,
+            fill=blue!10
+        },
+        arrow/.style={
+        -{Stealth[length=2mm]},
+        thick
+        }
+        ]
+
+        % Nodes
+        \node[box, fill=blue!30] (input) {INPUT};
+        \node[box, right=of input, scale=0.8] (embedding) {Embedding};
+        \node[box, right=of embedding, fill=gray, scale=1.4] (encoder) {Encoder};
+        \node[box, right=of encoder, fill=gray, scale=1.4] (decoder) {Decoder};
+        \node[box, right=of decoder, scale=0.8] (normalization) {Normalization};
+        \node[box, right=of normalization, fill=blue!30] (out) {OUTPUT};
+
+        % Connectors and Labels
+        \draw[arrow] (input) -- (embedding);
+        \draw[arrow] (embedding) -- (encoder);
+        \draw[arrow] (encoder) -- (decoder);
+        \draw[arrow] (decoder) -- (normalization);
+        \draw[arrow] (normalization) -- (out);
+
+    \end{tikzpicture}
+    \caption{Encoder-Decoder Stack of the transformer model}
+\end{figure}
+
+\indent Few weeks ago, we read the paper written in 2023 by Pranav Agarwal (École de Technologie Supérieure/ Mila, Canada), Aamer Abdul Rahman (École de Technologie Supérieure/Mila, Canada), Pierre-Luc St-Charles (Mila, Applied ML Research Team, Canada), Simon J.D. Prince (University of Bath, United Kingdom) and Samira Ebrahimi Kahou (École de Technologie Supérieure/Mila/CIFAR, Canada), provides a comprehensive overview of this rapidly developing research area. The paper reviews how transformers have been adapted for reinforcement learning, highlights emerging architectures and methodologies, and categorizes them according to their applications. It also discusses empirical results, key challenges such as scalability and sample efficiency, and potential future research directions.\par
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+    \centering
+    \begin{tikzpicture}[
+        scale=1,
+        transform shape,
+        node distance=0.5cm,
+        box/.style={
+            draw,
+            rounded corners,
+            minimum width=2.5cm,
+            minimum height=1cm,
+            align=center,
+            font=\small,
+            fill=blue!10
+        },
+        arrow/.style={-{Stealth[length=2mm]}, thick},
+        line/.style={thick}
+        ]
+
+    % Nodes
+    \node[box, fill=blue!30] (input) {INPUT};
+    \node[coordinate, above=of input] (junction1) {} ;
+    \node[box, above=of junction1,fill=gray ,scale=1.4] (mha) {Multi-Head\\ Attention};
+    \node[box, above=of mha, scale=0.9] (AddNorm1) {Add \& Norm};
+    \node[coordinate, above=of AddNorm1] (junction2) {} ;
+    \node[box, above=of junction2] (ff) {Feed Forward} ;
+    \node[box, above=of ff] (AddNorm2) {Add \& Norm} ;
+    \node[box, above=of AddNorm2, fill=blue!30] (output) {OUTPUT};
+
+    % Connectors
+    \draw[line] (input.north) -- (junction1);
+    \draw[arrow] (junction1) -- (mha);
+    \draw[arrow] (mha) -- (AddNorm1);
+    \draw[arrow] (junction1.west) -- ++(-2.5, 0) |- (AddNorm1.west);
+    \draw[arrow] (AddNorm1) -- (junction2);
+    \draw[line] (junction2) -- (ff);
+    \draw[arrow] (ff) -- (AddNorm2);
+    \draw[arrow] (junction2.west) -- ++(-2.5, 0) |- (AddNorm2.west);
+    \draw[arrow] (AddNorm2) -- (output);
+
+\end{tikzpicture}
+\caption{Encoder stack}
+\vspace{-.8cm}
+\end{wrapfigure}
+
+\noindent By situating transformer-based reinforcement learning within the broader landscape of sequence modeling and decision-making, this survey aims to deepen our understanding of both the opportunities and limitations of applying transformers in RL contexts. It serves as a reference point for researchers and practitioners seeking to build on the foundations of this promising intersection of fields. While transformers have demonstrated remarkable success across natural language processing, computer vision, and sequential prediction tasks, their application to financial trading is particularly compelling, given the complex, dynamic and highly stochastic nature of financial markets.
+
+\noindent In the context of trading, the model architecture can be divided into two core components. The encoder, built upon a multi-head attention mechanism, is responsible for capturing the long-term dependencies and intricate temporal patterns in financial time-series data. This design enables the model to represent market dynamics more effectively than traditional recurrent architectures, which often struggle with long-horizon dependencies. The decoder, on the other hand, is structured with varying output dimensions tailored to the specific prediction or decision-making task at hand, such as making an action.
+
+\indent By combining these components, the transformer-based RL framework is capable of not only learning sequential representations of market states but also optimizing decision policies that directly impact trading performance. This dual capability provides an advantage over conventional predictive models, which typically focus only on forecasting without explicitly linking predictions to downstream decision-making. Moreover, reinforcement learning introduces a feedback loop that allows the agent to continuously adapt its strategy in response to evolving market conditions, thereby improving its robustness and generalization ability.
+
+\newpage
+
+\section{First Encoder Transformer results}
+
+\indent We performed 100 trials with Optuna to compare the best-performing agents. These trials optimized the hyperparameters of the reinforcement learning framework, including the learning rate, batch size, discount factor, and replay buffer capacity. By systematically searching through this space, Optuna was able to identify combinations that improved both convergence speed and trading performance.  
+
+\noindent The training setup, as illustrated in our implementation, involved running the agent for 500 episodes with a training size of 80\% of the dataset. A smaller learning rate ($1\times 10^{-4}$) was chosen to ensure stability during optimization, while the discount factor ($\gamma = 0.99$) preserved the importance of long-term rewards. To encourage exploration in the early stages, the policy started with a maximum epsilon value of 1.0, gradually decaying to 0.05 with a rate of 0.005. This ensured that the agent initially explored the market environment widely before converging toward exploitation of profitable strategies.
+
+\noindent Additionally, a large replay buffer of 100,000 transitions was used to stabilize learning by diversifying the sampled experiences, while a batch size of 128 allowed for more robust gradient updates. The target network was updated every 500 steps, and learning occurred every 4 steps to maintain a balance between computational efficiency and training stability. A warm-up phase of 5,000 random steps was also introduced to populate the replay buffer before policy learning began.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.7\textwidth]{../img/DQL_profit/optuna_best_encoder_transformer.png}
+    \caption{Encoder Transformer Best optuna trials}
+\end{figure}
+
+\noindent This configuration provided a strong baseline for comparing the agents optimized by Optuna. The results of these experiments highlighted which hyperparameter settings led to consistent profitability, reduced volatility in returns, and improved sample efficiency. The following section presents a detailed analysis of the performance metrics obtained from these trials, including cumulative returns, Sharpe ratio and maximum drawdown.
+
+\indent Finally, we found the best trail to have more than $5\%$ of profit while previously we had a profit of $10\%$. The basic previous nodel seems to be better. However let's run 100 trials with the optimized hyperparameterization to get a better understanding of the best agent. For example, there could be a drawdown anomaly with more or less frequency of actions taken.
+
+\newpage
+
+\subsection{Getting the best DeepQLearning agent}
+
+\indent Out of a 100 trials, we found the best agent to make $5\%$ of profit, this is two times less than the previous basic QLearning agent. However, the drawdis especially low with a Maximum Drawdown of $3\%$ which is very low. Also, the drawdown distribution is even lower with an average distribution lower than $1.5\%$.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{../img/DQL_profit/best_encoder_transformer.png}
+    \caption{Bests Encoder Transformer}
+\end{figure}
+
+\noindent As we can see, the agent appears to capture the underlying market dynamics effectively during the training phase. When evaluated on the test set, the model demonstrates an ability to identify and exploit the main market peaks, thereby securing the majority of potential profits. At the same time, it maintains a relatively low drawdown, which is a critical factor in assessing the reliability of trading strategies. This balance between profit generation and risk management suggests that the agent is not only capable of learning profitable patterns but also of adopting a conservative behavior that mitigates excessive losses.  
+
+\noindent While this conservative approach may limit the overall profit potential compared to highly aggressive strategies, it contributes to the robustness and stability of the trading policy. In practice, such behavior is often more desirable, as it prioritizes capital preservation and consistency over occasional large gains accompanied by higher risk. These results therefore highlight the suitability of transformer-based reinforcement learning agents for financial applications where reliability and risk control are of paramount importance.  
+
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.7\textwidth]{../img/DQL_profit/homemade_DQL_profit.png}
+    \caption{Encoder Transformer Results}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.7\textwidth]{../img/DQL_profit/homemade_DQL_profit_closeup.png}
+    \caption{Encoder Transformer Results (test focus)}
+\end{figure}
 
 %\newpage
 

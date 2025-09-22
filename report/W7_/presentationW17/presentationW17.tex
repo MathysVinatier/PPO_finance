@@ -1,0 +1,123 @@
+\documentclass[11pt]{beamer}
+\usetheme{Madrid}
+\usefonttheme{serif}
+
+\usepackage[utf8]{inputenc}       % Encoding
+\usepackage[english]{babel}       % Language
+\usepackage[T1]{fontenc}          % Font encoding
+
+\usepackage{amsmath, amsfonts, amssymb} % Math packages
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{subcaption}
+
+\usepackage{tikz}
+\usepackage{tikz-uml}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{blkarray}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+%Tabular
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{arydshln}
+
+% Code formatting
+\usepackage{minted}
+\usepackage{adjustbox}
+\usepackage[ruled,vlined]{algorithm2e}
+\SetKwProg{While}{while}{}{}
+\SetKwProg{For}{for}{}{}
+\SetKwProg{Function}{function}{}{}
+
+% Custom math operators
+\DeclareMathOperator{\sen}{sen}
+\DeclareMathOperator{\tg}{tg}
+
+% Numbered captions in figures/tables
+\setbeamertemplate{caption}[numbered]
+
+% Metadata
+\author[Mathys Vinatier]{Mathys Vinatier}
+\title{Optimized Kalman Filter}
+\setbeamercovered{transparent}
+\setbeamertemplate{navigation symbols}{}
+\logo{\includegraphics[scale=.05]{../img/logoSNU.png}}
+\institute[]{Seoul National University}
+\date{\today}
+
+% Bibliography
+\usepackage{biblatex} 
+\addbibresource{../references.bib}
+\usepackage{csquotes}
+
+%Glossary
+\usepackage[acronym]{glossaries}
+\makeglossaries
+\input{../glossary.tex}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Encoder Transformer Results}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.7\textwidth]{../img/DQL_profit/optuna_best_encoder_transformer.png}
+        \caption{Encoder Transformer Best optuna trials}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Encoder Transformer Results}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=\textwidth]{../img/DQL_profit/best_encoder_transformer.png}
+        \caption{Bests Encoder Transformer}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Encoder Transformer Results}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.7\textwidth]{../img/DQL_profit/homemade_DQL_profit.png}
+        \caption{Encoder Transformer Results}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Encoder Transformer Results}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.7\textwidth]{../img/DQL_profit/homemade_DQL_profit_closeup.png}
+        \caption{Encoder Transformer Results (test focus)}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Agent comparison for VIX}
+    \centering
+    \begin{tabular}{l@{\hskip 1cm}|c|c|}
+        &  &                                                  \\
+        & \textbf{Q-Learning} & \textbf{Encoder}              \\
+        &                     & \textbf{Transformer}          \\
+        & &                                                   \\[0.01cm]
+        \textit{Agent Training Profit} & $163.76\%$ & $697.77\%$    \\[0.2cm]
+        \textit{Agent Testing Profit} & $9.89\%$ & $5.35\%$       \\[0.7cm] \hdashline
+        & &                                                   \\[0.15cm]
+        \textbf{\textit{Global Profit}} & \textbf{$173.65\%$} & \textbf{$693.12\%$} \\[0.2cm]
+    \end{tabular}
+\end{frame}
+
+\begin{frame}
+    \centering
+    \vspace{2cm}
+    {\LARGE Thank You}
+\end{frame}
+
+\end{document}
