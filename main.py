@@ -1,4 +1,4 @@
-from utils import DataLoader, TradingEnv,  QLearning
+from utils import DataLoader, TradingEnv,  QLearning, DeepQLearning
 
 import optuna
 import multiprocessing
@@ -243,20 +243,19 @@ def optimization2(fname,reward_type ,reward_evolution):
 def read_db(fname):
     conn = sqlite3.connect(fname)
     cursor = conn.cursor()
-    cursor.execute("SELECT trial_id, result, equity, reward, qtable FROM results")
+    cursor.execute("SELECT trial_id, result, equity, reward FROM results")
     rows = cursor.fetchall()
     conn.close()
 
     records = []
-    for trial_id, result, equity, reward, qtable in rows:
+    for trial_id, result, equity, reward in rows:
         equity_list = json.loads(equity)
         reward_list = json.loads(reward)
         records.append({
             "id": trial_id,
             "score": result,
             "equity": equity_list,
-            "reward": reward_list,
-            "qtable": qtable
+            "reward": reward_list
         })
         #print(trial_id, result, equity_list[:5], reward_list[:5])
 
@@ -401,10 +400,10 @@ def optimization2_plot(df, fname, num_trials_to_show=None):
     plt.tight_layout()
     plt.show()
 
-def optimization2_optimized_plot():
+def optimization_optimized_plot(fname):
     dataloader = DataLoader()
     df = dataloader.read("data/General/^VIX_2015_2025.csv")
-    df_db = read_db('./results_^VIX_2015_2025_on_reward_portfolio_diff_value_optimized_parameters.db')
+    df_db = read_db(fname)
     df_db_best = df_db[df_db["score"] == df_db["score"].max()]
 
     df_equity = df_db_best["equity"].values[0]
@@ -449,6 +448,69 @@ def optimization2_optimized_plot():
     plt.tight_layout()
     plt.show()
 
+def compute_DLTraining(trial_id: int, df, reward_type, reward_evolution) -> dict:
+
+    env = TradingEnv(df, broker_fee=True)
+    model = DeepQLearning(env, gpt=True,log=True)
+    policy_net = model.train(df=df, train_size=0.8)
+    _, _, _, equity, reward = model.get_actions_and_prices(policy_net, df, reward_type, reward_evolution)
+    test_data_equity = equity[int(0.8*len(equity)):]
+    result = (test_data_equity[-1]-test_data_equity[0])/test_data_equity[0]
+    return {
+        "trial_id": trial_id, 
+        "result": result,
+        "equity": equity,
+        "reward": reward
+    }
+
+def worker_DeepLearning(trial_id: int, df, db_name, reward_type, reward_evolution):
+    output = compute_DLTraining(trial_id, df, reward_type, reward_evolution)
+
+    conn = sqlite3.connect(db_name, timeout=30)  # timeout helps with write locks
+    cursor = conn.cursor()
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS results (
+               trial_id INTEGER, 
+               result INTEGER, 
+               equity TEXT, 
+               reward TEXT
+           )"""
+    )
+
+    cursor.execute(
+        "INSERT INTO results (trial_id, result, equity, reward) VALUES (?, ?, ?, ?)",
+        (
+            output["trial_id"],
+            output["result"],
+            json.dumps(output["equity"]),
+            json.dumps(output["reward"])
+        ),
+    )
+
+    conn.commit()
+    conn.close()
+    return output
+
+def optimization3(fname, reward_type="portfolio_diff" ,reward_evolution="value"):
+    data = "data/General/"+fname
+    dataloader = DataLoader()
+    df = dataloader.read(data)
+    print(f"TRAINING ON {data}")
+    db_name = f"results_{fname.split('.')[0]}_DeepQLearning.db"
+
+    number_of_trial = 100
+    last_trial = get_last_trial_id(db_name)
+    if last_trial == 0 :
+        trials = range(0, number_of_trial)
+    else:
+        trials = range(last_trial + 1, number_of_trial)
+
+    with ProcessPoolExecutor(max_workers=5) as executor:
+        futures = [executor.submit(worker_DeepLearning, t, df, db_name, reward_type, reward_evolution) for t in trials]
+        for future in futures:
+            _ = future.result()
+
+
 if __name__ == '__main__':
     import argparse
     import matplotlib.pyplot as plt
@@ -463,7 +525,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     #optimization2_optimized(fname=args.fname, reward_type=args.reward_type, reward_evolution=args.reward_evolution)
-    optimization2_optimized_plot()
+    #optimization2_optimized_plot()
 
     #fname_db = "results_^VIX_2015_2025_on_reward_portfolio_diff_value_optimized_parameters.db"
     #df_db = read_db(fname=fname_db)
@@ -477,3 +539,7 @@ if __name__ == '__main__':
     #qtable = QL.(df=df, train_size=0.8, reward_type="portfolio_diff", reward_evolution="value")
     #QL.plot(df=df, model=qtable, name="VIX_2015_2025", save=True, show=True)
 
+    multiprocessing.set_start_method("spawn", force=True)
+    optimization3(args.fname)
+    #fname_dl = "results_^VIX_2015_2025_DeepQLearning_homemade.db"
+    #optimization_optimized_plot(fname_dl)

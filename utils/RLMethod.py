@@ -16,9 +16,9 @@ import torch.optim as optim
 from transformers import DecisionTransformerConfig, DecisionTransformerGPT2Model
 
 if __name__ == "__main__":
-    from Models import MLP, DEVICE
+    from Models import MLP, DEVICE, Encoder_Transformer
 else:
-    from utils.Models import MLP, DEVICE
+    from utils.Models import MLP, DEVICE, Encoder_Transformer
 
 class ModelRL:
     def __init__(self, env, log=True):
@@ -334,7 +334,7 @@ class DecisionTransformerQ(nn.Module):
 
 class DeepQLearning(ModelRL):
 
-    def __init__(self, env, steps=1, log=True, hidden_dims=(128, 128)):
+    def __init__(self, env, steps=1, gpt=False,log=True, hidden_dims=(128, 128)):
         super().__init__(env, log=log)
         self.steps = max(1, int(steps))
 
@@ -345,11 +345,19 @@ class DeepQLearning(ModelRL):
         input_dim = self.state_space
         output_dim = self.action_space
 
-        self.policy_net = DecisionTransformerQ(input_dim, output_dim).to(DEVICE)
+        if gpt == True:
+            self.policy_net = DecisionTransformerQ(input_dim, output_dim).to(DEVICE)
+        else:
+            self.policy_net = Encoder_Transformer(num_features=5, d_model=512, num_heads=8, num_classes=3).to(DEVICE)
+
         if self.log:
             print(self.policy_net)
+        
+        if gpt == True:
+            self.target_net = DecisionTransformerQ(input_dim, output_dim).to(DEVICE)
+        else:
+            self.target_net = Encoder_Transformer(num_features=5, d_model=512, num_heads=8, num_classes=3).to(DEVICE)
 
-        self.target_net = DecisionTransformerQ(input_dim, output_dim).to(DEVICE)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
 
@@ -402,11 +410,11 @@ class DeepQLearning(ModelRL):
         return float(loss.item())
 
     # ------------------ Training ------------------
-    def train(self, df, train_size=0.8, n_training_episodes=1000,
-              learning_rate=1e-3, gamma=0.99, max_epsilon=1.0,
-              min_epsilon=0.05, decay_rate=0.0005, buffer_capacity=50_000,
-              batch_size=64, target_update_every=1000, learn_every=1,
-              warmup_steps=1_000):
+    def train(self, df, train_size=0.8, n_training_episodes=500,
+              learning_rate=1e-4, gamma=0.9, max_epsilon=1.0,
+              min_epsilon=0.07, decay_rate=0.009, buffer_capacity=100_000,
+              batch_size=128, target_update_every=250, learn_every=2,
+              warmup_steps=10_000):
 
         self.df_train, _ = self.split_data(df, train_size)
         buffer = ReplayBuffer(buffer_capacity)
@@ -494,7 +502,7 @@ if __name__ == "__main__":
     df = DataLoader().read("./data/General/^VIX_2015_2025.csv")
     env = TradingEnv(df)
 
-    model = DeepQLearning(env, log=True)
+    model = DeepQLearning(env,gpt=True ,log=True)
     policy_net = model.train(
         df=df,
         train_size=0.8,
@@ -510,12 +518,12 @@ if __name__ == "__main__":
         learn_every=4,              # learn every few steps (stabilizes learning)
         warmup_steps=5_000          # collect random transitions before training
     )
-
     # Save
-    torch.save(policy_net.state_dict(), "transformer_policy_vix.pth")
+    torch.save(policy_net.state_dict(), "gpt_transformer_policy_vix.pth")
+
 
     model_loaded = DeepQLearning(env)
-    model_loaded.policy_net.load_state_dict(torch.load("transformer_policy_vix.pth"))
+    model_loaded.policy_net.load_state_dict(torch.load("gpt_transformer_policy_vix.pth"))
     model_loaded.policy_net.eval()
 
     model_loaded.plot(df, model = model_loaded.policy_net, name="VIX", save=False)
