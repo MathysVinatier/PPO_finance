@@ -150,7 +150,7 @@ class TradingEnv(gym.Env):
             self.last_price = price
         self.current_step += 1
         self.step_since_last_action += 1
-        if self.current_step >= self.n_steps:
+        if self.current_step >= self.n_steps-1:
             done = True
 
         # New price after step
