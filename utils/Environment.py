@@ -75,6 +75,13 @@ class DataLoader:
         df.columns = df.columns.get_level_values(0)
         return df
 
+    def split_train_test(self, folder_path, training_size=0.8):
+        df = self.read(folder_path=folder_path)
+        df_training = df[:int(training_size*len(df))]
+        df_test     = df[int(training_size*len(df))+1:]
+
+        return df_training, df_test
+
 
 class TradingEnv(gym.Env):
     def __init__(self, df, broker_fee=False, share = 1):
