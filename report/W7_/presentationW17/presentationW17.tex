@@ -87,7 +87,7 @@
 \begin{frame}{Encoder Transformer Results}
     \begin{figure}[!ht]
         \centering
-        \includegraphics[width=.7\textwidth]{../img/DQL_profit/homemade_DQL_profit.png}
+        \includegraphics[width=.8\textwidth]{../img/DQL_profit/homemade_DQL_profit.png}
         \caption{Encoder Transformer Results}
     \end{figure}
 \end{frame}
@@ -95,23 +95,49 @@
 \begin{frame}{Encoder Transformer Results}
     \begin{figure}[!ht]
         \centering
-        \includegraphics[width=.7\textwidth]{../img/DQL_profit/homemade_DQL_profit_closeup.png}
+        \includegraphics[width=.8\textwidth]{../img/DQL_profit/homemade_DQL_profit_closeup.png}
         \caption{Encoder Transformer Results (test focus)}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{GPT Transformer Results}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=\textwidth]{../img/GPT_transformer_results/best_gpt_transformer.png}
+        \caption{GPT Transformer Agents}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{GPT Transformer Results}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.8\textwidth]{../img/GPT_transformer_results/best_VIX_gpt_transformer.png}
+        \caption{Best GPT Transformer Agents}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{GPT Transformer Results}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.8\textwidth]{../img/GPT_transformer_results/best_VIX_gpt_transformer_zoomed.png}
+        \caption{Best GPT Transformer Agents (test focus)}
     \end{figure}
 \end{frame}
 
 \begin{frame}{Agent comparison for VIX}
     \centering
-    \begin{tabular}{l@{\hskip 1cm}|c|c|}
-        &  &                                                  \\
-        & \textbf{Q-Learning} & \textbf{Encoder}              \\
-        &                     & \textbf{Transformer}          \\
-        & &                                                   \\[0.01cm]
-        \textit{Agent Training Profit} & $163.76\%$ & $697.77\%$    \\[0.2cm]
-        \textit{Agent Testing Profit} & $9.89\%$ & $5.35\%$       \\[0.7cm] \hdashline
-        & &                                                   \\[0.15cm]
-        \textbf{\textit{Global Profit}} & \textbf{$173.65\%$} & \textbf{$693.12\%$} \\[0.2cm]
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{l@{\hskip 1cm}|c|c|c|}
+        &  &  &                                                \\
+        & \textbf{Q-Learning} & \textbf{Encoder}      & \textbf{GPT}    \\
+        &                     & \textbf{Transformer}  & \textbf{Transformer}       \\
+        & & &                                                  \\[0.01cm]
+        \textit{Agent Training Profit} & $163.76\%$ & $697.77\%$ & $525.59\%$   \\[0.2cm]
+        \textit{Agent Testing Profit} & $9.89\%$ & $5.35\%$ & $4.47\%$      \\[0.7cm] \hdashline
+        & & &                                                  \\[0.15cm]
+        \textit{Max Drawdown} & $27.60\%$ & $2.93\%$ & $4.97\%$         \\[0.2cm]
     \end{tabular}
+    }
 \end{frame}
 
 \begin{frame}

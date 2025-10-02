@@ -2047,6 +2047,329 @@ Initialize Q-table
     \caption{Encoder Transformer Results (test focus)}
 \end{figure}
 
+\subsection{Getting the best GPT DeepQLearning agent}
+
+\indent To establish a baseline for comparison, we employed a GPT-2 based transformer model specifically adapted for deep reinforcement learning. This model, known as the \textit{edbeeching Decision Transformer}, was originally developed for training decision transformers on the Gym Hopper environment. Since the model was not designed to operate on time-series data, additional fine-tuning was required to enable it to capture market dynamics and generate appropriate trading actions. Through this adaptation, the model was aligned with the requirements of financial datasets, allowing us to evaluate its effectiveness in sequential decision-making tasks within the trading domain.  
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{../img/GPT_transformer_results/best_gpt_transformer.png}
+    \caption{GPT Transformer Agents}
+\end{figure}
+
+\noindent We observe that this model performs worse than our previously proposed architecture. In particular, the maximum drawdown reaches approximately $5\%$, while the best trial achieves a test profit of only $4.5\%$. These results indicate weaker performance compared to our custom encoder-based transformer, which was able to achieve higher profitability while maintaining a lower level of risk. This suggests that the adapted Decision Transformer, although effective in some reinforcement learning benchmarks, struggles to fully capture the complexities of financial time-series data when applied directly to trading tasks.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.7\textwidth]{../img/GPT_transformer_results/best_VIX_gpt_transformer.png}
+    \caption{Best GPT Transformer Agents}
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.7\textwidth]{../img/GPT_transformer_results/best_VIX_gpt_transformer_zoomed.png}
+    \caption{Best GPT Transformer Agents (test focus)}
+\end{figure}
+
+\subsection{DeepQLearning agent comparison}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \scalebox{0.75}{%
+        \begin{tabular}{l|c|c|c|}
+            &  &  &                                                               \\
+            & \textbf{Q-Learning} & \textbf{Encoder}      & \textbf{GPT}          \\
+            &                     & \textbf{Transformer}  & \textbf{Transformer}  \\
+            & & &                                                                 \\[0.1cm]
+            \textit{Agent Training Profit} & $163.76\%$ & $697.77\%$ & $525.59\%$ \\[0.2cm]
+            \textit{Agent Testing Profit}  & $9.89\%$   & $5.35\%$   & $4.47\%$   \\[0.6cm] \hdashline                                       \\[0.15cm]
+            \textit{Max Drawdown} & $27.60\%$ & $2.93\%$ & $4.97\%$               \\[0.2cm]
+        \end{tabular}
+    }
+    \caption{Performance comparison}
+\end{wrapfigure}
+
+\indent To summarize the experimental results, the Q-Learning model achieved the strongest performance in our tests. However, its evaluation was limited to a relatively short time period, which raises concerns about its ability to capture the dynamics of long-term market behavior. The GPT-based transformer, by contrast, produced weaker results compared to the custom encoder transformer. The encoder transformer emerges as a promising option, as it maintains an exceptionally low drawdown, making it suitable for risk-averse strategies, while still delivering a modest but consistent profit.
+
+\newpage
+
+\chapter{Week 18}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{PPO Agent}
+
+\indent The PPO and TRPO principles has been studied few weeks ago, now we have a functional Deep Learning agent for market actions, the next goal is to use these models to implement it into the PPO agent. To do so we will breifly introduce the different model layers and how it has been implemented based on the work of the engineer from \textit{Neuralnet.ai}.
+
+\indent Policy gradient and actor-critic methods are the primary tools for reinforcement learning in continuous action spaces, since value-based methods like DQN are unsuitable. However, actor-critic algorithms often suffer from instability: small changes in network parameters can cause large, unexpected shifts in the underlying policy, leading to sudden drops in performance.
+
+
+\noindent To address this, Trust Region Policy Optimization (TRPO) constrains policy updates by limiting the KL divergence between old and new policies, ensuring that improvements are made without deviating too far from previously stable regions of parameter space. Despite its effectiveness, TRPO has limitations, particularly when actor and critic share parameters.
+
+\noindent Proximal Policy Optimization (PPO), introduced by OpenAI in 2017, improves on TRPO by using a clipped surrogate objective. This constrains policy changes (within $\sim 20\%$) while maximizing advantageous actions, balancing stability and performance. PPO is simpler to implement, works for both discrete and continuous action spaces, and scales efficiently to parallelized training. It has since become the industry standard for modern reinforcement learning tasks.
+
+\subsection{Model Explanation}
+
+\indent To introduce our model, we present the two main components of the PPO agent: the \textbf{Actor} and the \textbf{Critic}. 
+It is important to separate these networks so that the critic can effectively evaluate (or ``criticize'') the predictions of the actor, rather than sharing parameters in a way that could bias the learning process.
+
+\begin{figure}[!ht]
+    \centering
+    \begin{tikzpicture}[
+        scale=0.65,
+        transform shape,
+        node distance=0.7cm,
+        box/.style={
+            draw,
+            rounded corners,
+            minimum width=2.8cm,
+            minimum height=1cm,
+            align=center,
+            font=\small,
+            fill=blue!10
+        },
+        arrow/.style={
+            -{Stealth[length=2mm]},
+            thick
+        }
+    ]
+
+        % Nodes
+        \node[box, fill=blue!30] (input) {Input \\ (*input\_dims)};
+        \node[box, right=of input] (fc1) {Linear \\ (fc1\_dims)};
+        \node[box, right=of fc1] (relu1) {ReLU};
+        \node[box, right=of relu1] (fc2) {Linear \\ (fc2\_dims)};
+        \node[box, right=of fc2] (relu2) {ReLU};
+        \node[box, right=of relu2] (fc3) {Linear \\ (n\_actions)};
+        \node[box, fill=blue!30, right=of fc3] (softmax) {Softmax \\ (dim = -1)};
+
+        % Connectors
+        \draw[arrow] (input) -- (fc1);
+        \draw[arrow] (fc1) -- (relu1);
+        \draw[arrow] (relu1) -- (fc2);
+        \draw[arrow] (fc2) -- (relu2);
+        \draw[arrow] (relu2) -- (fc3);
+        \draw[arrow] (fc3) -- (softmax);
+
+    \end{tikzpicture}
+    \caption{Actor network architecture (Softmax output)}
+\end{figure}
+
+\noindent The actor network is a multilayer perceptron (MLP) with two hidden layers and ReLU activations. 
+Its final layer uses a Softmax function to produce a probability distribution over the available actions. 
+This distribution represents the policy $\pi_\theta(a \mid s)$ used to sample actions during training and execution. 
+
+\begin{figure}[!ht]
+    \centering
+    \begin{tikzpicture}[
+        scale=0.65,
+        transform shape,
+        node distance=0.8cm,
+        box/.style={
+            draw,
+            rounded corners,
+            minimum width=2.8cm,
+            minimum height=1cm,
+            align=center,
+            font=\small,
+            fill=blue!10
+        },
+        arrow/.style={
+            -{Stealth[length=2mm]},
+            thick
+        }
+    ]
+
+        % Nodes
+        \node[box, fill=blue!30] (input) {Input \\ (*input\_dims)};
+        \node[box, right=of input] (fc1) {Linear \\ (fc1\_dims)};
+        \node[box, right=of fc1] (relu1) {ReLU};
+        \node[box, right=of relu1] (fc2) {GRU \\ (fc2\_dims)};
+        \node[box, right=of fc2] (relu2) {ReLU};
+        \node[box, right=of relu2] (fc3) {Linear \\ (1)};
+        \node[box, fill=blue!30, right=of fc3] (out) {Value Estimate};
+
+        % Connectors
+        \draw[arrow] (input) -- (fc1);
+        \draw[arrow] (fc1) -- (relu1);
+        \draw[arrow] (relu1) -- (fc2);
+        \draw[arrow] (fc2) -- (relu2);
+        \draw[arrow] (relu2) -- (fc3);
+        \draw[arrow] (fc3) -- (out);
+
+    \end{tikzpicture}
+    \caption{Critic network architecture (GRU layout)}
+\end{figure}
+
+\noindent The critic network follows a similar structure, but with two key differences:  
+\begin{itemize}
+    \item It includes a \textbf{GRU layer}, which enables it to retain temporal dependencies and capture information from past experiences when evaluating states.  
+    \item Its output is a single scalar value, representing the estimated value function $V(s)$. Unlike the actor, the critic does not use a Softmax activation, as it directly predicts state values rather than action probabilities.  
+\end{itemize}
+
+\noindent Together, the actor and critic form the foundation of the PPO algorithm : the actor proposes actions, while the critic evaluates them to guide more stable learning.
+
+\textbf{Generalized Advantage Estimation}
+
+\noindent This method is applied to compute the advantage for each timestep :
+
+\[
+A_t = \sum_{k=0}^{\infty} (\gamma \lambda)^k \, \delta_{t+k}, 
+\quad 
+\delta_t = r_t + \gamma V(s_{t+1})(1-d_t) - V(s_t),
+\]
+
+\noindent where $\gamma$ is the discount factor, $\lambda$ is the GAE coefficient, and $d_t$ indicates episode termination. The advantages are normalized to reduce variance :
+
+\[
+\hat{A} = \frac{A - \mu(A)}{\sigma(A) + 10^{-8}}.
+\]
+
+\textbf{Policy Update (Actor Loss)}
+
+\noindent The policy ratio is defined as :
+
+\[
+r_t(\theta) = \frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{\text{old}}}(a_t \mid s_t)}.
+\]
+
+\noindent PPO constrains updates by maximizing the clipped surrogate objective:
+
+\[
+L^{\text{actor}}(\theta) 
+= \mathbb{E}_t \left[ 
+  \min \big( r_t(\theta) \hat{A}_t, \; 
+             \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t 
+       \big) 
+\right] 
++ \beta \, H[\pi_\theta],
+\]
+
+\noindent where $\epsilon$ is the clipping parameter and $H[\pi_\theta]$ is the entropy bonus that encourages exploration.
+
+\textbf{Value Function Update (Critic Loss)}
+
+\noindent The critic is optimized by minimizing the squared error between predicted and empirical returns :
+
+\[
+L^{\text{critic}}(\theta) = \mathbb{E}_t \left[ 
+  \big( ( \hat{A}_t + V(s_t)) - V_\theta(s_t) \big)^2 
+\right].
+\]
+
+\textbf{Combined Objective}
+\noindent The final loss combines both actor and critic objectives :
+
+\[
+L(\theta) = -L^{\text{actor}}(\theta) + \frac{1}{2} L^{\text{critic}}(\theta).
+\]
+
+\textbf{Optimization and Memory Reset}
+
+\noindent Gradients are backpropagated and used to update both actor and critic networks. Once the updates are complete, the memory buffer is cleared in preparation for the next rollout.
+
+\subsection{Implementation}
+
+\indent In this part we will show how the implementation of the training part of the PPO agent. The following code shows the main training loop of the PPO agent. This function orchestrates interaction with the environment, collects experiences, and triggers learning updates periodically.
+
+\begin{algorithm}[H]
+\caption{PPO Agent Training Loop}
+\KwIn{$env$, $n\_games$, $N$, $batch\_size$, $\alpha$, $n\_epochs$}
+\KwOut{Trained PPO agent, episode rewards}
+
+Initialize PPO\_agent;
+
+\For{$i \leftarrow 1$ \KwTo $n\_games$}{
+    $s \leftarrow env.reset()$\;
+    $done \leftarrow \text{False}$\;
+    $score \leftarrow 0$\;
+    
+    \While{$done = \text{False}$}{
+        $A_{valid} \leftarrow env.get\_valid\_actions()$\;
+        $(a, \text{probs}, v) \leftarrow agent.choose\_action(s, A_{valid})$\;
+        $(s', r, done, info) \leftarrow env.step(a)$\;
+        
+        $score \leftarrow score + r$\;
+        $n\_steps \leftarrow n\_steps + 1$\;
+        $agent.remember(s, a, \text{probs}, v, r, done)$\;
+        
+        \If{$n\_steps \bmod N = 0$}{
+            $agent.learn()$\;
+            $learn\_iters \leftarrow learn\_iters + 1$\;
+        }
+    }
+}
+\Return trained agent\;
+\end{algorithm}
+
+\textbf{Principle of the Training Loop :}
+
+\begin{enumerate}
+    \item \textbf{Agent Initialization :}  
+    The PPO agent is instantiated with the environment's action and state dimensions, learning rate $\alpha$, batch size, and number of epochs for updates.
+
+    \item \textbf{Game Episodes :}  
+    The agent interacts with the environment for $n\_games$ episodes. At each step, it chooses an action based on its current policy, executes it, and observes the next state and reward.
+
+    \item \textbf{Experience Collection :}  
+    After each action, the transition (state, action, probability, value, reward, done) is stored in memory for later learning.
+
+    \item \textbf{Periodic Learning :}  
+    Every $N$ time steps, the agent triggers the \texttt{learn()} function, which updates both actor and critic networks based on collected experiences.
+
+    \item \textbf{Score Tracking :}  
+    The cumulative rewards per episode are recorded, and the average score is monitored. The agent's models are saved whenever a new best average score is achieved.
+
+    \item \textbf{Visualization :}  
+    After training, a learning curve can be plotted to visualize the agent's performance over episodes.
+\end{enumerate}
+
+\noindent This loop ensures that the agent continuously improves its policy by alternating between interaction with the environment and policy updates, following the principles of PPO : stable policy improvement through clipped objective functions and advantage estimation.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.9\textwidth]{../img/PPO/plot_ppo_first_try.png}
+    \caption{First ouput for PPO agent}
+\end{figure}
+
+
+\section{Trade Station DataBase}
+
+\indent To obtain real-time updates from Trade Station, we are designing a dedicated database server to collect market data from the VIX index at a specified frequency. This service will be deployed using Docker and connected to a database that continuously updates the current VIX bar in real time. 
+
+\noindent In the future, we plan to extend this server with a function to retrieve historical data from the Trade Station API. This will allow us to test our models in both historical and live settings, ensuring that the same infrastructure can support real-time execution and backtesting simultaneously.
+
+\hfill
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.7\textwidth]{../img/diagram/Server_architecture.drawio.png}
+    \caption{Architecture of the Service}
+\end{figure}
+
+\hfill
+
+\newpage
+
+\subsection{Environment}
+
+
+\indent The architecture of our system is designed so that the client can interact directly with the Docker service to access a live copy of the current VIX market data. This setup abstracts away the underlying database and server operations, providing a clean and simple interface for the client to retrieve real-time market information for analysis and model evaluation.
+
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\textwidth]{../img/diagram/UML_service.drawio.png}
+    \caption{UML of the Service}
+\end{figure}
+
+
+
+
 %\newpage
 
 %\appendix
