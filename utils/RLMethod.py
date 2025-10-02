@@ -1,9 +1,11 @@
 import numpy as np
 import sys
 import os
+import time
 
 import shutil
 from tqdm import tqdm
+from tqdm import trange
 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -12,16 +14,19 @@ from collections import deque, namedtuple
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.distributions import Categorical
 
 from transformers import DecisionTransformerConfig, DecisionTransformerGPT2Model
 
 if __name__ == "__main__":
     from Models import MLP, DEVICE, Encoder_Transformer
+    from PPO import ACAgent
 else:
     from utils.Models import MLP, DEVICE, Encoder_Transformer
+    from utils.PPO import ACAgent
 
 class ModelRL:
-    def __init__(self, env, log=True):
+    def __init__(self, env, log=False):
         self.env = env
         self.log = log
         self.state_space = env.observation_space.shape[0]
@@ -334,11 +339,11 @@ class DecisionTransformerQ(nn.Module):
 
 class DeepQLearning(ModelRL):
 
-    def __init__(self, env, steps=1, gpt=False,log=True, hidden_dims=(128, 128)):
-        super().__init__(env, log=log)
+    def __init__(self, env, steps=1, gpt=False, log=False, hidden_dims=(128, 128)):
+        super().__init__(env=env, log=log)
         self.steps = max(1, int(steps))
 
-        self.state_space = env.observation_space.shape[0]
+        self.state_space = env.observation_space.shape
         self.action_space = env.action_space.n
 
         # Transformer input is per-step state vector
@@ -454,32 +459,40 @@ class DeepQLearning(ModelRL):
         return self.policy_net
 
     @torch.no_grad()
-    def get_actions_and_prices(self, policy_net, df, reward_type, reward_evolution, initial_cash=100):
+    def get_actions_and_prices(self, policy_net, df, reward_type="portfolio", reward_evolution="value", initial_cash=100):
         self.env.set_data(df)
         self.env.reward_type = reward_type
         self.env.reward_evolution = reward_evolution
-        state_cont = self.env.reset()
-        history = deque(maxlen=self.steps)
-        history.append(np.asarray(state_cont, dtype=np.float32))
-        state_vec = self._stack_state(history)
+        obs = self.env.reset()
+        history = deque(maxlen=1000)
+        history.append(np.asarray(obs, dtype=np.float32))
 
         actions_taken, prices, df_indices, equity_curve, reward_list = [], [], [], [], []
         cash, stock, step = initial_cash, 0, 0
         done = False
+
         while not done:
             if self.env.current_step >= len(df) - 1:
                 break
-            state_t = torch.as_tensor(state_vec, dtype=torch.float32, device=DEVICE).unsqueeze(0)
+
+            state_t = torch.as_tensor(np.array(history, dtype=np.float32),
+                                    dtype=torch.float32, device=DEVICE).unsqueeze(0)  # (1, seq_len, obs_dim)
+
+            logits, _ = policy_net(state_t)
+            logits = logits[0]
             valid_actions = self.env.get_valid_actions()
-            q = policy_net(state_t)[0].cpu().numpy()
-            action = int(valid_actions[np.argmax(q[valid_actions])])
+            masked_logits = torch.full_like(logits, float('-inf'))
+            masked_logits[valid_actions] = logits[valid_actions]
+
+            action = int(torch.argmax(masked_logits).item())
+
             next_obs, reward, done, info = self.env.step(action)
-            reward_list.append(reward)
             price = df["Close"].iloc[self.env.current_step - 1]
 
             actions_taken.append((step, action))
             prices.append(price)
             df_indices.append(self.env.current_step)
+            reward_list.append(reward)
 
             # Portfolio update
             if action == 1:  # Buy
@@ -490,18 +503,118 @@ class DeepQLearning(ModelRL):
                 cash += price
             equity_curve.append(cash + stock * price)
 
-            history.append(np.asarray(next_obs, dtype=np.float32))
-            state_vec = self._stack_state(history)
+            history.append(next_obs)
             step += 1
 
         return actions_taken, prices, df_indices, equity_curve, reward_list
+
+class PPOAgent(DeepQLearning):
+
+    def __init__(self, env, log):
+        super().__init__(env=env, log=log)
+
+    def train(self, n_games=300, N=20, batch_size=5, n_epochs=4, alpha=0.0003, show=False):
+        agent = ACAgent(n_actions  = self.action_space,
+                        batch_size = batch_size,
+                        alpha      = alpha,
+                        n_epochs   = n_epochs,
+                        input_dims = self.state_space)
+
+        figure_file = 'tmp/ppo/ppo_agent.png'
+        best_score = self.env.initial_balance
+        score_history = []
+
+        learn_iters = 0
+        avg_score   = 0
+        n_steps     = 0
+
+        for i in range(n_games):
+            observation = self.env.reset()
+            done        = False
+            score       = 0
+
+            while not done:
+                valid_actions = self.env.get_valid_actions()
+                action, probs, val = agent.choose_action(observation, valid_actions=valid_actions)
+                observation_, reward, done, info = self.env.step(action)
+                n_steps += 1
+                score  += reward
+                agent.remember(observation, action, probs, val, reward, done)
+                #print(f"{observation} -> {action} (out of {valid_actions}) -> reward : {reward:.2f} score : {score:.2f}")
+
+                if n_steps % N == 0:
+                    agent.learn()
+                    learn_iters += 1
+                observation = observation_
+            score_history.append(score)
+            avg_score = np.mean(score_history)
+
+            if avg_score > best_score :
+                best_score = avg_score
+                agent.save_models()
+
+            print(f"episode {i} => score {score:.1f}  | avg score {avg_score:.1f} | time_steps {n_steps} | learning_steps {learn_iters}")
+
+        x = [i+1 for i in range(len(score_history))]
+        if show:
+            agent.plot_learning_curve(x, score_history, figure_file)
+        return agent
+    
+    def test(self, batch_size=5, n_epochs=4, alpha=0.0003, greedy=False):
+        """
+        Run a single evaluation episode using the trained PPO agent.
+        Returns the sequence of actions and portfolio values.
+        """
+        agent = ACAgent(
+            n_actions=self.action_space,
+            batch_size=batch_size,
+            alpha=alpha,
+            n_epochs=n_epochs,
+            input_dims=self.state_space
+        )
+
+        # Load trained actor/critic weights
+        agent.load_models()
+
+        observation = self.env.reset()
+        done = False
+        score = 0
+        action_history = []
+        portfolio_history = []
+        score_history = []
+
+        while not done:
+            valid_actions = self.env.get_valid_actions()
+            dist = agent.actor(torch.tensor(observation, dtype=torch.float).to(agent.actor.device))
+
+            if greedy:
+                action = torch.argmax(dist.probs).item()
+                if action not in valid_actions:
+                    action = np.random.choice(valid_actions)
+                value = agent.critic(torch.tensor(observation, dtype=torch.float).to(agent.actor.device))
+                value = torch.squeeze(value).item()
+            else:
+                action, _, value = agent.choose_action(observation, valid_actions=valid_actions)
+
+            observation_, reward, done, info = self.env.step(action)
+            score += reward
+            score_history.append(score)
+            action_history.append(action)
+            portfolio_history.append(info)
+
+            observation = observation_
+
+        print(f"Test episode score {score:.1f} | final portfolio {info:.1f}")
+        return action_history, portfolio_history, score_history
+
+
 
 if __name__ == "__main__":
     from Environment import TradingEnv, DataLoader
 
     df = DataLoader().read("./data/General/^VIX_2015_2025.csv")
     env = TradingEnv(df)
-
+    """
     model = DeepQLearning(env,gpt=True ,log=True)
     policy_net = model.train(
         df=df,
@@ -525,5 +638,26 @@ if __name__ == "__main__":
     model_loaded = DeepQLearning(env)
     model_loaded.policy_net.load_state_dict(torch.load("gpt_transformer_policy_vix.pth"))
     model_loaded.policy_net.eval()
+    """
 
-    model_loaded.plot(df, model = model_loaded.policy_net, name="VIX", save=False)
+    model_name = "ppo_transformer_policy_vix.pth"
+    '''
+    model = PPOAgent(env, log=True)
+
+    policy_net = model.train(
+        df=df,
+        n_training_epochs=500,
+        total_timesteps=100000,
+        lr=1e-4,
+        batch_size=128,
+        save_path=model_name
+    )
+    '''
+    #model_loaded_DL = DeepQLearning(env, log=False)
+    #model_loaded_DL.policy_net.load_state_dict(torch.load("model/transformer/encoder_transformer_policy_vix1.pth"))
+
+    model_loaded_PPO = PPOAgent(env, log=False).ACAgent()
+    model_loaded_PPO.policy_net.load_state_dict(torch.load(model_name))
+    model_loaded_PPO.policy_net.eval()
+
+    model_loaded_PPO.plot(df, model = model_loaded_PPO.policy_net.encoder, name="VIX", save=False)
