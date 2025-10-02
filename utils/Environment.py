@@ -99,14 +99,14 @@ class TradingEnv(gym.Env):
         self.step_since_last_action = 0
         self.reward = 0
         self.reward_type = "portfolio_diff"
-        self.reward_evolution = "value"
+        self.reward_evolution = "value_log"
 
         if broker_fee :
             self.broker_fee = 0.03 # commission percentage
         else :
             self.broker_fee = 0
 
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(5,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(4,), dtype=np.float32)
         self.action_space = spaces.Discrete(3)  # 0 = Hold, 1 = Buy, 2 = Sell
 
     def _get_obs(self):
@@ -115,7 +115,7 @@ class TradingEnv(gym.Env):
             self.df.iloc[self.current_step]["Open"],
             self.df.iloc[self.current_step]["High"],
             self.df.iloc[self.current_step]["Low"],
-            self.position,
+            #self.position,
         ], dtype=np.float32)
 
     def sample_valid_action(self):
@@ -188,6 +188,8 @@ class TradingEnv(gym.Env):
                 self.reward += (raw_reward)
             elif self.reward_evolution == "addiditve_log":
                 self.reward += np.sign(raw_reward)*(np.log(np.abs(raw_reward)))
+            elif self.reward_evolution == "value_log":
+                self.reward = np.sign(raw_reward)*(np.log(np.abs(raw_reward)))
 
         return self._get_obs(), self.reward, done, current_portfolio_value
 
@@ -202,6 +204,7 @@ class TradingEnv(gym.Env):
         self.balance = self.initial_balance
         self.position = 0
         self.last_action = 0
+        self.reward = 0
         return self._get_obs()
 
 
@@ -234,7 +237,7 @@ if __name__ == '__main__':
         return action, current_portfolio, reward
 
     data_loader = DataLoader()
-    df = data_loader.read('data/General/O_2016_2024.csv')  # This is the DataFrame to use
+    df = data_loader.read('data/General/^VIX_2015_2025.csv')  # This is the DataFrame to use
 
     # Step 2: Initialize the environment
     env = TradingEnv(df, broker_fee=False)
