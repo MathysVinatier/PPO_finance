@@ -1,4 +1,4 @@
-from utils import DataLoader, TradingEnv,  QLearning, DeepQLearning
+from utils import DataLoader, TradingEnv,  QLearning, DeepQLearning, PPOAgent
 
 import optuna
 import multiprocessing
@@ -510,6 +510,150 @@ def optimization3(fname, reward_type="portfolio_diff" ,reward_evolution="value")
         for future in futures:
             _ = future.result()
 
+def plot_PPO(df):
+
+    plt.figure(figsize=(14, 6))
+    train_value, test_value = DataLoader().split_train_test("./data/General/^VIX_2015_2025.csv")
+
+    env_train = TradingEnv(train_value)
+    ppo_train = PPOAgent(env=env_train, log=False)
+    actions_train, equity_train = ppo_train.test()
+ 
+    env_test = TradingEnv(test_value)
+    ppo_test= PPOAgent(env=env_test, log=False)
+    actions_test, equity_test = ppo_test.test()
+
+    plt.subplot(2, 1, 1)
+
+    list_train_buy = [i for i, action in enumerate(actions_train) if action == 1]
+    list_train_sell = [i for i, action in enumerate(actions_train) if action == 2]
+
+    buy_dates_train = train_value["Close"].index[list_train_buy]
+    sell_dates_train = train_value["Close"].index[list_train_sell]
+
+    buy_prices_train = train_value["Close"].values[list_train_buy]
+    sell_prices_train = train_value["Close"].values[list_train_sell]
+
+    plt.plot(train_value["Close"].index, train_value["Close"], label="Training Data", linewidth=1)
+    plt.scatter(buy_dates_train, buy_prices_train, marker="^", c='green', s=22, zorder=3)
+    plt.scatter(sell_dates_train, sell_prices_train, marker="v", c='red', s=22, zorder=3)
+
+    list_test_buy = [i for i, action in enumerate(actions_test) if action == 1]
+    list_test_sell = [i for i, action in enumerate(actions_test) if action == 2]
+
+    buy_dates_test = test_value["Close"].index[list_test_buy]
+    sell_dates_test = test_value["Close"].index[list_test_sell]
+
+    buy_prices_test = test_value["Close"].values[list_test_buy]
+    sell_prices_test = test_value["Close"].values[list_test_sell]
+
+    plt.plot(test_value["Close"].index, test_value["Close"], label="Testing Data", linewidth=1)
+    plt.scatter(buy_dates_test, buy_prices_test, marker="^", c='green', s=22, zorder=3)
+    plt.scatter(sell_dates_test, sell_prices_test, marker="v", c='red', s=22, zorder=3)
+
+    plt.title(f"Buy & Sell Signals on VIX in {df.index[0][:4]}")
+    plt.ylabel("Price")
+    plt.legend()
+    plt.grid(True)
+    plt.gca().xaxis.set_major_locator(mdates.AutoDateLocator(minticks=3, maxticks=7))
+    plt.xticks(rotation=45)
+    plt.xlabel("Date")
+
+    plt.subplot(2, 1, 2)
+
+    x_train = range(len(equity_train))
+    x_test = range(len(equity_train), len(equity_train) + len(equity_test))
+
+    plt.plot(x_train, equity_train, label="Equity Curve Train", linewidth=1)
+    plt.plot(x_test, equity_test, label="Equity Curve Test", linewidth=1)
+
+    plt.title("Equity Curve")
+    plt.xlabel("Time Step")
+    plt.ylabel("Portfolio Value")
+    plt.legend()
+    plt.grid(True)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    plt.show()
+
+def compute_PPOTraining(trial_id: int, df) -> dict:
+
+    env = TradingEnv(df=df, broker_fee=True)
+    model = PPOAgent(env, log=True)
+
+    model.train(n_games=100)
+    _, equity, reward = model.test()
+    test_data_equity = equity[int(0.8*len(equity)):]
+    result = (test_data_equity[-1]-test_data_equity[0])/test_data_equity[0]
+    return {
+        "trial_id": trial_id, 
+        "result": result,
+        "equity": equity,
+        "reward": reward
+    }
+
+def compute_PPOTesting(trial_id: int, df) -> dict:
+
+    env = TradingEnv(df=df[int(0.8*len(df)):], broker_fee=True)
+    model = PPOAgent(env, log=True)
+
+    _, equity, reward = model.test(greedy=False)
+    test_data_equity = equity
+    result = (test_data_equity[-1]-test_data_equity[0])/test_data_equity[0]
+    return {
+        "trial_id": trial_id, 
+        "result": result,
+        "equity": equity,
+        "reward": reward
+    }
+
+def worker_PPO(trial_id: int, df, db_name):
+    output = compute_PPOTesting(trial_id, df)
+
+    conn = sqlite3.connect(db_name, timeout=30)  # timeout helps with write locks
+    cursor = conn.cursor()
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS results (
+               trial_id INTEGER, 
+               result INTEGER, 
+               equity TEXT, 
+               reward TEXT
+           )"""
+    )
+
+    cursor.execute(
+        "INSERT INTO results (trial_id, result, equity, reward) VALUES (?, ?, ?, ?)",
+        (
+            output["trial_id"],
+            output["result"],
+            json.dumps(output["equity"]),
+            json.dumps(output["reward"])
+        ),
+    )
+
+    conn.commit()
+    conn.close()
+    return output
+
+def optimization_PPO(fname):
+    data = "data/General/"+fname
+    dataloader = DataLoader()
+    df = dataloader.read(data)
+    print(f"TRAINING ON {data}")
+    db_name = f"results_{fname.split('.')[0]}_PPO.db"
+
+    number_of_trial = 500
+    last_trial = get_last_trial_id(db_name)
+    if last_trial == 0 :
+        trials = range(0, number_of_trial)
+    else:
+        trials = range(last_trial + 1, number_of_trial)
+
+    with ProcessPoolExecutor(max_workers=5) as executor:
+        futures = [executor.submit(worker_PPO, t, df[:int(0.8*len(df))], db_name) for t in trials]
+        for future in futures:
+            _ = future.result()
 
 if __name__ == '__main__':
     import argparse
@@ -524,22 +668,10 @@ if __name__ == '__main__':
     parser.add_argument("--reward_evolution", type=str, default="value", help="Reward evolution type (additive or value)")
     args = parser.parse_args()
 
-    #optimization2_optimized(fname=args.fname, reward_type=args.reward_type, reward_evolution=args.reward_evolution)
-    #optimization2_optimized_plot()
-
-    #fname_db = "results_^VIX_2015_2025_on_reward_portfolio_diff_value_optimized_parameters.db"
-    #df_db = read_db(fname=fname_db)
-    #qtable = df_db["qtable"][0]
-
-    #optimization2_plot(df_db, fname = fname_db)
-    #dataloader = DataLoader()
-    #df = dataloader.read("data/General/^VIX_2015_2025.csv")
-    #env = TradingEnv(df, broker_fee=True)
-    #QL = QLearning(env)
-    #qtable = QL.(df=df, train_size=0.8, reward_type="portfolio_diff", reward_evolution="value")
-    #QL.plot(df=df, model=qtable, name="VIX_2015_2025", save=True, show=True)
-
     multiprocessing.set_start_method("spawn", force=True)
-    optimization3(args.fname)
-    #fname_dl = "results_^VIX_2015_2025_DeepQLearning_homemade.db"
-    #optimization_optimized_plot(fname_dl)
+    optimization_PPO(args.fname)
+
+    #df_train, df_test = DataLoader().split_train_test("data/General/"+args.fname)
+    #env = TradingEnv(df=df_train, broker_fee=True)
+    #model = PPOAgent(env, log=True)
+    #model.train(n_games=300)
