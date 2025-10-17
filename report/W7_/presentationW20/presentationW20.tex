@@ -1,0 +1,137 @@
+\documentclass[11pt]{beamer}
+\usetheme{Madrid}
+\usefonttheme{serif}
+
+\usepackage[utf8]{inputenc}       % Encoding
+\usepackage[english]{babel}       % Language
+\usepackage[T1]{fontenc}          % Font encoding
+
+\usepackage{amsmath, amsfonts, amssymb} % Math packages
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{subcaption}
+
+\usepackage{tikz}
+\usepackage{tikz-uml}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{blkarray}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+%Tabular
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{arydshln}
+
+% Code formatting
+\usepackage{minted}
+\usepackage{adjustbox}
+\usepackage[ruled,vlined]{algorithm2e}
+\SetKwProg{While}{while}{}{}
+\SetKwProg{For}{for}{}{}
+\SetKwProg{Function}{function}{}{}
+
+% Custom math operators
+\DeclareMathOperator{\sen}{sen}
+\DeclareMathOperator{\tg}{tg}
+
+% Numbered captions in figures/tables
+\setbeamertemplate{caption}[numbered]
+
+% Metadata
+\author[Mathys Vinatier]{Mathys Vinatier}
+\title{PPO Market Bot}
+\setbeamercovered{transparent}
+\setbeamertemplate{navigation symbols}{}
+\logo{\includegraphics[scale=.05]{../img/logoSNU.png}}
+\institute[]{Seoul National University}
+\date{\today}
+
+% Bibliography
+\usepackage{biblatex} 
+\addbibresource{../references.bib}
+\usepackage{csquotes}
+
+%Glossary
+\usepackage[acronym]{glossaries}
+\makeglossaries
+\input{../glossary.tex}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{Data Tick Update}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{l|l|l|l|l|l}
+        \hline
+                   & Signal Capture        & Noise Level           & Transaction Cost      & Computation           & Recommended \\ \hline
+        1-second   & \cellcolor{red!60}    & \cellcolor{red!60}    & \cellcolor{red!60}    & \cellcolor{red!60}    & not         \\ \hline
+        1-minute   & \cellcolor{orange!70} & \cellcolor{red!60}    & \cellcolor{red!60}    & \cellcolor{orange!70} & 2nd choice  \\ \hline
+        5-minutes  & \cellcolor{yellow!80} & \cellcolor{orange!70} & \cellcolor{orange!70} & \cellcolor{yellow!80} & 1st choice  \\ \hline
+        15-minutes & \cellcolor{cyan!40}   & \cellcolor{cyan!40}   & \cellcolor{cyan!40}   & \cellcolor{orange!70} & not         \\ \hline
+    \end{tabular}
+    }
+\end{frame}
+
+\begin{frame}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.6\linewidth]{../img/diagram/PPO_Agent_explained.png}
+        \caption{PPO agent architecture for the market environment}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \begin{figure}[!ht]
+        \centering
+        \includegraphics[width=.6\textwidth]{../img/diagram/env_behavior.png}
+        \caption{Sequence diagram of the environment's behavior}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Fine tuning the reward}
+    \begin{itemize}
+        \item - \textbf{Final Reward :} total profit over a given period
+        \item - \textbf{Portfolio Change :} difference between the portfolio value before and after an action is taken
+        \item - \textbf{Penalty Loss :} negative reward whenever the agent make a losing trade
+        \item - \textbf{Portfolio Delta Risk :} risk-reward based on the volatility associated to an action
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Suggestions and Future Work}
+    \textbf{Next steps :}
+    \begin{itemize}
+        \item - Add \textbf{S\&P500} features into the environment (5-minutes tick data)
+        \item - Refine the \textbf{Actor} deep learning architecture
+        \item - Develop the \textbf{Critic} deep learning architecture 
+        \item - Implement \textbf{performance analysis} tools
+        \item - Use the performance metrics to \textbf{fine-tune} the \textbf{reward}
+        \item - Add \textbf{risk management} features
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Trade Station API Service}
+    \textbf{API futur updates :}
+    \begin{itemize}
+        \item - Reduce the update interval from 15 minutes to a \textbf{5-minute basis}
+        \item - Add a dedicated database for \textbf{range-based data requests}
+        \item - \textbf{Implement functionality} to retrieve and transmit a range of data (both server- and client-side)
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \centering
+    \vspace{2cm}
+    {\LARGE Thank You}
+\end{frame}
+
+\end{document}

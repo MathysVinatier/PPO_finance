@@ -2368,6 +2368,156 @@ Initialize PPO\_agent;
 \end{figure}
 
 
+\newpage
+
+\setcounter{chapter}{19}
+\chapter{Week 20}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{The PPO agent Strategy}
+
+\indent The PPO (Proximal Policy Optimization) agent strategy has been refined to enable a more robust analysis based on clearer evaluation criteria. This section presents the progress achieved during the week, focusing on a detailed analytical report that examines key aspects of the agent's training performance and optimization process.
+
+
+\subsection{The input Data}
+
+\indent One crucial aspect of developing our market trading agent is the selection of input data. In particular, the choice of the time interval (or tick size) plays a significant role in shaping the agent's behavior and learning outcomes. After consideration, we identify four possible tick intervals to analyze :
+
+
+\begin{tabular}{l|l|l|l|l|l}
+\hline
+                & Signal Capture & Noise Level & Transaction Cost & Computation & Recommended \\ \hline
+1-second   & \cellcolor{red!60} & \cellcolor{red!60} & \cellcolor{red!60} & \cellcolor{red!60} & not \\ \hline
+1-minute   & \cellcolor{orange!70} & \cellcolor{red!60} & \cellcolor{red!60} & \cellcolor{orange!70} & 2nd choice \\ \hline
+5-minutes  & \cellcolor{yellow!80} & \cellcolor{orange!70} & \cellcolor{orange!70} & \cellcolor{yellow!80} & 1st choice \\ \hline
+15-minutes & \cellcolor{cyan!40} & \cellcolor{cyan!40} & \cellcolor{cyan!40} & \cellcolor{orange!70} & not \\ \hline
+\end{tabular}
+
+\noindent The most suitable choice appears to be training the agent on 5-minute tick data. This interval maintains the market's dynamic behavior while avoiding excessive computational costs and unnecessary transaction expenses. \par
+
+\indent Furthermore, since the VIX market dynamics are closely correlated with those of the S\&P~500, it would be valuable to incorporate S\&P~500 features into the agent's training data. Doing so could enhance the model's understanding of market interactions and improve overall performance. However, this addition would increase the input dimensionality to approximately ten features. Therefore, a comparative experiment should be conducted to evaluate the impact of including these additional variables.
+
+
+\subsection{Model Layouts}
+
+\indent The proposed model consists of two deep learning components : the \textbf{Actor}, which determines the trading positions taken by the agent, and the \textbf{Critic}, which evaluates these actions by estimating the expected market outcome and computing a corresponding loss value. Their interaction forms the core of the PPO (Proximal Policy Optimization) framework.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/diagram/PPO_Agent_explained.png}
+    \caption{PPO agent architecture for the market environment}
+\end{figure}
+
+\noindent The \textbf{Actor} model is based on a transformer architecture with a SoftMax activation function in the output layer, which produces a probability distribution over possible actions. The agent then selects an action if its associated probability exceeds a predefined confidence threshold. In our case, it is recommended to act when the probability is higher than $65\%$.\par
+
+\noindent The \textbf{Critic} model, on the other hand, outputs an estimated closing price of the market at time step $n + 1$. This model employs an LSTM (Long Short-Term Memory) layer to capture the temporal dependencies and dynamic behavior of the market. Unlike the Actor, the Critic does not take direct actions; instead, it learns to evaluate the quality of the Actor's decisions based on the predicted market trajectory.
+
+
+\subsection{The performance analysis}
+
+\indent After training, a comprehensive performance analysis is required to identify the elements necessary for fine-tuning the agent. To achieve this, several evaluation metrics are recommended:
+
+\begin{itemize}
+    \item \textbf{Maximum Drawdown} - measures the largest observed loss from a peak to a trough before a new peak is achieved.
+    \item \textbf{Calmar Ratio} - the ratio of annualized return to maximum drawdown, providing a risk-adjusted performance measure.
+    \item \textbf{Profit (Equity Curve)} - the cumulative profit evolution over time, representing the model's overall growth performance.
+    \item \textbf{Compound Annual Growth Rate (CAGR)} - the mean annual growth rate of the portfolio over a specified period, assuming profits are reinvested.
+\end{itemize}
+
+\noindent As input, we will generate a comparative table to evaluate the different fine-tuned models based on these metrics, as shown below :
+
+\begin{center}
+    \begin{tabular}{>{\bfseries}l|p{9cm}}
+        \textbf{Total Return}      & cumulative return over a period \\ \hline
+        \textbf{Annual Return}     & average annual return \\ \hline
+        \textbf{Annual Volatility} & annual standard deviation on daily returns \\ \hline
+        \textbf{Sharpe Ratio}      & $(\text{annual return} - \text{risk-free rate}) / \text{annual volatility}$ \\ \hline
+        \textbf{Sortino Ratio}     & Sharpe ratio using downside volatility as the risk \\ \hline
+        \textbf{Max Drawdown}      & biggest percentage drop in portfolio \\ \hline
+        \textbf{Calmar Ratio}      & annual return divided by max drawdown \\ \hline
+        \textbf{Win/Loss Ratio}    & percentage of profitable trades \\ \hline
+        \textbf{Average Profit}    & average profit divided by average loss per trade \\
+    \end{tabular}
+\end{center}
+
+\subsection{Environment Fine-Tuning}
+
+\indent The environment is implemented using the \texttt{Gym} library to simulate real-time market conditions. It retrieves live data from the VIX market and assigns rewards based on the agent's chosen actions. The following sequence diagram illustrates the behavior of the environment during interaction and training:
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=.8\textwidth]{../img/diagram/env_behavior.png}
+    \caption{Sequence diagram of the environment's behavior.}
+\end{figure}
+
+\newpage
+
+\noindent To stabilize the training process and improve policy convergence, the reward function within the environment can be fine-tuned according to several criteria:
+
+\begin{itemize}
+    \item \textbf{Final Reward :} the total profit achieved over a given trading period.
+    \item \textbf{Portfolio Change :} the difference between the portfolio value before and after an action is taken.
+    \item \textbf{Penalty Loss :} a negative reward applied whenever the agent executes a losing trade.
+    \item \textbf{Portfolio Delta Risk :} a risk-adjusted reward component based on the volatility or exposure associated with the selected action.
+\end{itemize}
+
+\subsection{Risk Management}
+
+\indent Risk can be controlled during the testing phase of the agent—prior to deployment—by implementing a set of predefined safety rules. The first measure involves introducing a \textbf{stop-loss mechanism}, defined by a user-specified loss threshold, to automatically close a position when losses exceed acceptable limits. The second measure consists of enforcing a \textbf{Maximum Daily Drawdown} constraint to prevent the agent from taking excessive risks during periods of strong market decline.
+
+\subsection{Suggestions and Future Work}
+
+\indent The following list outlines the next steps for improving and extending the PPO agent framework:
+
+\begin{enumerate}
+    \item Incorporate S\&P~500 features into the environment (using 5-minute tick data).
+    \item Refine the \textbf{Actor} deep learning architecture:
+        \begin{itemize}
+            \item Integrate a \texttt{Time2Vec} layer to encode temporal patterns.
+            \item Modify the output layer to provide probability scores for each possible action.
+        \end{itemize}
+    \item Develop the \textbf{Critic} deep learning architecture:
+        \begin{itemize}
+            \item Include a \texttt{Time2Vec} layer.
+            \item Employ an \texttt{LSTM} layer to capture temporal dependencies.
+            \item Produce an output representing the predicted closing price.
+        \end{itemize}
+    \item Implement comprehensive performance analysis tools for post-training evaluation.
+    \item Use the performance metrics to fine-tune the environment's reward structure.
+    \item Integrate additional risk management features (e.g., stop-loss and maximum drawdown limits).
+\end{enumerate}
+
+\newpage
+
+\section{Real-Time Service}
+
+\indent In parallel with the PPO agent development, a real-time data service has been implemented to collect VIX market data across multiple computers.
+
+\subsection{Service Description}
+
+\indent The service leverages the \texttt{TradeStation API} to retrieve live market data. On the laboratory servers, a background process continuously runs to collect and update the latest VIX market features in real time. The data are stored in a single-row database that is refreshed every 15 minutes. However, as discussed previously, a 5-minute update interval would provide better responsiveness to market dynamics, and this adjustment will be implemented in future versions.  
+
+\indent When the database is updated, the server exposes an \texttt{HTTP} endpoint accessible via the laboratory's local network (LAN), allowing clients to query the latest data. In addition, the server hosts a lightweight debugging interface that acts as the main access point for clients to retrieve system information and monitor status.
+
+\indent The client component has been developed as a Python library. At this stage, it can retrieve the most recent VIX data and locally store all database updates, thereby maintaining a continuous historical record on the client machine.
+
+\subsection{Future Updates}
+
+\indent Future improvements will focus on extending the system's capabilities beyond merely retrieving the latest data. For instance, one key enhancement will enable the server to use the \texttt{TradeStation API} to independently fetch historical data ranges upon client request. To achieve this, a dedicated cache database will be introduced to temporarily store the requested data before transmission to the client via \texttt{HTTP}.
+
+\noindent The main objectives for the next iteration are as follows:
+
+\begin{itemize}
+    \item Reduce the update interval from 15 minutes to a 5-minute basis.
+    \item Add a dedicated database for range-based data requests.
+    \item Implement functionality to retrieve and transmit a range of data (both server- and client-side).
+\end{itemize}
+
 
 
 %\newpage
