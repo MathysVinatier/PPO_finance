@@ -184,6 +184,13 @@ class PPO_Transformer(nn.Module):
 
         return probs  # shape: (batch, 2)
 
+    def save_checkpoint(self):
+        torch.save(self.state_dict(), self.checkpoint_file)
+
+    def load_checkpoint(self):
+        self.load_state_dict(torch.load(self.checkpoint_file))
+
+
 # -----------------------------
 # Example usage for PPO_Transformer
 # -----------------------------
@@ -238,7 +245,7 @@ if __name__ == "__main__":
     # Forward Pass Example
     # -----------------------------
     # Take a small batch of random sequences
-    X_batch = X_seq[:7].to(DEVICE)  # shape: (batch, seq_len, num_features)
+    X_batch = X_seq[:32].to(DEVICE)  # shape: (batch, seq_len, num_features)
 
     # Forward pass through the model
     probs = model(X_batch)
