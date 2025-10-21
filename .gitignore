@@ -1,6 +1,7 @@
 *__pycache__
 \plot
 *.db
+\tmp
 
 # Report LaTex Folder
 /report/main*
