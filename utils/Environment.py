@@ -170,26 +170,12 @@ class TradingEnv(gym.Env):
 
         current_portfolio_value = self.balance + self.position * new_price * self.share
 
-        if self.reward_type == "portfolio" :
-            raw_reward = current_portfolio_value
-        elif self.reward_type == "portfolio_diff":
-            raw_reward = current_portfolio_value - prev_portfolio_value
-        elif self.reward_type == "slope_sign":
-            raw_reward = current_portfolio_value*np.sign(self.current_evolution)
-        elif self.reward_type == "slope":
-            raw_reward = current_portfolio_value*self.current_evolution
+        raw_reward = current_portfolio_value - prev_portfolio_value
 
         if raw_reward == 0:
             self.reward += 0
         else:
-            if self.reward_evolution == "value":
-                self.reward = np.sign(raw_reward)*(np.abs(raw_reward))
-            elif self.reward_evolution == "additive":
-                self.reward += (raw_reward)
-            elif self.reward_evolution == "addiditve_log":
-                self.reward += np.sign(raw_reward)*(np.log(np.abs(raw_reward)))
-            elif self.reward_evolution == "value_log":
-                self.reward = np.sign(raw_reward)*(np.log(np.abs(raw_reward)))
+            self.reward = np.sign(raw_reward)*((np.abs(raw_reward)))
 
         return self._get_obs(), self.reward, done, current_portfolio_value
 

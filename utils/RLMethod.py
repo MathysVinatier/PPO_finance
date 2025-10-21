@@ -19,10 +19,10 @@ from torch.distributions import Categorical
 from transformers import DecisionTransformerConfig, DecisionTransformerGPT2Model
 
 if __name__ == "__main__":
-    from Models import MLP, DEVICE, Encoder_Transformer
+    from Models import MLP, DEVICE, PPO_Transformer
     from PPO import ACAgent
 else:
-    from utils.Models import MLP, DEVICE, Encoder_Transformer
+    from utils.Models import MLP, DEVICE, PPO_Transformer
     from utils.PPO import ACAgent
 
 class ModelRL:

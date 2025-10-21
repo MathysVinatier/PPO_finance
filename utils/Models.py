@@ -147,7 +147,7 @@ class PPO_Transformer(nn.Module):
         self.fc = nn.Linear(d_model, num_classes)
 
         # --- Output probability activation (for buy/sell probs) ---
-        self.prob_layer = nn.Softmax()
+        self.prob_layer = nn.Softmax(dim=-1)
 
     def forward(self, x):
         """
@@ -184,13 +184,6 @@ class PPO_Transformer(nn.Module):
 
         return probs  # shape: (batch, 2)
 
-    def save_checkpoint(self):
-        torch.save(self.state_dict(), self.checkpoint_file)
-
-    def load_checkpoint(self):
-        self.load_state_dict(torch.load(self.checkpoint_file))
-
-
 # -----------------------------
 # Example usage for PPO_Transformer
 # -----------------------------
@@ -211,7 +204,7 @@ if __name__ == "__main__":
     df = DataLoader().read("data/General/TSLA_2019_2024.csv")
 
     # Select and normalize features
-    features = df[["Close", "High", "Low", "Open", "Volume"]].values
+    features = df[["Close", "High", "Low", "Open", "Volume"]].values[-365:]
     scaler = StandardScaler()
     features = scaler.fit_transform(features)
     features = torch.tensor(features, dtype=torch.float32, device=DEVICE)

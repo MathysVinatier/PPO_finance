@@ -1,4 +1,4 @@
-from utils import DataLoader, TradingEnv,  QLearning, DeepQLearning, PPOAgent
+from utils import DataLoader, TradingEnv,  QLearning, DeepQLearning, PPOAgent, ACAgent
 
 import optuna
 import multiprocessing
@@ -7,9 +7,14 @@ import os
 
 import sqlite3
 import json
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor
 
 import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+
+from sklearn.preprocessing import StandardScaler
 
 def test_QLearning(fdir, with_broker=False):
 
@@ -655,23 +660,195 @@ def optimization_PPO(fname):
         for future in futures:
             _ = future.result()
 
+def train_ppo(df, n_episode, n_epoch_per_episode, batch_size, checkpoint_step=False):
+
+    # -----------------------------
+    # Load and preprocess data
+    # -----------------------------
+    features = df[["Close", "High", "Low", "Open", "Volume"]]
+
+    scaler = StandardScaler()
+    features = scaler.fit_transform(features)
+
+    # -----------------------------
+    # Create environment
+    # -----------------------------
+    env = TradingEnv(df, broker_fee=False)
+
+    # -----------------------------
+    # Initialize ACAgent
+    # -----------------------------
+    seq_len = 7
+    num_features = env.observation_space.shape[0]
+    n_actions = env.action_space.n
+    agent = ACAgent(n_actions=n_actions, num_features=num_features, seq_len=seq_len, batch_size=batch_size, n_epochs=n_epoch_per_episode)
+
+    # -----------------------------
+    # Training loop
+    # -----------------------------
+    threshold = 0.65
+    action_names = {0: "hold", 1: "buy", 2: "sell"}
+    best_reward = 0
+
+    for ep in range(n_episode):
+        obs = env.reset()
+        done = False
+        total_reward = 0
+        seq_buffer = []
+        actions_taken = []
+
+        while not done:
+            # Build sequence for Transformer
+            seq_buffer.append(obs)
+            if len(seq_buffer) > seq_len:
+                seq_buffer.pop(0)
+            if len(seq_buffer) < seq_len:
+                pad_len = seq_len - len(seq_buffer)
+                seq = [seq_buffer[0]]*pad_len + seq_buffer
+            else:
+                seq = seq_buffer
+
+            # Get valid actions
+            valid_actions = env.get_valid_actions()
+
+            seq_array = np.array(seq, dtype=np.float32)
+            seq_array = np.expand_dims(seq_array, axis=0)  # Add batch dimension
+
+            # Choose action
+            action, log_prob, value = agent.choose_action(seq_array, valid_actions, threshold=threshold)
+            actions_taken.append(action)  # <-- Save action
+
+            # Step environment
+            next_obs, reward, done, _ = env.step(action)
+            total_reward += reward
+
+            # Store experience
+            agent.remember(seq_array, action, log_prob, value, reward, done)
+            obs = next_obs
+
+        # Update agent after each episode
+        agent.learn()
+
+        # Count actions and map to names
+        unique, counts = np.unique(actions_taken, return_counts=True)
+        action_summary = {action_names[int(u)]: int(c) for u, c in zip(unique, counts)}
+
+        if checkpoint_step!=False:
+            if total_reward >= best_reward:
+                agent.save_models()
+                best_reward = total_reward
+
+        print(f"Episode {ep+1}/{n_episode} finished, "
+              f"total reward  : {total_reward:.3f}, "
+              f"actions taken : {action_summary}")
+
+
+def test_ppo(df):
+    env = TradingEnv(df, broker_fee=False)
+
+    seq_len = 7
+    num_features = env.observation_space.shape[0]
+    n_actions = env.action_space.n
+    agent = ACAgent(n_actions=n_actions, num_features=num_features, seq_len=seq_len, batch_size=1, n_epochs=1)
+    agent.load_models()
+
+    threshold = 0.65
+    action_names = {0: "hold", 1: "buy", 2: "sell"}
+
+    obs = env.reset()
+    done = False
+    total_reward = 0
+    seq_buffer = []
+    actions_taken = []
+    portfolio_values = []
+    probs_history = []
+
+    while not done:
+        seq_buffer.append(obs)
+        if len(seq_buffer) > seq_len:
+            seq_buffer.pop(0)
+        if len(seq_buffer) < seq_len:
+            pad_len = seq_len - len(seq_buffer)
+            seq = [seq_buffer[0]] * pad_len + seq_buffer
+        else:
+            seq = seq_buffer
+
+        valid_actions = env.get_valid_actions()
+        seq_array = np.array(seq, dtype=np.float32)
+        seq_array = np.expand_dims(seq_array, axis=0)
+
+        # Forward pass for visualization
+        with torch.no_grad():
+            state = torch.tensor(seq_array, dtype=torch.float32).to(agent.actor.device)
+            dist = agent.actor(state)
+            probs = dist.probs.cpu().numpy().squeeze()
+        probs_history.append(probs)
+
+        # Choose action
+        action, log_prob, value = agent.choose_action(seq_array, valid_actions, threshold=threshold)
+        actions_taken.append(action)
+        next_obs, reward, done, current_portfolio_value = env.step(action)
+        total_reward += reward
+        portfolio_values.append(current_portfolio_value)
+
+        agent.remember(seq_array, action, log_prob, value, reward, done)
+        obs = next_obs
+
+    # --- Summary ---
+    unique, counts = np.unique(actions_taken, return_counts=True)
+    action_summary = {action_names[int(u)]: int(c) for u, c in zip(unique, counts)}
+    print(f"total reward: {total_reward:.3f}, actions taken: {action_summary}")
+
+    return actions_taken, probs_history, portfolio_values, total_reward
+
+def plot_testppo(df, actions_taken, probs_history, portfolio_values):
+    # --- Visualization ---
+    prices = df["Close"].values[:len(actions_taken)]
+    probs_history = np.array(probs_history)
+    steps = np.arange(len(prices))
+
+    fig, (ax_main, ax_probs) = plt.subplots(2, 1, figsize=(16, 6), sharex=True,
+                                            gridspec_kw={'height_ratios': [2, 1]})
+
+    # === Price + Portfolio ===
+    ax_main.plot(steps, prices, color="black", label="Market Price", linewidth=1.2)
+    buy_idx = [i for i, a in enumerate(actions_taken) if a == 1]
+    sell_idx = [i for i, a in enumerate(actions_taken) if a == 2]
+    ax_main.plot(buy_idx, prices[buy_idx], "^", color="tab:green", label="Buy", markersize=8)
+    ax_main.plot(sell_idx, prices[sell_idx], "v", color="tab:red", label="Sell", markersize=8)
+    ax_main.set_ylabel("Price")
+    ax_main.set_title("Market Price & Portfolio Value")
+
+    # twin y-axis for portfolio
+    ax_portfolio = ax_main.twinx()
+    ax_portfolio.plot(steps, portfolio_values, color="blue", label="Portfolio Value", linewidth=1.2, alpha=0.7)
+    ax_portfolio.set_ylabel("Portfolio Value")
+
+    # combine legends
+    lines_1, labels_1 = ax_main.get_legend_handles_labels()
+    lines_2, labels_2 = ax_portfolio.get_legend_handles_labels()
+    ax_main.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper left")
+    ax_main.grid(True, linestyle='--', alpha=0.6)
+
+    # === Action probability bars ===
+    width = 0.25
+    #ax_probs.bar(steps - width, probs_history[:, 0], width, label="Hold", color="gray", alpha=0.7)
+    ax_probs.bar(steps, probs_history[:, 1], width, label="Buy", color="tab:gray", alpha=0.5)
+    ax_probs.bar(steps + width, probs_history[:, 2], width, label="Sell", color="tab:red", alpha=1)
+    ax_probs.set_ylim(0, 1)
+    ax_probs.set_xlabel("Step")
+    ax_probs.set_ylabel("Probability")
+    ax_probs.set_title("Action Probabilities per Step")
+    ax_probs.legend()
+    ax_probs.grid(True, linestyle='--', alpha=0.6)
+
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == '__main__':
-    import argparse
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import numpy as np
-    import matplotlib.dates as mdates
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--fname", type=str, default="^VIX_2015_2025.csv", help="CSV file")
-    parser.add_argument("--reward_type", type=str, default="portfolio_diff", help="Reward type (e.g. portfolio, portfolio_diff, etc.)")
-    parser.add_argument("--reward_evolution", type=str, default="value", help="Reward evolution type (additive or value)")
-    args = parser.parse_args()
-
-    multiprocessing.set_start_method("spawn", force=True)
-    optimization_PPO(args.fname)
-
-    #df_train, df_test = DataLoader().split_train_test("data/General/"+args.fname)
-    #env = TradingEnv(df=df_train, broker_fee=True)
-    #model = PPOAgent(env, log=True)
-    #model.train(n_games=300)
+    df_train, df_test = DataLoader().split_train_test("data/General/^VIX_2015_2025.csv")
+    train_ppo(df_train, n_episode=150, n_epoch_per_episode=100, batch_size=128, checkpoint_step=True)
+    actions_taken, probs_history, portfolio_values, total_reward = test_ppo(df_train)
+    plot_testppo(df_train, actions_taken, probs_history, portfolio_values)
