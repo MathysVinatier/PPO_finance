@@ -1,0 +1,205 @@
+\documentclass[11pt]{beamer}
+\usetheme{Madrid}
+\usefonttheme{serif}
+
+\usepackage[utf8]{inputenc}       % Encoding
+\usepackage[english]{babel}       % Language
+\usepackage[T1]{fontenc}          % Font encoding
+
+\usepackage{amsmath, amsfonts, amssymb} % Math packages
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{subcaption}
+
+\usepackage{tikz}
+\usepackage{tikz-uml}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{blkarray}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+%Tabular
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{arydshln}
+
+% Code formatting
+\usepackage{minted}
+\usepackage{adjustbox}
+\usepackage[ruled,vlined]{algorithm2e}
+\SetKwProg{While}{while}{}{}
+\SetKwProg{For}{for}{}{}
+\SetKwProg{Function}{function}{}{}
+
+% Custom math operators
+\DeclareMathOperator{\sen}{sen}
+\DeclareMathOperator{\tg}{tg}
+
+% Numbered captions in figures/tables
+\setbeamertemplate{caption}[numbered]
+
+% Metadata
+\author[Mathys Vinatier]{Mathys Vinatier}
+\title{PPO Market Bot}
+\setbeamercovered{transparent}
+\setbeamertemplate{navigation symbols}{}
+\logo{\includegraphics[scale=.05]{../img/logoSNU.png}}
+\institute[]{Seoul National University}
+\date{\today}
+
+% Bibliography
+\usepackage{biblatex} 
+\addbibresource{../references.bib}
+\usepackage{csquotes}
+
+%Glossary
+\usepackage[acronym]{glossaries}
+\makeglossaries
+\input{../glossary.tex}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{PPO Training}
+    \textbf{Fixed parameters}
+    \begin{itemize}
+        \item Discount factor $\gamma = 0.99$
+        \item Learning rate $\alpha = 3 \times 10^{-4}$
+        \item Generalized Advantage Estimation parameter $\lambda = 0.95$
+        \item Policy clipping coefficient $\epsilon = 0.2$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training 1 - Analysis}
+    \textbf{Parameters}
+    \begin{itemize}
+        \item Episodes : $300$
+        \item Epochs per update : $10$
+        \item Batch size : $128$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training 1 - Analysis}
+    \vfill
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_1/trial_001/train.png}
+        \caption{Training 1 - Training of trial 1}
+    \end{figure}
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_1/trial_001/test.png}
+        \caption{Training 1 - Test of trial 1}
+    \end{figure}
+    \vfill
+\end{frame}
+
+\begin{frame}{Training 1 - Analysis}
+    \vfill
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_1/trial_002/train.png}
+        \caption{Training 1 - Training of trial 2}
+    \end{figure}
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_1/trial_002/test.png}
+        \caption{Training 1 - Test of trial 2}
+    \end{figure}
+    \vfill
+\end{frame}
+
+\begin{frame}{Training 1 - Analysis}
+    \vfill
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_1/trial_003/train.png}
+        \caption{Training 1 - Training of trial 3}
+    \end{figure}
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_1/trial_003/test.png}
+        \caption{Training 1 - Test of trial 3}
+    \end{figure}
+    \vfill
+\end{frame}
+
+\begin{frame}{Training 1 - Analysis}
+    \vfill
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_1/trial_004/train.png}
+        \caption{Training 1 - Training of trial 4}
+    \end{figure}
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_1/trial_004/test.png}
+        \caption{Training 1 - Test of trial 4}
+    \end{figure}
+    \vfill
+\end{frame}
+
+\begin{frame}{Training 1 - Analysis}
+    \vfill
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_1/trial_005/train.png}
+        \caption{Training 1 - Training of trial 5}
+    \end{figure}
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_1/trial_005/test.png}
+        \caption{Training 1 - Test of trial 5}
+    \end{figure}
+    \vfill
+\end{frame}
+
+\begin{frame}{Training 1 - Analysis}
+    \begin{figure}[H]
+        \centering
+        \scalebox{0.55}{
+        \begin{tabular}{c|cccccc}
+            \textbf{Trial} & \textbf{Training Profit} & \textbf{Testing Profit} & \textbf{Annual Return} & \textbf{Annual Volatility} & \textbf{Sharpe Ratio} & \textbf{Max Drawdown} \\ \hline
+            \textit{1} & $-822.5$ & $74$ & $0.17\mathdollar / \text{year}$ & $0.17$ & $-0.07$ & $-0.20$ \\ \hline
+            \textit{2} &   $4.5$  &  $3$ & $0.01\mathdollar / \text{year}$ & $0.01$ &  $0.71$ & $0.00$ \\ \hline
+            \textit{3} &   $0$    &  $0$ & $0.00\mathdollar / \text{year}$ & $0.00$ &    $0$  & $0.00$ \\ \hline
+            \textit{4} & $3930.5$ &  $0$ & $0.13\mathdollar / \text{year}$ & $0.13$ &  $0.10$ & $-0.11$ \\ \hline
+            \textit{5} &   $0$    &  $0$ & $0.00\mathdollar / \text{year}$ & $0.00$ &    $0$  & $0.00$ \\ \hline
+        \end{tabular}
+        }
+        \caption{Summary of the trials performances}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Training 2 - Analysis}
+    \textbf{Parameters}
+    \begin{itemize}
+        \item Episodes : $200$
+        \item Epochs per update : $50$
+        \item Batch size : $128$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training 2 - Analysis}
+    \begin{figure}[H]
+        \includegraphics[width=\linewidth]{../img/training_2/trial_001/epoch_analysis.png}
+        \caption{Training 2 - Training thru the epochs}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Training 2 - Analysis}
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_2/trial_001/train.png}
+        \caption{Training 2 - Training of trial 1}
+    \end{figure}
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{../img/training_2/trial_001/test.png}
+        \caption{Training 2 - Test of trial 1}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \centering
+    \vspace{2cm}
+    {\LARGE Thank You}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,348 @@
+\documentclass[11pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[myheadings]{fullpage}
+\DeclareUnicodeCharacter{0301}{\hspace{-1ex}\'{ }}
+
+\usepackage{silence}
+
+% Package for headers 
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% For figures and stuff
+\usepackage{graphicx, wrapfig, subcaption, setspace, booktabs}
+\usepackage[T1]{fontenc}
+
+% Change for different font sizes and families
+\usepackage[font=small, labelfont=bf]{caption}
+\usepackage{fourier}
+\usepackage[protrusion=true, expansion=true]{microtype}
+
+% Maths
+\usepackage{amsmath,amssymb}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+% Code
+\usepackage{minted}
+\usepackage{adjustbox}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\SetKwProg{While}{while}{}{}
+\SetKwProg{For}{for}{}{}
+\SetKwProg{Function}{function}{}{}
+
+% Bibliography
+\usepackage{biblatex} 
+\addbibresource{../references.bib}
+
+%Glossary
+\usepackage[acronym]{glossaries}
+\makeglossaries
+\input{../glossary}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{indentfirst}
+
+%Tabular
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{arydshln}
+
+%Function draw
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{tikz}
+\usepackage{tikz-uml}
+\usepackage{amsmath}
+\usepackage{pgfmath}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning}
+\usetikzlibrary{fit, backgrounds, calc}
+
+\usepackage{afterpage}
+
+% Show mini ToCs automatically at the beginning of each chapter
+\usepackage{minitoc}
+\setcounter{tocdepth}{0}        % Only show chapters in the main ToC
+\setcounter{minitocdepth}{2}    % Show sections and subsections in mini ToCs
+\dominitoc                      % Enable mini ToCs
+\WarningFilter{minitoc(hints)}{W0024}
+
+\definecolor{terminalbg}{RGB}{0,0,0}
+\definecolor{terminalfg}{RGB}{255, 255, 255} 
+
+\newminted[console]{bash}{
+  bgcolor=terminalbg,
+  fontfamily=tt,
+  fontsize=\small,
+  linenos=false,
+  framesep=100mm,
+  rulecolor=\color{white},
+  baselinestretch=1,
+  breaklines=true
+}
+
+
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{-1}%
+    \newpage}
+
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
+\onehalfspacing
+
+%% Sets page size and margins
+\usepackage[a4paper,top=2cm,bottom=1.5cm,left=2cm,right=2cm,marginparwidth=1.5cm]{geometry}
+% Command to draw a horizontal line
+\newcommand{\separator}{%
+    \begin{center}
+      {\Large$\ast$~$\ast$~$\ast$}
+    \end{center}
+}
+
+
+\setlength{\parskip}{10pt}
+\setlength{\parindent}{1cm}
+
+\pagestyle{fancy}
+\fancyhf{}
+
+% Header and footer information
+\setlength\headheight{15pt}
+\author{Mathys VINATIER}
+%\fancyhead[L]{IPSA} 
+\fancyhead[R]{Mathys VINATIER}
+\fancyfoot[R]{\thepage}
+ \setlength {\marginparwidth }{2cm}
+\begin{document}
+
+
+\date{}
+
+\title{ 
+		\HRule{2pt} \\
+		\LARGE \textbf{ Report on PPO agent for Finance } 
+		\HRule{2pt} \\ [0.5cm]
+		\normalsize \today \vspace*{5\baselineskip}\\
+		Mathys VINATIER  - \href{https://github.com/MathysVinatier/PPO_finance/blob/main/}{GitHub Project page}\\
+		Supervisor:      \\
+		  Pr Kim Tae-Wan
+      }
+
+\maketitle
+
+\newpage
+\blankpage
+\newpage
+
+\tableofcontents
+\blankpage
+
+\newpage
+\blankpage
+\newpage
+
+\setcounter{chapter}{20}
+\chapter{Week 21}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{The PPO Agent Training}
+
+\indent This week, we built and trained the model based on the previous recommendations. Several experiments were conducted to fine-tune and identify the optimal configuration of the PPO agent. Different parameter settings were tested across multiple trials, which will be discussed in this report.
+
+\noindent As an initial step, we performed small adjustments to intentionally create an overfitting model. This helps verify that the agent can effectively learn from historical data before introducing regularization or exploration strategies. For this purpose, some parameters were fixed as follows:
+
+\begin{itemize}
+    \item Discount factor $\gamma = 0.99$
+    \item Learning rate $\alpha = 3 \times 10^{-4}$
+    \item Generalized Advantage Estimation parameter $\lambda = 0.95$
+    \item Policy clipping coefficient $\epsilon = 0.2$
+\end{itemize}
+
+\noindent These parameters play a key role in shaping the agent's learning dynamics. The discount factor $\gamma$ determines how strongly future rewards influence current decisions—values close to 1 encourage long-term planning, while smaller values emphasize immediate rewards. The learning rate $\alpha$ controls the step size of parameter updates ; higher values speed up learning but risk instability, whereas lower values make learning slower and more stable. The GAE parameter $\lambda$ balances bias and variance in advantage estimation : larger $\lambda$ values produce smoother, more consistent updates but can increase variance. Finally, the clipping coefficient $\epsilon$ stabilizes policy updates by preventing the new policy from deviating too far from the old one, ensuring more reliable convergence during training.
+
+
+\subsection{First training analysis}
+
+
+\indent For the initial training phase, we selected a set of baseline parameters to establish a reference point for the PPO agent's learning behavior. The chosen configuration is summarized below :
+
+\begin{itemize}
+    \item Episodes : $300$
+    \item Epochs per update : $10$
+    \item Batch size : $128$
+\end{itemize}
+
+\noindent The goal of this setup was to allow the agent to experience a relatively large number of episodes, providing diverse trajectories for training, while keeping the number of epochs moderate to prevent overfitting on limited data. This configuration encourages the critic network to refine its value estimation across a broader range of states, which in turn supports more stable policy updates by the actor. 
+
+\noindent The following section presents and discusses the main results obtained from this first round of training :
+
+\newpage
+
+\vfill
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_1/trial_001/train.png}
+    \caption{Training 1 - Training of trial 1}
+\end{figure}
+\vspace{1cm}
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_1/trial_001/test.png}
+    \caption{Training 1 - Test of trial 1}
+\end{figure}
+
+\noindent We can see that the training did not learn well since we have only few trades made, also the test has made very poor actions. We can consider that this first trial is really underfiting.
+\vfill
+
+\newpage
+
+\vfill
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_1/trial_002/train.png}
+    \caption{Training 1 - Training of trial 2}
+\end{figure}
+\vspace{1cm}
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_1/trial_002/test.png}
+    \caption{Training 1 - Test of trial 2}
+\end{figure}
+\noindent As previously, we can see that the model is clearly underfiting since it has made only one trade  during testing and training which is representing an underfitting model.
+\vfill
+
+\newpage
+
+\vfill
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_1/trial_003/train.png}
+    \caption{Training 1 - Training of trial 3}
+\end{figure}
+\vspace{1cm}
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_1/trial_003/test.png}
+    \caption{Training 1 - Test of trial 3}
+\end{figure}
+\noindent The model did not take any trade neither on training or testing. We cannot evaluate this model.
+\vfill
+
+\newpage
+
+\vfill
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_1/trial_004/train.png}
+    \caption{Training 1 - Training of trial 4}
+\end{figure}
+\vspace{1cm}
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_1/trial_004/test.png}
+    \caption{Training 1 - Test of trial 4}
+\end{figure}
+\noindent This model clearly learnt in training. However in testing the model is overfitting since it is not making wise trade.
+\vfill
+
+\newpage
+
+\vfill
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_1/trial_005/train.png}
+    \caption{Training 1 - Training of trial 5}
+\end{figure}
+\vspace{1cm}
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_1/trial_005/test.png}
+    \caption{Training 1 - Test of trial 5}
+\end{figure}
+\noindent Like the trial 3, we cannot analyse this model since it has made no trade.\par
+
+\begin{figure}[H]
+    \centering
+    \scalebox{0.9}{
+    \begin{tabular}{c|cccccc}
+        \textbf{Trial} & \textbf{Training Profit} & \textbf{Testing Profit} & \textbf{Annual Return} & \textbf{Annual Volatility} & \textbf{Sharpe Ratio} & \textbf{Max Drawdown} \\ \hline
+        \textit{1} & $-822.5$ & $74$ & $0.17\mathdollar / \text{year}$ & $0.17$ & $-0.07$ & $-0.20$ \\ \hline
+        \textit{2} &   $4.5$  &  $3$ & $0.01\mathdollar / \text{year}$ & $0.01$ &  $0.71$ & $0.00$ \\ \hline
+        \textit{3} &   $0$    &  $0$ & $0.00\mathdollar / \text{year}$ & $0.00$ &    $0$  & $0.00$ \\ \hline
+        \textit{4} & $3930.5$ &  $0$ & $0.13\mathdollar / \text{year}$ & $0.13$ &  $0.10$ & $-0.11$ \\ \hline
+        \textit{5} &   $0$    &  $0$ & $0.00\mathdollar / \text{year}$ & $0.00$ &    $0$  & $0.00$ \\ \hline
+    \end{tabular}
+    }
+    \caption{Summary of the trials performances}
+\end{figure}
+    
+\noindent The results from these trials indicate clear signs of underfitting. Most configurations exhibited weak overall performance, and the single trial that achieved relatively good results during training failed to generalize well in the testing phase, suggesting that the model did not effectively capture the underlying dynamics of the environment.
+
+\vfill
+
+\newpage
+
+\subsection{Second training analysis}
+
+\indent We would like to get a less overfitting model, for that we will work with more epoch and less episode to get a better trained thru the episodes, we will use the following training parameters :
+
+\begin{itemize}
+    \item Episodes : $200$
+    \item Epochs per update : $50$
+    \item Batch size : $128$
+\end{itemize}
+
+\noindent For this training, we are going to get a better look at each episode to better analyse the learning behavior of our model :
+
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_2/trial_001/epoch_analysis.png}
+    \caption{Training 2 - Training thru the epochs}
+\end{figure}
+
+\noindent As observed, the model demonstrates progressively wiser trading behavior across episodes, suggesting that it successfully captures and adapts to the underlying market dynamics during training. The learning curve reveals two distinct phases: initially, the agent learns to execute more strategic and selective trades, improving the efficiency of its decisions; subsequently, the model stabilizes the number of trades while gradually increasing overall profit.
+
+\newpage
+
+\noindent Compared to the previous configuration, this version exhibits stronger learning performance, primarily due to the increased number of training epochs. However, the risk of overfitting remains and further evaluation on unseen data is necessary to assess the model's generalization capability and ensure robust performance in different market conditions :
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_2/trial_001/train.png}
+    \caption{Training 2 - Training of trial 1}
+\end{figure}
+\vspace{1cm}
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_2/trial_001/test.png}
+    \caption{Training 2 - Test of trial 1}
+\end{figure}
+
+\noindent As we can see, the model has been overfitting. However since it is a stochastic model, we should compute many time our model to determine his usual behavior. Adding other features has input from other related market could be also a solution to our problem (VVIX / S\&P500).
+
+%\newpage
+
+%\appendix
+
+
+%\newpage
+
+%Références
+%\printbibliography
+
+\newpage
+
+%Glossaire
+\printacronyms
+
+% \newpage
+
+% \printglossary
+
+% %Annexes
+% \section{Annexes}
+% \input{annexe.tex}
+
+\end{document}

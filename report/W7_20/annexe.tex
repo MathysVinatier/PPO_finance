@@ -1,0 +1,69 @@
+\begin{listing}[H]
+\begin{minted}[
+    linenos, 
+    frame=lines, 
+    fontsize=\small, 
+    breaklines, 
+    bgcolor=lightgray
+    ]{python}
+class KFilter:
+    def __init__(self, Q=None, R=None):
+        self.Q = Q if Q is not None else np.eye(3) * 1e-2 
+        self.R = R if R is not None else np.eye(5) * 4.0
+
+    def apply(self, measurements_df):
+        self.measurements = measurements_df[["Open", "High", "Low", "Close", "Volume"]].values
+        self.num_steps = len(self.measurements)
+
+        x_est = np.array([self.measurements[0][3], 0.0, self.measurements[0][4]])
+        P = np.eye(3)
+
+        dt = 5
+        F = np.array([
+            [1, dt, 0],
+            [0, 1,  0],
+            [0, 0,  1]
+        ])
+
+        # Measurement Matrix (constant in basic KF)
+        H = np.array([
+            [1, 0, 0],  # Open
+            [1, 0, 0],  # High
+            [1, 0, 0],  # Low
+            [1, 0, 0],  # Close
+            [0, 0, 1]   # Volume
+        ])
+
+        self.estimates_x = []
+        self.estimates_y = []
+
+        for k in range(self.num_steps):
+            z = self.measurements[k]
+
+            # Prediction
+            x_pred = F @ x_est
+            P = F @ P @ F.T + self.Q
+
+            # Update
+            y = z - H @ x_pred 
+            S = H @ P @ H.T + self.R
+            K = P @ H.T @ np.linalg.inv(S)
+
+            x_est = x_pred + K @ y
+            P = (np.eye(3) - K @ H) @ P
+            y = z - H @ x_est
+
+            self.estimates_x.append(x_est.copy())
+            self.estimates_y.append(y.copy())
+
+        estimates_array = np.array(self.estimates_x)
+        estimates_df = pd.DataFrame(estimates_array, columns=['Estimated_Price', 'Estimated_Velocity', 'Estimated_Volume'])
+        estimates_df.index = measurements_df.index
+
+        invariant = np.mean(self.estimates_y)
+
+        return estimates_df, invariant
+\end{minted}
+\caption{Kalman Filter Implementation in Python}
+\label{lst:kalman_filter}
+\end{listing}
