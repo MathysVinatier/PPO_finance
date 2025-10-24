@@ -88,11 +88,11 @@ class ActorNetwork(nn.Module):
         dist = torch.distributions.Categorical(probs)
         return dist
 
-    def save_checkpoint(self):
-        torch.save(self.state_dict(), self.checkpoint_file)
+    def save_checkpoint(self, episode=""):
+        torch.save(self.state_dict(), self.checkpoint_file+episode)
 
-    def load_checkpoint(self):
-        self.load_state_dict(torch.load(self.checkpoint_file))
+    def load_checkpoint(self, episode=""):
+        self.load_state_dict(torch.load(self.checkpoint_file+episode))
 
 
 class CriticNetwork(nn.Module):
@@ -158,11 +158,11 @@ class CriticNetwork(nn.Module):
         value = self.fc(last_hidden)       # (batch, 1)
         return value
 
-    def save_checkpoint(self):
-        torch.save(self.state_dict(), self.checkpoint_file)
+    def save_checkpoint(self, episode=""):
+        torch.save(self.state_dict(), self.checkpoint_file+episode)
 
-    def load_checkpoint(self):
-        self.load_state_dict(torch.load(self.checkpoint_file))
+    def load_checkpoint(self, episode=""):
+        self.load_state_dict(torch.load(self.checkpoint_file+episode))
 
 class ACAgent:
     def __init__(self, n_actions, num_features, seq_len, gamma=0.99, alpha=0.0003, gae_lambda=0.95,
@@ -183,15 +183,15 @@ class ACAgent:
     def remember(self, state, action, probs, vals, reward, done):
         self.memory.store_memory(state, action, probs, vals, reward, done)
 
-    def save_models(self):
+    def save_models(self, episode=""):
         print('... saving models ...')
-        self.actor.save_checkpoint()
-        self.critic.save_checkpoint()
+        self.actor.save_checkpoint(episode)
+        self.critic.save_checkpoint(episode)
 
-    def load_models(self):
+    def load_models(self, episode=""):
         print('... loading models ...')
-        self.actor.load_checkpoint()
-        self.critic.load_checkpoint()
+        self.actor.load_checkpoint(episode)
+        self.critic.load_checkpoint(episode)
 
     def choose_action(self, observation, valid_actions, threshold=0.65):
         """
