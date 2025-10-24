@@ -1,20 +1,30 @@
 import os
+import sys
 import time
 from datetime import datetime
 
-from utils import DataLoader, TradingEnv, ACAgent
 from sklearn.preprocessing import StandardScaler
 import torch
 
 import sqlite3
-import pandas as pd
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 from conf_PPO import *
 
-def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, checkpoint_step=False):
+current_dir = os.getcwd()
+
+with os.scandir("/home/mathys/Documents/PPO_finance"):
+    os.chdir("/home/mathys/Documents/PPO_finance")
+    sys.path.insert(0, os.getcwd())
+    from utils import DataLoader, TradingEnv, ACAgent
+
+os.chdir(current_dir)
+
+
+def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, alpha, gae,
+                 policy_clip,checkpoint_step=False):
 
     # -----------------------------
     # Load and preprocess data
@@ -36,7 +46,8 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, checkpoi
     seq_len = 7
     num_features = env.observation_space.shape[0]
     n_actions = env.action_space.n
-    agent = ACAgent(n_actions=n_actions, num_features=num_features, seq_len=seq_len, batch_size=batch_size, n_epochs=n_epoch_per_episode, chkpt_dir=MODELS_PATH, agent_id=agent_id)
+    agent = ACAgent(n_actions=n_actions, num_features=num_features, seq_len=seq_len, batch_size=batch_size, n_epochs=n_epoch_per_episode, gamma=gamma, alpha=alpha, gae_lambda=gae,
+                 policy_clip=policy_clip, chkpt_dir=MODELS_PATH, agent_id=agent_id)
 
     # -----------------------------
     # Training loop
@@ -71,7 +82,7 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, checkpoi
 
             # Choose action
             action, log_prob, value = agent.choose_action(seq_array, valid_actions, threshold=threshold)
-            actions_taken.append(action)  # <-- Save action
+            actions_taken.append(action)
 
             # Step environment
             next_obs, reward, done, _ = env.step(action)
@@ -89,8 +100,11 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, checkpoi
         action_summary = {action_names[int(u)]: int(c) for u, c in zip(unique, counts)}
 
         if checkpoint_step!=False:
+            if (ep+1)%checkpoint_step==0:
+                agent.save_models(episode=f"_{ep:04}")
             if total_reward >= best_reward:
-                agent.save_models()
+                agent.save_models(episode=f"_best_reward")
+                print(f"Reward is {total_reward}")
                 best_reward = total_reward
 
         print(f"Episode {ep+1}/{n_episode} finished, "
@@ -124,7 +138,7 @@ def test_ppo(agent_id, df, trading_days_per_year=252):
         chkpt_dir=MODELS_PATH,
         agent_id=agent_id
     )
-    agent.load_models()
+    agent.load_models(episode="_latest")
 
     threshold = 0.65
     action_names = {0: "hold", 1: "buy", 2: "sell"}
@@ -363,7 +377,7 @@ def save_trial(
     print(f"[DB] Saved trial: trained={trained_reward:.3f}, tested={tested_reward:.3f}")
 
 
-def main(n_episode, n_epoch, batch_size):
+def main(n_episode, n_epoch, batch_size, gamma, alpha, gae, policy_clip, chckpt, n_trial):
 
     init_db()
 
@@ -373,7 +387,7 @@ def main(n_episode, n_epoch, batch_size):
     df_train, df_test = DataLoader().split_train_test(DATASET_PATH)
 
     try:
-        for id in range(start_id, start_id + 100):
+        for id in range(start_id, start_id + n_trial):
 
             id_str = f"{id:03}"
 
@@ -382,10 +396,15 @@ def main(n_episode, n_epoch, batch_size):
                 df=df_train,
                 n_episode=n_episode,
                 n_epoch_per_episode=n_epoch,
-                batch_size=batch_size
+                batch_size=batch_size,
+                gamma=gamma,
+                alpha=alpha,
+                gae=gae,
+                policy_clip=policy_clip,
+                checkpoint_step=chckpt
             )
 
-            agent_trained.save_models()
+            agent_trained.save_models(episode="_latest")
 
             plot_folder = "trial_"+id_str
             plot_path   = os.path.join(PLOT_PATH, plot_folder)
@@ -425,21 +444,48 @@ def main(n_episode, n_epoch, batch_size):
         print("\nStoping training")
 
 if __name__ == "__main__":
+    import argparse
     import csv
 
-    n_episode  = 200
-    n_epoch    = 50
-    batch_size = 128
+    parser = argparse.ArgumentParser(description="Training configuration")
 
-    csv_training_info = [{
-        "n_episode"  : n_episode,
-        "n_epoch"    : n_epoch,
-        "batch_size" : batch_size
-    }]
+    # Training arguments
+    parser.add_argument("--epoch"       , type=int, required=True, help="Number of epochs")
+    parser.add_argument("--episode"     , type=int, required=True, help="Number of episodes")
+    parser.add_argument("--batch_size"  , type=int, required=True, help="Number of batch size")
+
+    # Hyperparameters
+    parser.add_argument("--gamma"       , type=float, default=0.99  , help="Discount factor for rewards")
+    parser.add_argument("--lr"          , type=float, default=0.0003, help="Learning rate for optimizer")
+    parser.add_argument("--gae"         , type=float, default=0.95  , help="GAE (Generalized Advantage Estimation) lambda")
+    parser.add_argument("--policy_clip" , type=float, default=0.2   , help="Clipping value for PPO policy update")
+    parser.add_argument("--trial"       , type=int  , default=1     , help="Number of unique agent")
+
+    args = parser.parse_args()
+
+    csv_training_info = {
+        "n_epoch"       : args.epoch,
+        "n_episode"     : args.episode,
+        "batch_size"    : args.batch_size,
+        "gamma"         : args.gamma,
+        "lr"            : args.lr,
+        "gae"           : args.gae,
+        "policy_clip"   : args.policy_clip
+    }
 
     with open(TRAINING_INFO_PATH, "w", newline="") as file:
-        writer = csv.DictWriter(file, fieldnames=csv_training_info[0].keys())
+        writer = csv.DictWriter(file, fieldnames=csv_training_info.keys())
         writer.writeheader()
-        writer.writerows(csv_training_info)
+        writer.writerow(csv_training_info)
 
-    main(n_episode, n_epoch, batch_size)
+    main(
+        n_episode   = args.episode,
+        n_epoch     = args.epoch,
+        batch_size  = args.batch_size,
+        gamma       = args.gamma,
+        alpha       = args.lr,
+        gae         = args.gae,
+        policy_clip = args.policy_clip,
+        chckpt      = args.episode//5,
+        n_trial     = args.trial
+    )
