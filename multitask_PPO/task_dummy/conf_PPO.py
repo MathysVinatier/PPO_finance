@@ -8,7 +8,7 @@ TRAINING_PATH  = os.path.join(TASK_FOLDER, TRAINING_FOLER)
 
 # Dataset
 DATASET_NAME   = "^VIX_2015_2025.csv"
-DATASET_FOLDER = "data/General"
+DATASET_FOLDER = "/home/mathys/Documents/PPO_finance/data/General"
 DATASET_PATH   = os.path.join(DATASET_FOLDER, DATASET_NAME)
 
 # Database

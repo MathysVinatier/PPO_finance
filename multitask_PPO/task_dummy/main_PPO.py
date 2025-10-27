@@ -22,6 +22,27 @@ with os.scandir("/home/mathys/Documents/PPO_finance"):
 
 os.chdir(current_dir)
 
+LOG_FOLDER = os.path.join(current_dir, "logs")
+os.makedirs(LOG_FOLDER, exist_ok=True)
+LOG_FILE = os.path.join(LOG_FOLDER, f"training.log")
+
+class Logger:
+    def __init__(self, filename):
+        self.terminal = sys.stdout
+        self.log = open(filename, "a")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+sys.stdout = Logger(LOG_FILE)
+sys.stderr = sys.stdout
+
 
 def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, alpha, gae,
                  policy_clip,checkpoint_step=False):

@@ -1,0 +1,1280 @@
+/home/mathys/.pyenv/versions/3.12.3/lib/python3.12/site-packages/torch/cuda/__init__.py:174: UserWarning: CUDA initialization: Unexpected error from cudaGetDeviceCount(). Did you run some cuda functions before calling NumCudaDevices() that might have already set an error? Error 804: forward compatibility was attempted on non supported HW (Triggered internally at /pytorch/c10/cuda/CUDAFunctions.cpp:109.)
+  return torch._C._cuda_getDeviceCount() > 0
+Starting from trial ID 1
+[DB] Created table trial_1
+     | Epoch 1/10 - Actor loss : -0.0932, Critic loss : 0.9595
+     | Epoch 2/10 - Actor loss : -0.1130, Critic loss : 0.8824
+     | Epoch 3/10 - Actor loss : -0.1169, Critic loss : 0.8687
+     | Epoch 4/10 - Actor loss : -0.1309, Critic loss : 0.8650
+     | Epoch 5/10 - Actor loss : -0.1352, Critic loss : 0.8218
+     | Epoch 6/10 - Actor loss : -0.1553, Critic loss : 0.8026
+     | Epoch 7/10 - Actor loss : -0.1488, Critic loss : 0.8269
+     | Epoch 8/10 - Actor loss : -0.1555, Critic loss : 0.7620
+     | Epoch 9/10 - Actor loss : -0.1593, Critic loss : 0.7031
+     | Epoch 10/10 - Actor loss : -0.1765, Critic loss : 0.7247
+... saving models ...
+Reward is 0
+Episode 1/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1262, Critic loss : 0.7159
+     | Epoch 2/10 - Actor loss : -0.1631, Critic loss : 0.5232
+     | Epoch 3/10 - Actor loss : -0.1589, Critic loss : 0.5050
+     | Epoch 4/10 - Actor loss : -0.1654, Critic loss : 0.4678
+     | Epoch 5/10 - Actor loss : -0.1612, Critic loss : 0.4092
+     | Epoch 6/10 - Actor loss : -0.1621, Critic loss : 0.3548
+     | Epoch 7/10 - Actor loss : -0.1686, Critic loss : 0.2988
+     | Epoch 8/10 - Actor loss : -0.1625, Critic loss : 0.2451
+     | Epoch 9/10 - Actor loss : -0.1695, Critic loss : 0.2140
+     | Epoch 10/10 - Actor loss : -0.1739, Critic loss : 0.1894
+... saving models ...
+Reward is 0
+Episode 2/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1122, Critic loss : 0.4497
+     | Epoch 2/10 - Actor loss : -0.1327, Critic loss : 0.2601
+     | Epoch 3/10 - Actor loss : -0.1377, Critic loss : 0.2249
+     | Epoch 4/10 - Actor loss : -0.1440, Critic loss : 0.1758
+     | Epoch 5/10 - Actor loss : -0.1554, Critic loss : 0.1522
+     | Epoch 6/10 - Actor loss : -0.1533, Critic loss : 0.1369
+     | Epoch 7/10 - Actor loss : -0.1550, Critic loss : 0.1312
+     | Epoch 8/10 - Actor loss : -0.1569, Critic loss : 0.1237
+     | Epoch 9/10 - Actor loss : -0.1629, Critic loss : 0.1216
+     | Epoch 10/10 - Actor loss : -0.1576, Critic loss : 0.1221
+... saving models ...
+Reward is 0
+Episode 3/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0802, Critic loss : 0.5266
+     | Epoch 2/10 - Actor loss : -0.0965, Critic loss : 0.3809
+     | Epoch 3/10 - Actor loss : -0.0890, Critic loss : 0.3425
+     | Epoch 4/10 - Actor loss : -0.0904, Critic loss : 0.2528
+     | Epoch 5/10 - Actor loss : -0.0950, Critic loss : 0.1425
+     | Epoch 6/10 - Actor loss : -0.0969, Critic loss : 0.0686
+     | Epoch 7/10 - Actor loss : -0.0977, Critic loss : 0.0381
+     | Epoch 8/10 - Actor loss : -0.0996, Critic loss : 0.0217
+     | Epoch 9/10 - Actor loss : -0.1002, Critic loss : 0.0145
+     | Epoch 10/10 - Actor loss : -0.1039, Critic loss : 0.0128
+... saving models ...
+Reward is 0
+Episode 4/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0698, Critic loss : 0.3352
+     | Epoch 2/10 - Actor loss : -0.0875, Critic loss : 0.1864
+     | Epoch 3/10 - Actor loss : -0.0931, Critic loss : 0.1810
+     | Epoch 4/10 - Actor loss : -0.0806, Critic loss : 0.1787
+     | Epoch 5/10 - Actor loss : -0.0896, Critic loss : 0.1718
+     | Epoch 6/10 - Actor loss : -0.0895, Critic loss : 0.1607
+     | Epoch 7/10 - Actor loss : -0.0929, Critic loss : 0.1348
+     | Epoch 8/10 - Actor loss : -0.0902, Critic loss : 0.0542
+     | Epoch 9/10 - Actor loss : -0.1031, Critic loss : 0.0253
+     | Epoch 10/10 - Actor loss : -0.1056, Critic loss : 0.0206
+... saving models ...
+Reward is 0
+Episode 5/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0792, Critic loss : 0.4940
+     | Epoch 2/10 - Actor loss : -0.1127, Critic loss : 0.3818
+     | Epoch 3/10 - Actor loss : -0.1241, Critic loss : 0.3815
+     | Epoch 4/10 - Actor loss : -0.1243, Critic loss : 0.3134
+     | Epoch 5/10 - Actor loss : -0.1278, Critic loss : 0.1520
+     | Epoch 6/10 - Actor loss : -0.1444, Critic loss : 0.0695
+     | Epoch 7/10 - Actor loss : -0.1606, Critic loss : 0.0393
+     | Epoch 8/10 - Actor loss : -0.1761, Critic loss : 0.0307
+     | Epoch 9/10 - Actor loss : -0.1773, Critic loss : 0.0351
+     | Epoch 10/10 - Actor loss : -0.1921, Critic loss : 0.0319
+... saving models ...
+Reward is 0
+Episode 6/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0632, Critic loss : 0.3997
+     | Epoch 2/10 - Actor loss : -0.1218, Critic loss : 0.1804
+     | Epoch 3/10 - Actor loss : -0.1747, Critic loss : 0.1764
+     | Epoch 4/10 - Actor loss : -0.1842, Critic loss : 0.1792
+     | Epoch 5/10 - Actor loss : -0.1775, Critic loss : 0.1772
+     | Epoch 6/10 - Actor loss : -0.1788, Critic loss : 0.1775
+     | Epoch 7/10 - Actor loss : -0.1846, Critic loss : 0.1759
+     | Epoch 8/10 - Actor loss : -0.1874, Critic loss : 0.1281
+     | Epoch 9/10 - Actor loss : -0.1898, Critic loss : 0.0912
+     | Epoch 10/10 - Actor loss : -0.1910, Critic loss : 0.0441
+... saving models ...
+Reward is 0
+Episode 7/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0917, Critic loss : 0.5555
+     | Epoch 2/10 - Actor loss : -0.1220, Critic loss : 0.4489
+     | Epoch 3/10 - Actor loss : -0.1305, Critic loss : 0.4487
+     | Epoch 4/10 - Actor loss : -0.1557, Critic loss : 0.4515
+     | Epoch 5/10 - Actor loss : -0.1870, Critic loss : 0.4466
+     | Epoch 6/10 - Actor loss : -0.1881, Critic loss : 0.4347
+     | Epoch 7/10 - Actor loss : -0.1933, Critic loss : 0.3659
+     | Epoch 8/10 - Actor loss : -0.1996, Critic loss : 0.2479
+     | Epoch 9/10 - Actor loss : -0.1999, Critic loss : 0.1138
+     | Epoch 10/10 - Actor loss : -0.2017, Critic loss : 0.0317
+... saving models ...
+Reward is 0
+Episode 8/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0701, Critic loss : 1.0220
+     | Epoch 2/10 - Actor loss : -0.0779, Critic loss : 1.0321
+     | Epoch 3/10 - Actor loss : -0.0813, Critic loss : 1.0360
+     | Epoch 4/10 - Actor loss : -0.0838, Critic loss : 1.0099
+     | Epoch 5/10 - Actor loss : -0.0919, Critic loss : 1.0082
+     | Epoch 6/10 - Actor loss : -0.0810, Critic loss : 0.9921
+     | Epoch 7/10 - Actor loss : -0.0806, Critic loss : 0.9831
+     | Epoch 8/10 - Actor loss : -0.0852, Critic loss : 0.9717
+     | Epoch 9/10 - Actor loss : -0.0950, Critic loss : 0.9705
+     | Epoch 10/10 - Actor loss : -0.0932, Critic loss : 0.9788
+Episode 9/112 finished, total reward  : -1293.360, actions taken : {'hold': 1885, 'buy': 63, 'sell': 63}
+     | Epoch 1/10 - Actor loss : -0.0754, Critic loss : 0.9850
+     | Epoch 2/10 - Actor loss : -0.0739, Critic loss : 0.9759
+     | Epoch 3/10 - Actor loss : -0.0747, Critic loss : 0.9715
+     | Epoch 4/10 - Actor loss : -0.0812, Critic loss : 0.9687
+     | Epoch 5/10 - Actor loss : -0.0837, Critic loss : 0.9585
+     | Epoch 6/10 - Actor loss : -0.0744, Critic loss : 0.9798
+     | Epoch 7/10 - Actor loss : -0.0807, Critic loss : 0.9943
+     | Epoch 8/10 - Actor loss : -0.0837, Critic loss : 0.9816
+     | Epoch 9/10 - Actor loss : -0.0803, Critic loss : 0.9614
+     | Epoch 10/10 - Actor loss : -0.0820, Critic loss : 0.9669
+Episode 10/112 finished, total reward  : -5841.210, actions taken : {'hold': 2006, 'buy': 3, 'sell': 2}
+     | Epoch 1/10 - Actor loss : -0.0891, Critic loss : 0.9556
+     | Epoch 2/10 - Actor loss : -0.1010, Critic loss : 0.8861
+     | Epoch 3/10 - Actor loss : -0.1088, Critic loss : 0.8787
+     | Epoch 4/10 - Actor loss : -0.1069, Critic loss : 0.8178
+     | Epoch 5/10 - Actor loss : -0.1096, Critic loss : 0.8202
+     | Epoch 6/10 - Actor loss : -0.1028, Critic loss : 0.8681
+     | Epoch 7/10 - Actor loss : -0.1111, Critic loss : 0.8137
+     | Epoch 8/10 - Actor loss : -0.1157, Critic loss : 0.8385
+     | Epoch 9/10 - Actor loss : -0.1162, Critic loss : 0.8023
+     | Epoch 10/10 - Actor loss : -0.1149, Critic loss : 0.8118
+... saving models ...
+Reward is 4.469997406005859
+Episode 11/112 finished, total reward  : 4.470, actions taken : {'hold': 2008, 'buy': 2, 'sell': 1}
+     | Epoch 1/10 - Actor loss : -0.0799, Critic loss : 0.5047
+     | Epoch 2/10 - Actor loss : -0.1212, Critic loss : 0.2672
+     | Epoch 3/10 - Actor loss : -0.1435, Critic loss : 0.2343
+     | Epoch 4/10 - Actor loss : -0.1763, Critic loss : 0.1996
+     | Epoch 5/10 - Actor loss : -0.1859, Critic loss : 0.1813
+     | Epoch 6/10 - Actor loss : -0.1834, Critic loss : 0.1746
+     | Epoch 7/10 - Actor loss : -0.1926, Critic loss : 0.1687
+     | Epoch 8/10 - Actor loss : -0.1893, Critic loss : 0.1651
+     | Epoch 9/10 - Actor loss : -0.1839, Critic loss : 0.1687
+     | Epoch 10/10 - Actor loss : -0.1943, Critic loss : 0.1680
+Episode 12/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0930, Critic loss : 1.0211
+     | Epoch 2/10 - Actor loss : -0.1151, Critic loss : 0.9242
+     | Epoch 3/10 - Actor loss : -0.1290, Critic loss : 0.8831
+     | Epoch 4/10 - Actor loss : -0.1222, Critic loss : 0.8238
+     | Epoch 5/10 - Actor loss : -0.1276, Critic loss : 0.8200
+     | Epoch 6/10 - Actor loss : -0.1267, Critic loss : 0.7997
+     | Epoch 7/10 - Actor loss : -0.1240, Critic loss : 0.7965
+     | Epoch 8/10 - Actor loss : -0.1260, Critic loss : 0.8601
+     | Epoch 9/10 - Actor loss : -0.1225, Critic loss : 0.8457
+     | Epoch 10/10 - Actor loss : -0.1246, Critic loss : 0.8427
+... saving models ...
+Reward is 13.299997329711914
+Episode 13/112 finished, total reward  : 13.300, actions taken : {'hold': 2010, 'buy': 1}
+     | Epoch 1/10 - Actor loss : -0.1481, Critic loss : 0.5055
+     | Epoch 2/10 - Actor loss : -0.1939, Critic loss : 0.3830
+     | Epoch 3/10 - Actor loss : -0.2008, Critic loss : 0.3692
+     | Epoch 4/10 - Actor loss : -0.2102, Critic loss : 0.3314
+     | Epoch 5/10 - Actor loss : -0.2045, Critic loss : 0.3097
+     | Epoch 6/10 - Actor loss : -0.2099, Critic loss : 0.2821
+     | Epoch 7/10 - Actor loss : -0.2046, Critic loss : 0.2779
+     | Epoch 8/10 - Actor loss : -0.2084, Critic loss : 0.2650
+     | Epoch 9/10 - Actor loss : -0.2026, Critic loss : 0.2559
+     | Epoch 10/10 - Actor loss : -0.2076, Critic loss : 0.2588
+Episode 14/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0876, Critic loss : 0.9864
+     | Epoch 2/10 - Actor loss : -0.1014, Critic loss : 0.9528
+     | Epoch 3/10 - Actor loss : -0.1096, Critic loss : 0.9036
+     | Epoch 4/10 - Actor loss : -0.1081, Critic loss : 0.8922
+     | Epoch 5/10 - Actor loss : -0.1242, Critic loss : 0.7934
+     | Epoch 6/10 - Actor loss : -0.1204, Critic loss : 0.7492
+     | Epoch 7/10 - Actor loss : -0.1326, Critic loss : 0.7330
+     | Epoch 8/10 - Actor loss : -0.1226, Critic loss : 0.7472
+     | Epoch 9/10 - Actor loss : -0.1259, Critic loss : 0.7466
+     | Epoch 10/10 - Actor loss : -0.1326, Critic loss : 0.7409
+Episode 15/112 finished, total reward  : -552.690, actions taken : {'hold': 2005, 'buy': 3, 'sell': 3}
+     | Epoch 1/10 - Actor loss : -0.1232, Critic loss : 0.8350
+     | Epoch 2/10 - Actor loss : -0.1300, Critic loss : 0.8020
+     | Epoch 3/10 - Actor loss : -0.1288, Critic loss : 0.7687
+     | Epoch 4/10 - Actor loss : -0.1304, Critic loss : 0.7746
+     | Epoch 5/10 - Actor loss : -0.1293, Critic loss : 0.7711
+     | Epoch 6/10 - Actor loss : -0.1322, Critic loss : 0.7628
+     | Epoch 7/10 - Actor loss : -0.1324, Critic loss : 0.7601
+     | Epoch 8/10 - Actor loss : -0.1374, Critic loss : 0.7767
+     | Epoch 9/10 - Actor loss : -0.1341, Critic loss : 0.7623
+     | Epoch 10/10 - Actor loss : -0.1358, Critic loss : 0.7639
+Episode 16/112 finished, total reward  : -2812.820, actions taken : {'hold': 1987, 'buy': 12, 'sell': 12}
+     | Epoch 1/10 - Actor loss : -0.0915, Critic loss : 0.9626
+     | Epoch 2/10 - Actor loss : -0.1038, Critic loss : 0.9111
+     | Epoch 3/10 - Actor loss : -0.1005, Critic loss : 0.8158
+     | Epoch 4/10 - Actor loss : -0.1005, Critic loss : 0.8041
+     | Epoch 5/10 - Actor loss : -0.1002, Critic loss : 0.7890
+     | Epoch 6/10 - Actor loss : -0.1043, Critic loss : 0.8128
+     | Epoch 7/10 - Actor loss : -0.1080, Critic loss : 0.8077
+     | Epoch 8/10 - Actor loss : -0.1025, Critic loss : 0.7887
+     | Epoch 9/10 - Actor loss : -0.1036, Critic loss : 0.7879
+     | Epoch 10/10 - Actor loss : -0.1044, Critic loss : 0.8210
+Episode 17/112 finished, total reward  : -5.400, actions taken : {'hold': 2010, 'buy': 1}
+     | Epoch 1/10 - Actor loss : -0.0851, Critic loss : 1.0059
+     | Epoch 2/10 - Actor loss : -0.0860, Critic loss : 0.8764
+     | Epoch 3/10 - Actor loss : -0.0838, Critic loss : 0.8590
+     | Epoch 4/10 - Actor loss : -0.0893, Critic loss : 0.9190
+     | Epoch 5/10 - Actor loss : -0.0831, Critic loss : 0.9385
+     | Epoch 6/10 - Actor loss : -0.0860, Critic loss : 0.8973
+     | Epoch 7/10 - Actor loss : -0.0781, Critic loss : 0.8904
+     | Epoch 8/10 - Actor loss : -0.0873, Critic loss : 0.8217
+     | Epoch 9/10 - Actor loss : -0.0898, Critic loss : 0.8463
+     | Epoch 10/10 - Actor loss : -0.0846, Critic loss : 0.8374
+Episode 18/112 finished, total reward  : -18.570, actions taken : {'hold': 1978, 'buy': 17, 'sell': 16}
+     | Epoch 1/10 - Actor loss : -0.0753, Critic loss : 1.0132
+     | Epoch 2/10 - Actor loss : -0.0925, Critic loss : 0.9514
+     | Epoch 3/10 - Actor loss : -0.1069, Critic loss : 0.9310
+     | Epoch 4/10 - Actor loss : -0.1041, Critic loss : 0.9032
+     | Epoch 5/10 - Actor loss : -0.1088, Critic loss : 0.8864
+     | Epoch 6/10 - Actor loss : -0.1063, Critic loss : 0.8781
+     | Epoch 7/10 - Actor loss : -0.1083, Critic loss : 0.8685
+     | Epoch 8/10 - Actor loss : -0.1138, Critic loss : 0.9001
+     | Epoch 9/10 - Actor loss : -0.1157, Critic loss : 0.8773
+     | Epoch 10/10 - Actor loss : -0.1165, Critic loss : 0.8795
+Episode 19/112 finished, total reward  : -1429.840, actions taken : {'hold': 1976, 'buy': 18, 'sell': 17}
+     | Epoch 1/10 - Actor loss : -0.0941, Critic loss : 0.9560
+     | Epoch 2/10 - Actor loss : -0.0934, Critic loss : 0.9196
+     | Epoch 3/10 - Actor loss : -0.1032, Critic loss : 0.9169
+     | Epoch 4/10 - Actor loss : -0.1018, Critic loss : 0.9346
+     | Epoch 5/10 - Actor loss : -0.1057, Critic loss : 0.8906
+     | Epoch 6/10 - Actor loss : -0.1056, Critic loss : 0.9064
+     | Epoch 7/10 - Actor loss : -0.1092, Critic loss : 0.9058
+     | Epoch 8/10 - Actor loss : -0.1140, Critic loss : 0.8812
+     | Epoch 9/10 - Actor loss : -0.1167, Critic loss : 0.8881
+     | Epoch 10/10 - Actor loss : -0.1032, Critic loss : 0.8984
+Episode 20/112 finished, total reward  : -1895.079, actions taken : {'hold': 1966, 'buy': 23, 'sell': 22}
+     | Epoch 1/10 - Actor loss : -0.0909, Critic loss : 0.8878
+     | Epoch 2/10 - Actor loss : -0.1063, Critic loss : 0.8723
+     | Epoch 3/10 - Actor loss : -0.1082, Critic loss : 0.8685
+     | Epoch 4/10 - Actor loss : -0.1101, Critic loss : 0.8319
+     | Epoch 5/10 - Actor loss : -0.1082, Critic loss : 0.8369
+     | Epoch 6/10 - Actor loss : -0.1049, Critic loss : 0.8961
+     | Epoch 7/10 - Actor loss : -0.1084, Critic loss : 0.8404
+     | Epoch 8/10 - Actor loss : -0.1111, Critic loss : 0.8009
+     | Epoch 9/10 - Actor loss : -0.1100, Critic loss : 0.8178
+     | Epoch 10/10 - Actor loss : -0.1139, Critic loss : 0.8120
+Episode 21/112 finished, total reward  : -595.270, actions taken : {'hold': 1964, 'buy': 24, 'sell': 23}
+     | Epoch 1/10 - Actor loss : -0.0724, Critic loss : 0.9182
+     | Epoch 2/10 - Actor loss : -0.0795, Critic loss : 0.8481
+     | Epoch 3/10 - Actor loss : -0.0839, Critic loss : 0.8078
+     | Epoch 4/10 - Actor loss : -0.0927, Critic loss : 0.7755
+     | Epoch 5/10 - Actor loss : -0.0881, Critic loss : 0.7047
+     | Epoch 6/10 - Actor loss : -0.0958, Critic loss : 0.6871
+     | Epoch 7/10 - Actor loss : -0.0898, Critic loss : 0.6550
+     | Epoch 8/10 - Actor loss : -0.0875, Critic loss : 0.6516
+     | Epoch 9/10 - Actor loss : -0.0906, Critic loss : 0.6726
+     | Epoch 10/10 - Actor loss : -0.0907, Critic loss : 0.6249
+... saving models ...
+Episode 22/112 finished, total reward  : -23.220, actions taken : {'hold': 2006, 'buy': 3, 'sell': 2}
+     | Epoch 1/10 - Actor loss : -0.0917, Critic loss : 0.9300
+     | Epoch 2/10 - Actor loss : -0.0911, Critic loss : 0.8954
+     | Epoch 3/10 - Actor loss : -0.0934, Critic loss : 0.8806
+     | Epoch 4/10 - Actor loss : -0.1049, Critic loss : 0.7596
+     | Epoch 5/10 - Actor loss : -0.1003, Critic loss : 0.7935
+     | Epoch 6/10 - Actor loss : -0.0944, Critic loss : 0.7867
+     | Epoch 7/10 - Actor loss : -0.1052, Critic loss : 0.7461
+     | Epoch 8/10 - Actor loss : -0.1076, Critic loss : 0.7619
+     | Epoch 9/10 - Actor loss : -0.1068, Critic loss : 0.7349
+     | Epoch 10/10 - Actor loss : -0.1149, Critic loss : 0.7810
+Episode 23/112 finished, total reward  : -234.880, actions taken : {'hold': 1990, 'buy': 11, 'sell': 10}
+     | Epoch 1/10 - Actor loss : -0.0911, Critic loss : 0.7293
+     | Epoch 2/10 - Actor loss : -0.1134, Critic loss : 0.6762
+     | Epoch 3/10 - Actor loss : -0.1118, Critic loss : 0.6293
+     | Epoch 4/10 - Actor loss : -0.1184, Critic loss : 0.6308
+     | Epoch 5/10 - Actor loss : -0.1163, Critic loss : 0.6539
+     | Epoch 6/10 - Actor loss : -0.1225, Critic loss : 0.6231
+     | Epoch 7/10 - Actor loss : -0.1209, Critic loss : 0.6166
+     | Epoch 8/10 - Actor loss : -0.1182, Critic loss : 0.6287
+     | Epoch 9/10 - Actor loss : -0.1201, Critic loss : 0.5862
+     | Epoch 10/10 - Actor loss : -0.1290, Critic loss : 0.6403
+... saving models ...
+Reward is 53.459951400756836
+Episode 24/112 finished, total reward  : 53.460, actions taken : {'hold': 2004, 'buy': 4, 'sell': 3}
+     | Epoch 1/10 - Actor loss : -0.1400, Critic loss : 0.5260
+     | Epoch 2/10 - Actor loss : -0.1600, Critic loss : 0.4026
+     | Epoch 3/10 - Actor loss : -0.1675, Critic loss : 0.3724
+     | Epoch 4/10 - Actor loss : -0.1641, Critic loss : 0.3609
+     | Epoch 5/10 - Actor loss : -0.1662, Critic loss : 0.3553
+     | Epoch 6/10 - Actor loss : -0.1703, Critic loss : 0.3526
+     | Epoch 7/10 - Actor loss : -0.1631, Critic loss : 0.3822
+     | Epoch 8/10 - Actor loss : -0.1638, Critic loss : 0.3659
+     | Epoch 9/10 - Actor loss : -0.1753, Critic loss : 0.3460
+     | Epoch 10/10 - Actor loss : -0.1745, Critic loss : 0.3648
+Episode 25/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1204, Critic loss : 0.5648
+     | Epoch 2/10 - Actor loss : -0.1240, Critic loss : 0.4145
+     | Epoch 3/10 - Actor loss : -0.1332, Critic loss : 0.4048
+     | Epoch 4/10 - Actor loss : -0.1299, Critic loss : 0.4014
+     | Epoch 5/10 - Actor loss : -0.1260, Critic loss : 0.4139
+     | Epoch 6/10 - Actor loss : -0.1317, Critic loss : 0.4117
+     | Epoch 7/10 - Actor loss : -0.1301, Critic loss : 0.3983
+     | Epoch 8/10 - Actor loss : -0.1281, Critic loss : 0.3973
+     | Epoch 9/10 - Actor loss : -0.1287, Critic loss : 0.3969
+     | Epoch 10/10 - Actor loss : -0.1289, Critic loss : 0.3973
+Episode 26/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1135, Critic loss : 0.7713
+     | Epoch 2/10 - Actor loss : -0.1344, Critic loss : 0.4985
+     | Epoch 3/10 - Actor loss : -0.1302, Critic loss : 0.4470
+     | Epoch 4/10 - Actor loss : -0.1366, Critic loss : 0.3828
+     | Epoch 5/10 - Actor loss : -0.1420, Critic loss : 0.4470
+     | Epoch 6/10 - Actor loss : -0.1409, Critic loss : 0.3901
+     | Epoch 7/10 - Actor loss : -0.1426, Critic loss : 0.3986
+     | Epoch 8/10 - Actor loss : -0.1424, Critic loss : 0.4360
+     | Epoch 9/10 - Actor loss : -0.1469, Critic loss : 0.4250
+     | Epoch 10/10 - Actor loss : -0.1430, Critic loss : 0.3641
+Episode 27/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0846, Critic loss : 0.9257
+     | Epoch 2/10 - Actor loss : -0.1116, Critic loss : 0.8413
+     | Epoch 3/10 - Actor loss : -0.1117, Critic loss : 0.8552
+     | Epoch 4/10 - Actor loss : -0.1136, Critic loss : 0.8208
+     | Epoch 5/10 - Actor loss : -0.1074, Critic loss : 0.8106
+     | Epoch 6/10 - Actor loss : -0.1148, Critic loss : 0.7896
+     | Epoch 7/10 - Actor loss : -0.1162, Critic loss : 0.7867
+     | Epoch 8/10 - Actor loss : -0.1126, Critic loss : 0.8090
+     | Epoch 9/10 - Actor loss : -0.1225, Critic loss : 0.7834
+     | Epoch 10/10 - Actor loss : -0.1150, Critic loss : 0.7927
+Episode 28/112 finished, total reward  : 22.050, actions taken : {'hold': 1968, 'buy': 22, 'sell': 21}
+     | Epoch 1/10 - Actor loss : -0.1002, Critic loss : 0.6008
+     | Epoch 2/10 - Actor loss : -0.1281, Critic loss : 0.3403
+     | Epoch 3/10 - Actor loss : -0.1403, Critic loss : 0.2702
+     | Epoch 4/10 - Actor loss : -0.1420, Critic loss : 0.2458
+     | Epoch 5/10 - Actor loss : -0.1601, Critic loss : 0.2401
+     | Epoch 6/10 - Actor loss : -0.1460, Critic loss : 0.2056
+     | Epoch 7/10 - Actor loss : -0.1500, Critic loss : 0.1993
+     | Epoch 8/10 - Actor loss : -0.1529, Critic loss : 0.1971
+     | Epoch 9/10 - Actor loss : -0.1536, Critic loss : 0.1972
+     | Epoch 10/10 - Actor loss : -0.1520, Critic loss : 0.1983
+Episode 29/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1279, Critic loss : 0.7894
+     | Epoch 2/10 - Actor loss : -0.1596, Critic loss : 0.6649
+     | Epoch 3/10 - Actor loss : -0.1631, Critic loss : 0.5988
+     | Epoch 4/10 - Actor loss : -0.1645, Critic loss : 0.5604
+     | Epoch 5/10 - Actor loss : -0.1654, Critic loss : 0.5699
+     | Epoch 6/10 - Actor loss : -0.1739, Critic loss : 0.5391
+     | Epoch 7/10 - Actor loss : -0.1760, Critic loss : 0.5178
+     | Epoch 8/10 - Actor loss : -0.1731, Critic loss : 0.5061
+     | Epoch 9/10 - Actor loss : -0.1780, Critic loss : 0.4942
+     | Epoch 10/10 - Actor loss : -0.1828, Critic loss : 0.4914
+Episode 30/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1373, Critic loss : 0.7939
+     | Epoch 2/10 - Actor loss : -0.1687, Critic loss : 0.7621
+     | Epoch 3/10 - Actor loss : -0.1705, Critic loss : 0.7468
+     | Epoch 4/10 - Actor loss : -0.1771, Critic loss : 0.7534
+     | Epoch 5/10 - Actor loss : -0.1735, Critic loss : 0.7410
+     | Epoch 6/10 - Actor loss : -0.1700, Critic loss : 0.7439
+     | Epoch 7/10 - Actor loss : -0.1759, Critic loss : 0.7441
+     | Epoch 8/10 - Actor loss : -0.1719, Critic loss : 0.7568
+     | Epoch 9/10 - Actor loss : -0.1784, Critic loss : 0.7268
+     | Epoch 10/10 - Actor loss : -0.1742, Critic loss : 0.7425
+... saving models ...
+Reward is 2024.361026763916
+Episode 31/112 finished, total reward  : 2024.361, actions taken : {'hold': 2009, 'buy': 1, 'sell': 1}
+     | Epoch 1/10 - Actor loss : -0.1062, Critic loss : 0.5810
+     | Epoch 2/10 - Actor loss : -0.1563, Critic loss : 0.2457
+     | Epoch 3/10 - Actor loss : -0.1617, Critic loss : 0.2183
+     | Epoch 4/10 - Actor loss : -0.1712, Critic loss : 0.2074
+     | Epoch 5/10 - Actor loss : -0.1818, Critic loss : 0.1903
+     | Epoch 6/10 - Actor loss : -0.1809, Critic loss : 0.1934
+     | Epoch 7/10 - Actor loss : -0.1784, Critic loss : 0.1927
+     | Epoch 8/10 - Actor loss : -0.1784, Critic loss : 0.1835
+     | Epoch 9/10 - Actor loss : -0.1799, Critic loss : 0.1847
+     | Epoch 10/10 - Actor loss : -0.1836, Critic loss : 0.1738
+Episode 32/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0872, Critic loss : 0.9351
+     | Epoch 2/10 - Actor loss : -0.1104, Critic loss : 0.8791
+     | Epoch 3/10 - Actor loss : -0.1167, Critic loss : 0.8907
+     | Epoch 4/10 - Actor loss : -0.1120, Critic loss : 0.8414
+     | Epoch 5/10 - Actor loss : -0.1129, Critic loss : 0.8273
+     | Epoch 6/10 - Actor loss : -0.1109, Critic loss : 0.8460
+     | Epoch 7/10 - Actor loss : -0.1156, Critic loss : 0.8331
+     | Epoch 8/10 - Actor loss : -0.1125, Critic loss : 0.8163
+     | Epoch 9/10 - Actor loss : -0.1113, Critic loss : 0.8370
+     | Epoch 10/10 - Actor loss : -0.1122, Critic loss : 0.8256
+Episode 33/112 finished, total reward  : 10.340, actions taken : {'hold': 2010, 'buy': 1}
+     | Epoch 1/10 - Actor loss : -0.0844, Critic loss : 0.7173
+     | Epoch 2/10 - Actor loss : -0.1165, Critic loss : 0.4205
+     | Epoch 3/10 - Actor loss : -0.1363, Critic loss : 0.1663
+     | Epoch 4/10 - Actor loss : -0.1478, Critic loss : 0.0717
+     | Epoch 5/10 - Actor loss : -0.1717, Critic loss : 0.0487
+     | Epoch 6/10 - Actor loss : -0.1813, Critic loss : 0.0394
+     | Epoch 7/10 - Actor loss : -0.1969, Critic loss : 0.0380
+     | Epoch 8/10 - Actor loss : -0.1930, Critic loss : 0.0335
+     | Epoch 9/10 - Actor loss : -0.2000, Critic loss : 0.0369
+     | Epoch 10/10 - Actor loss : -0.1943, Critic loss : 0.0314
+Episode 34/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0959, Critic loss : 1.0272
+     | Epoch 2/10 - Actor loss : -0.1129, Critic loss : 0.9522
+     | Epoch 3/10 - Actor loss : -0.1102, Critic loss : 0.9700
+     | Epoch 4/10 - Actor loss : -0.1111, Critic loss : 0.9165
+     | Epoch 5/10 - Actor loss : -0.1162, Critic loss : 0.9254
+     | Epoch 6/10 - Actor loss : -0.1090, Critic loss : 0.9466
+     | Epoch 7/10 - Actor loss : -0.1081, Critic loss : 0.9337
+     | Epoch 8/10 - Actor loss : -0.1159, Critic loss : 0.9361
+     | Epoch 9/10 - Actor loss : -0.1135, Critic loss : 0.9223
+     | Epoch 10/10 - Actor loss : -0.1183, Critic loss : 0.9032
+... saving models ...
+Reward is 4219.900126457214
+Episode 35/112 finished, total reward  : 4219.900, actions taken : {'hold': 1902, 'buy': 55, 'sell': 54}
+     | Epoch 1/10 - Actor loss : -0.1475, Critic loss : 0.3728
+     | Epoch 2/10 - Actor loss : -0.2133, Critic loss : 0.0467
+     | Epoch 3/10 - Actor loss : -0.2248, Critic loss : 0.0241
+     | Epoch 4/10 - Actor loss : -0.2220, Critic loss : 0.0690
+     | Epoch 5/10 - Actor loss : -0.2304, Critic loss : 0.0427
+     | Epoch 6/10 - Actor loss : -0.2294, Critic loss : 0.0274
+     | Epoch 7/10 - Actor loss : -0.2334, Critic loss : 0.0211
+     | Epoch 8/10 - Actor loss : -0.2330, Critic loss : 0.0181
+     | Epoch 9/10 - Actor loss : -0.2323, Critic loss : 0.0170
+     | Epoch 10/10 - Actor loss : -0.2270, Critic loss : 0.0170
+Episode 36/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1107, Critic loss : 0.9389
+     | Epoch 2/10 - Actor loss : -0.1297, Critic loss : 0.9404
+     | Epoch 3/10 - Actor loss : -0.1330, Critic loss : 0.8743
+     | Epoch 4/10 - Actor loss : -0.1299, Critic loss : 0.8395
+     | Epoch 5/10 - Actor loss : -0.1291, Critic loss : 0.7570
+     | Epoch 6/10 - Actor loss : -0.1326, Critic loss : 0.7498
+     | Epoch 7/10 - Actor loss : -0.1353, Critic loss : 0.7335
+     | Epoch 8/10 - Actor loss : -0.1357, Critic loss : 0.7470
+     | Epoch 9/10 - Actor loss : -0.1276, Critic loss : 0.7332
+     | Epoch 10/10 - Actor loss : -0.1296, Critic loss : 0.7131
+Episode 37/112 finished, total reward  : -2936.760, actions taken : {'hold': 1951, 'buy': 30, 'sell': 30}
+     | Epoch 1/10 - Actor loss : -0.0866, Critic loss : 0.9209
+     | Epoch 2/10 - Actor loss : -0.1048, Critic loss : 0.8631
+     | Epoch 3/10 - Actor loss : -0.0968, Critic loss : 0.8063
+     | Epoch 4/10 - Actor loss : -0.0980, Critic loss : 0.7850
+     | Epoch 5/10 - Actor loss : -0.1001, Critic loss : 0.8313
+     | Epoch 6/10 - Actor loss : -0.1076, Critic loss : 0.7920
+     | Epoch 7/10 - Actor loss : -0.1017, Critic loss : 0.7563
+     | Epoch 8/10 - Actor loss : -0.1019, Critic loss : 0.7797
+     | Epoch 9/10 - Actor loss : -0.0988, Critic loss : 0.8179
+     | Epoch 10/10 - Actor loss : -0.1051, Critic loss : 0.7492
+Episode 38/112 finished, total reward  : 9.560, actions taken : {'hold': 2010, 'buy': 1}
+     | Epoch 1/10 - Actor loss : -0.1270, Critic loss : 0.5351
+     | Epoch 2/10 - Actor loss : -0.1691, Critic loss : 0.4396
+     | Epoch 3/10 - Actor loss : -0.1648, Critic loss : 0.4355
+     | Epoch 4/10 - Actor loss : -0.1733, Critic loss : 0.4285
+     | Epoch 5/10 - Actor loss : -0.1732, Critic loss : 0.4022
+     | Epoch 6/10 - Actor loss : -0.1815, Critic loss : 0.3895
+     | Epoch 7/10 - Actor loss : -0.1768, Critic loss : 0.3826
+     | Epoch 8/10 - Actor loss : -0.1743, Critic loss : 0.3906
+     | Epoch 9/10 - Actor loss : -0.1799, Critic loss : 0.3821
+     | Epoch 10/10 - Actor loss : -0.1748, Critic loss : 0.3905
+Episode 39/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1049, Critic loss : 0.6060
+     | Epoch 2/10 - Actor loss : -0.1311, Critic loss : 0.3600
+     | Epoch 3/10 - Actor loss : -0.1370, Critic loss : 0.2437
+     | Epoch 4/10 - Actor loss : -0.1514, Critic loss : 0.1727
+     | Epoch 5/10 - Actor loss : -0.1817, Critic loss : 0.1305
+     | Epoch 6/10 - Actor loss : -0.1917, Critic loss : 0.1072
+     | Epoch 7/10 - Actor loss : -0.1957, Critic loss : 0.0878
+     | Epoch 8/10 - Actor loss : -0.2035, Critic loss : 0.0818
+     | Epoch 9/10 - Actor loss : -0.2019, Critic loss : 0.0621
+     | Epoch 10/10 - Actor loss : -0.2032, Critic loss : 0.0538
+Episode 40/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0766, Critic loss : 1.0137
+     | Epoch 2/10 - Actor loss : -0.0955, Critic loss : 0.9925
+     | Epoch 3/10 - Actor loss : -0.1061, Critic loss : 0.9839
+     | Epoch 4/10 - Actor loss : -0.1001, Critic loss : 1.0233
+     | Epoch 5/10 - Actor loss : -0.1011, Critic loss : 1.0012
+     | Epoch 6/10 - Actor loss : -0.1091, Critic loss : 1.0422
+     | Epoch 7/10 - Actor loss : -0.1035, Critic loss : 0.9967
+     | Epoch 8/10 - Actor loss : -0.1041, Critic loss : 0.9673
+     | Epoch 9/10 - Actor loss : -0.1011, Critic loss : 1.0031
+     | Epoch 10/10 - Actor loss : -0.1066, Critic loss : 0.9737
+Episode 41/112 finished, total reward  : -1572.880, actions taken : {'hold': 1990, 'buy': 11, 'sell': 10}
+     | Epoch 1/10 - Actor loss : -0.0920, Critic loss : 0.3860
+     | Epoch 2/10 - Actor loss : -0.1435, Critic loss : 0.0841
+     | Epoch 3/10 - Actor loss : -0.1466, Critic loss : 0.0283
+     | Epoch 4/10 - Actor loss : -0.1567, Critic loss : 0.0253
+     | Epoch 5/10 - Actor loss : -0.1611, Critic loss : 0.0242
+     | Epoch 6/10 - Actor loss : -0.1666, Critic loss : 0.0240
+     | Epoch 7/10 - Actor loss : -0.1872, Critic loss : 0.0235
+     | Epoch 8/10 - Actor loss : -0.2028, Critic loss : 0.0232
+     | Epoch 9/10 - Actor loss : -0.2025, Critic loss : 0.0221
+     | Epoch 10/10 - Actor loss : -0.2039, Critic loss : 0.0215
+Episode 42/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1238, Critic loss : 0.4816
+     | Epoch 2/10 - Actor loss : -0.1993, Critic loss : 0.1196
+     | Epoch 3/10 - Actor loss : -0.1982, Critic loss : 0.0895
+     | Epoch 4/10 - Actor loss : -0.2020, Critic loss : 0.0764
+     | Epoch 5/10 - Actor loss : -0.1964, Critic loss : 0.0662
+     | Epoch 6/10 - Actor loss : -0.2024, Critic loss : 0.0643
+     | Epoch 7/10 - Actor loss : -0.2031, Critic loss : 0.0594
+     | Epoch 8/10 - Actor loss : -0.1988, Critic loss : 0.0580
+     | Epoch 9/10 - Actor loss : -0.2112, Critic loss : 0.0573
+     | Epoch 10/10 - Actor loss : -0.2101, Critic loss : 0.0564
+Episode 43/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1113, Critic loss : 0.5257
+     | Epoch 2/10 - Actor loss : -0.1349, Critic loss : 0.1104
+     | Epoch 3/10 - Actor loss : -0.1635, Critic loss : 0.0559
+     | Epoch 4/10 - Actor loss : -0.1930, Critic loss : 0.0431
+     | Epoch 5/10 - Actor loss : -0.2149, Critic loss : 0.0359
+     | Epoch 6/10 - Actor loss : -0.2140, Critic loss : 0.0312
+     | Epoch 7/10 - Actor loss : -0.2116, Critic loss : 0.0301
+     | Epoch 8/10 - Actor loss : -0.2169, Critic loss : 0.0242
+     | Epoch 9/10 - Actor loss : -0.2225, Critic loss : 0.0219
+     | Epoch 10/10 - Actor loss : -0.2148, Critic loss : 0.0195
+... saving models ...
+Episode 44/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1658, Critic loss : 0.5002
+     | Epoch 2/10 - Actor loss : -0.2252, Critic loss : 0.4175
+     | Epoch 3/10 - Actor loss : -0.2247, Critic loss : 0.4149
+     | Epoch 4/10 - Actor loss : -0.2263, Critic loss : 0.4071
+     | Epoch 5/10 - Actor loss : -0.2256, Critic loss : 0.3837
+     | Epoch 6/10 - Actor loss : -0.2302, Critic loss : 0.1683
+     | Epoch 7/10 - Actor loss : -0.2302, Critic loss : 0.0892
+     | Epoch 8/10 - Actor loss : -0.2306, Critic loss : 0.0773
+     | Epoch 9/10 - Actor loss : -0.2208, Critic loss : 0.0701
+     | Epoch 10/10 - Actor loss : -0.2321, Critic loss : 0.0648
+Episode 45/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1072, Critic loss : 0.4215
+     | Epoch 2/10 - Actor loss : -0.1625, Critic loss : 0.1704
+     | Epoch 3/10 - Actor loss : -0.2184, Critic loss : 0.0739
+     | Epoch 4/10 - Actor loss : -0.2175, Critic loss : 0.0351
+     | Epoch 5/10 - Actor loss : -0.2215, Critic loss : 0.0251
+     | Epoch 6/10 - Actor loss : -0.2255, Critic loss : 0.0202
+     | Epoch 7/10 - Actor loss : -0.2250, Critic loss : 0.0182
+     | Epoch 8/10 - Actor loss : -0.2298, Critic loss : 0.0163
+     | Epoch 9/10 - Actor loss : -0.2329, Critic loss : 0.0157
+     | Epoch 10/10 - Actor loss : -0.2285, Critic loss : 0.0154
+Episode 46/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0729, Critic loss : 0.9872
+     | Epoch 2/10 - Actor loss : -0.0897, Critic loss : 1.0510
+     | Epoch 3/10 - Actor loss : -0.0845, Critic loss : 0.9818
+     | Epoch 4/10 - Actor loss : -0.0918, Critic loss : 0.9648
+     | Epoch 5/10 - Actor loss : -0.0997, Critic loss : 0.9636
+     | Epoch 6/10 - Actor loss : -0.0913, Critic loss : 0.9900
+     | Epoch 7/10 - Actor loss : -0.0911, Critic loss : 0.9608
+     | Epoch 8/10 - Actor loss : -0.0966, Critic loss : 0.9692
+     | Epoch 9/10 - Actor loss : -0.1004, Critic loss : 1.0044
+     | Epoch 10/10 - Actor loss : -0.0998, Critic loss : 0.9539
+Episode 47/112 finished, total reward  : 1644.240, actions taken : {'hold': 1904, 'buy': 54, 'sell': 53}
+     | Epoch 1/10 - Actor loss : -0.1679, Critic loss : 0.5515
+     | Epoch 2/10 - Actor loss : -0.2131, Critic loss : 0.1887
+     | Epoch 3/10 - Actor loss : -0.2148, Critic loss : 0.0798
+     | Epoch 4/10 - Actor loss : -0.2109, Critic loss : 0.0380
+     | Epoch 5/10 - Actor loss : -0.2170, Critic loss : 0.0281
+     | Epoch 6/10 - Actor loss : -0.2126, Critic loss : 0.0268
+     | Epoch 7/10 - Actor loss : -0.2183, Critic loss : 0.0251
+     | Epoch 8/10 - Actor loss : -0.2135, Critic loss : 0.0231
+     | Epoch 9/10 - Actor loss : -0.2216, Critic loss : 0.0220
+     | Epoch 10/10 - Actor loss : -0.2215, Critic loss : 0.0227
+Episode 48/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0749, Critic loss : 1.0178
+     | Epoch 2/10 - Actor loss : -0.0804, Critic loss : 1.0613
+     | Epoch 3/10 - Actor loss : -0.0822, Critic loss : 1.0072
+     | Epoch 4/10 - Actor loss : -0.0803, Critic loss : 1.0124
+     | Epoch 5/10 - Actor loss : -0.0757, Critic loss : 1.0439
+     | Epoch 6/10 - Actor loss : -0.0823, Critic loss : 0.9946
+     | Epoch 7/10 - Actor loss : -0.0879, Critic loss : 0.9850
+     | Epoch 8/10 - Actor loss : -0.0883, Critic loss : 0.9993
+     | Epoch 9/10 - Actor loss : -0.0868, Critic loss : 0.9970
+     | Epoch 10/10 - Actor loss : -0.0927, Critic loss : 1.0034
+Episode 49/112 finished, total reward  : -1540.180, actions taken : {'hold': 1911, 'buy': 50, 'sell': 50}
+     | Epoch 1/10 - Actor loss : -0.1031, Critic loss : 0.9901
+     | Epoch 2/10 - Actor loss : -0.1283, Critic loss : 0.9440
+     | Epoch 3/10 - Actor loss : -0.1375, Critic loss : 0.9493
+     | Epoch 4/10 - Actor loss : -0.1341, Critic loss : 0.8588
+     | Epoch 5/10 - Actor loss : -0.1399, Critic loss : 0.7622
+     | Epoch 6/10 - Actor loss : -0.1359, Critic loss : 0.7465
+     | Epoch 7/10 - Actor loss : -0.1392, Critic loss : 0.7439
+     | Epoch 8/10 - Actor loss : -0.1403, Critic loss : 0.7417
+     | Epoch 9/10 - Actor loss : -0.1436, Critic loss : 0.7833
+     | Epoch 10/10 - Actor loss : -0.1441, Critic loss : 0.7647
+Episode 50/112 finished, total reward  : 5.960, actions taken : {'hold': 2010, 'buy': 1}
+     | Epoch 1/10 - Actor loss : -0.1661, Critic loss : 0.6411
+     | Epoch 2/10 - Actor loss : -0.1907, Critic loss : 0.3322
+     | Epoch 3/10 - Actor loss : -0.2022, Critic loss : 0.2854
+     | Epoch 4/10 - Actor loss : -0.2071, Critic loss : 0.2595
+     | Epoch 5/10 - Actor loss : -0.2067, Critic loss : 0.2335
+     | Epoch 6/10 - Actor loss : -0.2066, Critic loss : 0.2008
+     | Epoch 7/10 - Actor loss : -0.2052, Critic loss : 0.1790
+     | Epoch 8/10 - Actor loss : -0.2143, Critic loss : 0.1625
+     | Epoch 9/10 - Actor loss : -0.2133, Critic loss : 0.1614
+     | Epoch 10/10 - Actor loss : -0.2125, Critic loss : 0.1529
+Episode 51/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1793, Critic loss : 0.3932
+     | Epoch 2/10 - Actor loss : -0.2172, Critic loss : 0.1392
+     | Epoch 3/10 - Actor loss : -0.2291, Critic loss : 0.0784
+     | Epoch 4/10 - Actor loss : -0.2311, Critic loss : 0.0375
+     | Epoch 5/10 - Actor loss : -0.2357, Critic loss : 0.0283
+     | Epoch 6/10 - Actor loss : -0.2385, Critic loss : 0.0242
+     | Epoch 7/10 - Actor loss : -0.2469, Critic loss : 0.0228
+     | Epoch 8/10 - Actor loss : -0.2432, Critic loss : 0.0219
+     | Epoch 9/10 - Actor loss : -0.2402, Critic loss : 0.0218
+     | Epoch 10/10 - Actor loss : -0.2406, Critic loss : 0.0206
+Episode 52/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1007, Critic loss : 1.0194
+     | Epoch 2/10 - Actor loss : -0.1023, Critic loss : 1.0087
+     | Epoch 3/10 - Actor loss : -0.1021, Critic loss : 1.0102
+     | Epoch 4/10 - Actor loss : -0.1007, Critic loss : 0.9982
+     | Epoch 5/10 - Actor loss : -0.1086, Critic loss : 1.0104
+     | Epoch 6/10 - Actor loss : -0.1058, Critic loss : 0.9921
+     | Epoch 7/10 - Actor loss : -0.1031, Critic loss : 1.0101
+     | Epoch 8/10 - Actor loss : -0.1006, Critic loss : 1.0094
+     | Epoch 9/10 - Actor loss : -0.1050, Critic loss : 0.9885
+     | Epoch 10/10 - Actor loss : -0.1071, Critic loss : 0.9909
+Episode 53/112 finished, total reward  : -1321.030, actions taken : {'hold': 1949, 'buy': 31, 'sell': 31}
+     | Epoch 1/10 - Actor loss : -0.2002, Critic loss : 0.4051
+     | Epoch 2/10 - Actor loss : -0.2178, Critic loss : 0.0717
+     | Epoch 3/10 - Actor loss : -0.2295, Critic loss : 0.0323
+     | Epoch 4/10 - Actor loss : -0.2319, Critic loss : 0.0277
+     | Epoch 5/10 - Actor loss : -0.2269, Critic loss : 0.0255
+     | Epoch 6/10 - Actor loss : -0.2350, Critic loss : 0.0250
+     | Epoch 7/10 - Actor loss : -0.2288, Critic loss : 0.0256
+     | Epoch 8/10 - Actor loss : -0.2374, Critic loss : 0.0253
+     | Epoch 9/10 - Actor loss : -0.2351, Critic loss : 0.0242
+     | Epoch 10/10 - Actor loss : -0.2354, Critic loss : 0.0240
+Episode 54/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2088, Critic loss : 0.2714
+     | Epoch 2/10 - Actor loss : -0.2389, Critic loss : 0.0474
+     | Epoch 3/10 - Actor loss : -0.2464, Critic loss : 0.0375
+     | Epoch 4/10 - Actor loss : -0.2428, Critic loss : 0.0365
+     | Epoch 5/10 - Actor loss : -0.2417, Critic loss : 0.0323
+     | Epoch 6/10 - Actor loss : -0.2404, Critic loss : 0.0314
+     | Epoch 7/10 - Actor loss : -0.2463, Critic loss : 0.0294
+     | Epoch 8/10 - Actor loss : -0.2501, Critic loss : 0.0287
+     | Epoch 9/10 - Actor loss : -0.2553, Critic loss : 0.0272
+     | Epoch 10/10 - Actor loss : -0.2569, Critic loss : 0.0262
+Episode 55/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2211, Critic loss : 0.4729
+     | Epoch 2/10 - Actor loss : -0.2408, Critic loss : 0.1088
+     | Epoch 3/10 - Actor loss : -0.2426, Critic loss : 0.0655
+     | Epoch 4/10 - Actor loss : -0.2468, Critic loss : 0.0394
+     | Epoch 5/10 - Actor loss : -0.2469, Critic loss : 0.0289
+     | Epoch 6/10 - Actor loss : -0.2524, Critic loss : 0.0251
+     | Epoch 7/10 - Actor loss : -0.2459, Critic loss : 0.0244
+     | Epoch 8/10 - Actor loss : -0.2463, Critic loss : 0.0244
+     | Epoch 9/10 - Actor loss : -0.2473, Critic loss : 0.0236
+     | Epoch 10/10 - Actor loss : -0.2507, Critic loss : 0.0223
+Episode 56/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2012, Critic loss : 0.4558
+     | Epoch 2/10 - Actor loss : -0.2344, Critic loss : 0.2585
+     | Epoch 3/10 - Actor loss : -0.2376, Critic loss : 0.2506
+     | Epoch 4/10 - Actor loss : -0.2399, Critic loss : 0.2552
+     | Epoch 5/10 - Actor loss : -0.2371, Critic loss : 0.1473
+     | Epoch 6/10 - Actor loss : -0.2387, Critic loss : 0.0476
+     | Epoch 7/10 - Actor loss : -0.2509, Critic loss : 0.0264
+     | Epoch 8/10 - Actor loss : -0.2498, Critic loss : 0.0219
+     | Epoch 9/10 - Actor loss : -0.2482, Critic loss : 0.0214
+     | Epoch 10/10 - Actor loss : -0.2483, Critic loss : 0.0201
+Episode 57/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0913, Critic loss : 1.0033
+     | Epoch 2/10 - Actor loss : -0.1024, Critic loss : 1.0182
+     | Epoch 3/10 - Actor loss : -0.0968, Critic loss : 0.9942
+     | Epoch 4/10 - Actor loss : -0.0960, Critic loss : 0.9916
+     | Epoch 5/10 - Actor loss : -0.1003, Critic loss : 0.9889
+     | Epoch 6/10 - Actor loss : -0.1003, Critic loss : 0.9782
+     | Epoch 7/10 - Actor loss : -0.1041, Critic loss : 0.9845
+     | Epoch 8/10 - Actor loss : -0.1010, Critic loss : 0.9907
+     | Epoch 9/10 - Actor loss : -0.1005, Critic loss : 0.9932
+     | Epoch 10/10 - Actor loss : -0.1039, Critic loss : 0.9926
+Episode 58/112 finished, total reward  : -2244.250, actions taken : {'hold': 1997, 'buy': 7, 'sell': 7}
+     | Epoch 1/10 - Actor loss : -0.1871, Critic loss : 0.5021
+     | Epoch 2/10 - Actor loss : -0.2182, Critic loss : 0.0570
+     | Epoch 3/10 - Actor loss : -0.2258, Critic loss : 0.0221
+     | Epoch 4/10 - Actor loss : -0.2248, Critic loss : 0.0207
+     | Epoch 5/10 - Actor loss : -0.2246, Critic loss : 0.0199
+     | Epoch 6/10 - Actor loss : -0.2285, Critic loss : 0.0196
+     | Epoch 7/10 - Actor loss : -0.2228, Critic loss : 0.0194
+     | Epoch 8/10 - Actor loss : -0.2199, Critic loss : 0.0225
+     | Epoch 9/10 - Actor loss : -0.2240, Critic loss : 0.0188
+     | Epoch 10/10 - Actor loss : -0.2276, Critic loss : 0.0201
+Episode 59/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2023, Critic loss : 0.4357
+     | Epoch 2/10 - Actor loss : -0.2380, Critic loss : 0.2318
+     | Epoch 3/10 - Actor loss : -0.2430, Critic loss : 0.2286
+     | Epoch 4/10 - Actor loss : -0.2394, Critic loss : 0.2248
+     | Epoch 5/10 - Actor loss : -0.2433, Critic loss : 0.2123
+     | Epoch 6/10 - Actor loss : -0.2527, Critic loss : 0.1302
+     | Epoch 7/10 - Actor loss : -0.2435, Critic loss : 0.0441
+     | Epoch 8/10 - Actor loss : -0.2463, Critic loss : 0.0395
+     | Epoch 9/10 - Actor loss : -0.2520, Critic loss : 0.0358
+     | Epoch 10/10 - Actor loss : -0.2444, Critic loss : 0.0391
+Episode 60/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1753, Critic loss : 0.3253
+     | Epoch 2/10 - Actor loss : -0.2083, Critic loss : 0.0788
+     | Epoch 3/10 - Actor loss : -0.2143, Critic loss : 0.0587
+     | Epoch 4/10 - Actor loss : -0.2190, Critic loss : 0.0432
+     | Epoch 5/10 - Actor loss : -0.2156, Critic loss : 0.0378
+     | Epoch 6/10 - Actor loss : -0.2204, Critic loss : 0.0321
+     | Epoch 7/10 - Actor loss : -0.2244, Critic loss : 0.0291
+     | Epoch 8/10 - Actor loss : -0.2160, Critic loss : 0.0311
+     | Epoch 9/10 - Actor loss : -0.2199, Critic loss : 0.0274
+     | Epoch 10/10 - Actor loss : -0.2232, Critic loss : 0.0259
+Episode 61/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1434, Critic loss : 0.3360
+     | Epoch 2/10 - Actor loss : -0.1925, Critic loss : 0.1617
+     | Epoch 3/10 - Actor loss : -0.1928, Critic loss : 0.0914
+     | Epoch 4/10 - Actor loss : -0.2021, Critic loss : 0.0319
+     | Epoch 5/10 - Actor loss : -0.2206, Critic loss : 0.0265
+     | Epoch 6/10 - Actor loss : -0.2376, Critic loss : 0.0258
+     | Epoch 7/10 - Actor loss : -0.2394, Critic loss : 0.0253
+     | Epoch 8/10 - Actor loss : -0.2359, Critic loss : 0.0291
+     | Epoch 9/10 - Actor loss : -0.2338, Critic loss : 0.0252
+     | Epoch 10/10 - Actor loss : -0.2366, Critic loss : 0.0249
+Episode 62/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2158, Critic loss : 0.5032
+     | Epoch 2/10 - Actor loss : -0.2420, Critic loss : 0.0656
+     | Epoch 3/10 - Actor loss : -0.2410, Critic loss : 0.0389
+     | Epoch 4/10 - Actor loss : -0.2383, Critic loss : 0.0347
+     | Epoch 5/10 - Actor loss : -0.2377, Critic loss : 0.0330
+     | Epoch 6/10 - Actor loss : -0.2367, Critic loss : 0.0319
+     | Epoch 7/10 - Actor loss : -0.2407, Critic loss : 0.0309
+     | Epoch 8/10 - Actor loss : -0.2409, Critic loss : 0.0315
+     | Epoch 9/10 - Actor loss : -0.2438, Critic loss : 0.0314
+     | Epoch 10/10 - Actor loss : -0.2393, Critic loss : 0.0310
+Episode 63/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0904, Critic loss : 0.4066
+     | Epoch 2/10 - Actor loss : -0.0941, Critic loss : 0.2256
+     | Epoch 3/10 - Actor loss : -0.0914, Critic loss : 0.1987
+     | Epoch 4/10 - Actor loss : -0.0958, Critic loss : 0.0635
+     | Epoch 5/10 - Actor loss : -0.0995, Critic loss : 0.0362
+     | Epoch 6/10 - Actor loss : -0.1040, Critic loss : 0.0275
+     | Epoch 7/10 - Actor loss : -0.1243, Critic loss : 0.0274
+     | Epoch 8/10 - Actor loss : -0.1937, Critic loss : 0.0246
+     | Epoch 9/10 - Actor loss : -0.2306, Critic loss : 0.0248
+     | Epoch 10/10 - Actor loss : -0.2395, Critic loss : 0.0242
+Episode 64/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1881, Critic loss : 0.4665
+     | Epoch 2/10 - Actor loss : -0.2409, Critic loss : 0.3271
+     | Epoch 3/10 - Actor loss : -0.2324, Critic loss : 0.1996
+     | Epoch 4/10 - Actor loss : -0.2467, Critic loss : 0.0346
+     | Epoch 5/10 - Actor loss : -0.2395, Critic loss : 0.0263
+     | Epoch 6/10 - Actor loss : -0.2438, Critic loss : 0.0271
+     | Epoch 7/10 - Actor loss : -0.2454, Critic loss : 0.0248
+     | Epoch 8/10 - Actor loss : -0.2398, Critic loss : 0.0257
+     | Epoch 9/10 - Actor loss : -0.2393, Critic loss : 0.0310
+     | Epoch 10/10 - Actor loss : -0.2391, Critic loss : 0.0246
+Episode 65/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1073, Critic loss : 0.3743
+     | Epoch 2/10 - Actor loss : -0.1981, Critic loss : 0.1382
+     | Epoch 3/10 - Actor loss : -0.2340, Critic loss : 0.0373
+     | Epoch 4/10 - Actor loss : -0.2400, Critic loss : 0.0278
+     | Epoch 5/10 - Actor loss : -0.2410, Critic loss : 0.0255
+     | Epoch 6/10 - Actor loss : -0.2415, Critic loss : 0.0270
+     | Epoch 7/10 - Actor loss : -0.2401, Critic loss : 0.0246
+     | Epoch 8/10 - Actor loss : -0.2347, Critic loss : 0.0249
+     | Epoch 9/10 - Actor loss : -0.2374, Critic loss : 0.0247
+     | Epoch 10/10 - Actor loss : -0.2348, Critic loss : 0.0257
+... saving models ...
+Episode 66/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0966, Critic loss : 1.0146
+     | Epoch 2/10 - Actor loss : -0.0951, Critic loss : 0.9967
+     | Epoch 3/10 - Actor loss : -0.1024, Critic loss : 0.9882
+     | Epoch 4/10 - Actor loss : -0.1102, Critic loss : 0.9884
+     | Epoch 5/10 - Actor loss : -0.1106, Critic loss : 0.9944
+     | Epoch 6/10 - Actor loss : -0.1031, Critic loss : 1.0001
+     | Epoch 7/10 - Actor loss : -0.1138, Critic loss : 0.9741
+     | Epoch 8/10 - Actor loss : -0.1009, Critic loss : 0.9898
+     | Epoch 9/10 - Actor loss : -0.1053, Critic loss : 0.9882
+     | Epoch 10/10 - Actor loss : -0.1085, Critic loss : 0.9749
+Episode 67/112 finished, total reward  : -1238.670, actions taken : {'hold': 1990, 'buy': 11, 'sell': 10}
+     | Epoch 1/10 - Actor loss : -0.1952, Critic loss : 0.5458
+     | Epoch 2/10 - Actor loss : -0.2292, Critic loss : 0.3827
+     | Epoch 3/10 - Actor loss : -0.2404, Critic loss : 0.1739
+     | Epoch 4/10 - Actor loss : -0.2391, Critic loss : 0.0831
+     | Epoch 5/10 - Actor loss : -0.2349, Critic loss : 0.0821
+     | Epoch 6/10 - Actor loss : -0.2441, Critic loss : 0.0716
+     | Epoch 7/10 - Actor loss : -0.2409, Critic loss : 0.0708
+     | Epoch 8/10 - Actor loss : -0.2384, Critic loss : 0.0703
+     | Epoch 9/10 - Actor loss : -0.2481, Critic loss : 0.0684
+     | Epoch 10/10 - Actor loss : -0.2431, Critic loss : 0.0702
+Episode 68/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2076, Critic loss : 0.3135
+     | Epoch 2/10 - Actor loss : -0.2360, Critic loss : 0.1689
+     | Epoch 3/10 - Actor loss : -0.2461, Critic loss : 0.1094
+     | Epoch 4/10 - Actor loss : -0.2431, Critic loss : 0.0653
+     | Epoch 5/10 - Actor loss : -0.2442, Critic loss : 0.0266
+     | Epoch 6/10 - Actor loss : -0.2449, Critic loss : 0.0159
+     | Epoch 7/10 - Actor loss : -0.2519, Critic loss : 0.0145
+     | Epoch 8/10 - Actor loss : -0.2533, Critic loss : 0.0150
+     | Epoch 9/10 - Actor loss : -0.2469, Critic loss : 0.0143
+     | Epoch 10/10 - Actor loss : -0.2487, Critic loss : 0.0144
+Episode 69/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1889, Critic loss : 0.4578
+     | Epoch 2/10 - Actor loss : -0.2287, Critic loss : 0.3563
+     | Epoch 3/10 - Actor loss : -0.2257, Critic loss : 0.3549
+     | Epoch 4/10 - Actor loss : -0.2316, Critic loss : 0.3166
+     | Epoch 5/10 - Actor loss : -0.2395, Critic loss : 0.0919
+     | Epoch 6/10 - Actor loss : -0.2320, Critic loss : 0.0310
+     | Epoch 7/10 - Actor loss : -0.2323, Critic loss : 0.0279
+     | Epoch 8/10 - Actor loss : -0.2324, Critic loss : 0.0218
+     | Epoch 9/10 - Actor loss : -0.2387, Critic loss : 0.0215
+     | Epoch 10/10 - Actor loss : -0.2342, Critic loss : 0.0218
+Episode 70/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1949, Critic loss : 0.3756
+     | Epoch 2/10 - Actor loss : -0.2426, Critic loss : 0.1968
+     | Epoch 3/10 - Actor loss : -0.2332, Critic loss : 0.1377
+     | Epoch 4/10 - Actor loss : -0.2301, Critic loss : 0.0515
+     | Epoch 5/10 - Actor loss : -0.2352, Critic loss : 0.0212
+     | Epoch 6/10 - Actor loss : -0.2324, Critic loss : 0.0196
+     | Epoch 7/10 - Actor loss : -0.2379, Critic loss : 0.0179
+     | Epoch 8/10 - Actor loss : -0.2318, Critic loss : 0.0178
+     | Epoch 9/10 - Actor loss : -0.2409, Critic loss : 0.0198
+     | Epoch 10/10 - Actor loss : -0.2403, Critic loss : 0.0171
+Episode 71/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1458, Critic loss : 0.4957
+     | Epoch 2/10 - Actor loss : -0.1913, Critic loss : 0.2389
+     | Epoch 3/10 - Actor loss : -0.2073, Critic loss : 0.0432
+     | Epoch 4/10 - Actor loss : -0.2128, Critic loss : 0.0226
+     | Epoch 5/10 - Actor loss : -0.2213, Critic loss : 0.0210
+     | Epoch 6/10 - Actor loss : -0.2203, Critic loss : 0.0222
+     | Epoch 7/10 - Actor loss : -0.2195, Critic loss : 0.0224
+     | Epoch 8/10 - Actor loss : -0.2349, Critic loss : 0.0210
+     | Epoch 9/10 - Actor loss : -0.2316, Critic loss : 0.0194
+     | Epoch 10/10 - Actor loss : -0.2319, Critic loss : 0.0199
+Episode 72/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2115, Critic loss : 0.3550
+     | Epoch 2/10 - Actor loss : -0.2520, Critic loss : 0.2085
+     | Epoch 3/10 - Actor loss : -0.2510, Critic loss : 0.1752
+     | Epoch 4/10 - Actor loss : -0.2526, Critic loss : 0.1391
+     | Epoch 5/10 - Actor loss : -0.2544, Critic loss : 0.0744
+     | Epoch 6/10 - Actor loss : -0.2489, Critic loss : 0.0259
+     | Epoch 7/10 - Actor loss : -0.2553, Critic loss : 0.0231
+     | Epoch 8/10 - Actor loss : -0.2573, Critic loss : 0.0237
+     | Epoch 9/10 - Actor loss : -0.2502, Critic loss : 0.0221
+     | Epoch 10/10 - Actor loss : -0.2595, Critic loss : 0.0227
+Episode 73/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2054, Critic loss : 0.4663
+     | Epoch 2/10 - Actor loss : -0.2384, Critic loss : 0.3439
+     | Epoch 3/10 - Actor loss : -0.2419, Critic loss : 0.3412
+     | Epoch 4/10 - Actor loss : -0.2332, Critic loss : 0.2445
+     | Epoch 5/10 - Actor loss : -0.2444, Critic loss : 0.0546
+     | Epoch 6/10 - Actor loss : -0.2368, Critic loss : 0.0248
+     | Epoch 7/10 - Actor loss : -0.2351, Critic loss : 0.0222
+     | Epoch 8/10 - Actor loss : -0.2412, Critic loss : 0.0218
+     | Epoch 9/10 - Actor loss : -0.2373, Critic loss : 0.0204
+     | Epoch 10/10 - Actor loss : -0.2403, Critic loss : 0.0216
+Episode 74/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1896, Critic loss : 0.3975
+     | Epoch 2/10 - Actor loss : -0.2233, Critic loss : 0.2047
+     | Epoch 3/10 - Actor loss : -0.2279, Critic loss : 0.1754
+     | Epoch 4/10 - Actor loss : -0.2346, Critic loss : 0.0997
+     | Epoch 5/10 - Actor loss : -0.2409, Critic loss : 0.0399
+     | Epoch 6/10 - Actor loss : -0.2402, Critic loss : 0.0271
+     | Epoch 7/10 - Actor loss : -0.2333, Critic loss : 0.0235
+     | Epoch 8/10 - Actor loss : -0.2454, Critic loss : 0.0248
+     | Epoch 9/10 - Actor loss : -0.2489, Critic loss : 0.0239
+     | Epoch 10/10 - Actor loss : -0.2480, Critic loss : 0.0234
+Episode 75/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0990, Critic loss : 0.9956
+     | Epoch 2/10 - Actor loss : -0.1153, Critic loss : 0.9748
+     | Epoch 3/10 - Actor loss : -0.1196, Critic loss : 0.9585
+     | Epoch 4/10 - Actor loss : -0.1149, Critic loss : 0.9808
+     | Epoch 5/10 - Actor loss : -0.1153, Critic loss : 0.9391
+     | Epoch 6/10 - Actor loss : -0.1170, Critic loss : 0.9441
+     | Epoch 7/10 - Actor loss : -0.1209, Critic loss : 0.9435
+     | Epoch 8/10 - Actor loss : -0.1230, Critic loss : 0.9362
+     | Epoch 9/10 - Actor loss : -0.1225, Critic loss : 0.9526
+     | Epoch 10/10 - Actor loss : -0.1208, Critic loss : 0.9382
+Episode 76/112 finished, total reward  : -1515.570, actions taken : {'hold': 1965, 'buy': 23, 'sell': 23}
+     | Epoch 1/10 - Actor loss : -0.1946, Critic loss : 0.5922
+     | Epoch 2/10 - Actor loss : -0.2137, Critic loss : 0.3627
+     | Epoch 3/10 - Actor loss : -0.2229, Critic loss : 0.3188
+     | Epoch 4/10 - Actor loss : -0.2329, Critic loss : 0.1780
+     | Epoch 5/10 - Actor loss : -0.2249, Critic loss : 0.0692
+     | Epoch 6/10 - Actor loss : -0.2320, Critic loss : 0.0429
+     | Epoch 7/10 - Actor loss : -0.2372, Critic loss : 0.0438
+     | Epoch 8/10 - Actor loss : -0.2338, Critic loss : 0.0377
+     | Epoch 9/10 - Actor loss : -0.2286, Critic loss : 0.0363
+     | Epoch 10/10 - Actor loss : -0.2356, Critic loss : 0.0356
+Episode 77/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1731, Critic loss : 0.3206
+     | Epoch 2/10 - Actor loss : -0.2180, Critic loss : 0.1851
+     | Epoch 3/10 - Actor loss : -0.2263, Critic loss : 0.1832
+     | Epoch 4/10 - Actor loss : -0.2297, Critic loss : 0.1776
+     | Epoch 5/10 - Actor loss : -0.2308, Critic loss : 0.1662
+     | Epoch 6/10 - Actor loss : -0.2265, Critic loss : 0.1293
+     | Epoch 7/10 - Actor loss : -0.2308, Critic loss : 0.0635
+     | Epoch 8/10 - Actor loss : -0.2331, Critic loss : 0.0276
+     | Epoch 9/10 - Actor loss : -0.2343, Critic loss : 0.0243
+     | Epoch 10/10 - Actor loss : -0.2389, Critic loss : 0.0220
+Episode 78/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0927, Critic loss : 1.0117
+     | Epoch 2/10 - Actor loss : -0.1020, Critic loss : 1.0005
+     | Epoch 3/10 - Actor loss : -0.1081, Critic loss : 0.9749
+     | Epoch 4/10 - Actor loss : -0.1111, Critic loss : 0.9786
+     | Epoch 5/10 - Actor loss : -0.1095, Critic loss : 0.9910
+     | Epoch 6/10 - Actor loss : -0.1014, Critic loss : 0.9857
+     | Epoch 7/10 - Actor loss : -0.1134, Critic loss : 0.9729
+     | Epoch 8/10 - Actor loss : -0.1145, Critic loss : 0.9540
+     | Epoch 9/10 - Actor loss : -0.1124, Critic loss : 0.9903
+     | Epoch 10/10 - Actor loss : -0.1179, Critic loss : 0.9629
+Episode 79/112 finished, total reward  : -428.660, actions taken : {'hold': 2002, 'buy': 5, 'sell': 4}
+     | Epoch 1/10 - Actor loss : -0.1806, Critic loss : 0.6496
+     | Epoch 2/10 - Actor loss : -0.2124, Critic loss : 0.4177
+     | Epoch 3/10 - Actor loss : -0.2118, Critic loss : 0.3282
+     | Epoch 4/10 - Actor loss : -0.2119, Critic loss : 0.2819
+     | Epoch 5/10 - Actor loss : -0.2115, Critic loss : 0.2386
+     | Epoch 6/10 - Actor loss : -0.2204, Critic loss : 0.1983
+     | Epoch 7/10 - Actor loss : -0.2254, Critic loss : 0.1621
+     | Epoch 8/10 - Actor loss : -0.2201, Critic loss : 0.1167
+     | Epoch 9/10 - Actor loss : -0.2165, Critic loss : 0.1023
+     | Epoch 10/10 - Actor loss : -0.2308, Critic loss : 0.0909
+Episode 80/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1911, Critic loss : 0.2351
+     | Epoch 2/10 - Actor loss : -0.2362, Critic loss : 0.1100
+     | Epoch 3/10 - Actor loss : -0.2403, Critic loss : 0.1088
+     | Epoch 4/10 - Actor loss : -0.2439, Critic loss : 0.1097
+     | Epoch 5/10 - Actor loss : -0.2353, Critic loss : 0.1077
+     | Epoch 6/10 - Actor loss : -0.2394, Critic loss : 0.1056
+     | Epoch 7/10 - Actor loss : -0.2473, Critic loss : 0.0962
+     | Epoch 8/10 - Actor loss : -0.2468, Critic loss : 0.0567
+     | Epoch 9/10 - Actor loss : -0.2473, Critic loss : 0.0479
+     | Epoch 10/10 - Actor loss : -0.2437, Critic loss : 0.0445
+Episode 81/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1997, Critic loss : 0.7354
+     | Epoch 2/10 - Actor loss : -0.2359, Critic loss : 0.4276
+     | Epoch 3/10 - Actor loss : -0.2305, Critic loss : 0.1316
+     | Epoch 4/10 - Actor loss : -0.2345, Critic loss : 0.0693
+     | Epoch 5/10 - Actor loss : -0.2408, Critic loss : 0.0617
+     | Epoch 6/10 - Actor loss : -0.2359, Critic loss : 0.0574
+     | Epoch 7/10 - Actor loss : -0.2395, Critic loss : 0.0489
+     | Epoch 8/10 - Actor loss : -0.2440, Critic loss : 0.0473
+     | Epoch 9/10 - Actor loss : -0.2468, Critic loss : 0.0440
+     | Epoch 10/10 - Actor loss : -0.2476, Critic loss : 0.0445
+Episode 82/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1974, Critic loss : 0.2961
+     | Epoch 2/10 - Actor loss : -0.2430, Critic loss : 0.0639
+     | Epoch 3/10 - Actor loss : -0.2370, Critic loss : 0.0579
+     | Epoch 4/10 - Actor loss : -0.2526, Critic loss : 0.0507
+     | Epoch 5/10 - Actor loss : -0.2459, Critic loss : 0.0326
+     | Epoch 6/10 - Actor loss : -0.2440, Critic loss : 0.0257
+     | Epoch 7/10 - Actor loss : -0.2469, Critic loss : 0.0253
+     | Epoch 8/10 - Actor loss : -0.2377, Critic loss : 0.0252
+     | Epoch 9/10 - Actor loss : -0.2531, Critic loss : 0.0246
+     | Epoch 10/10 - Actor loss : -0.2443, Critic loss : 0.0250
+Episode 83/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2016, Critic loss : 0.7712
+     | Epoch 2/10 - Actor loss : -0.2304, Critic loss : 0.5142
+     | Epoch 3/10 - Actor loss : -0.2443, Critic loss : 0.2568
+     | Epoch 4/10 - Actor loss : -0.2409, Critic loss : 0.0832
+     | Epoch 5/10 - Actor loss : -0.2400, Critic loss : 0.0327
+     | Epoch 6/10 - Actor loss : -0.2464, Critic loss : 0.0306
+     | Epoch 7/10 - Actor loss : -0.2416, Critic loss : 0.0273
+     | Epoch 8/10 - Actor loss : -0.2428, Critic loss : 0.0290
+     | Epoch 9/10 - Actor loss : -0.2410, Critic loss : 0.0267
+     | Epoch 10/10 - Actor loss : -0.2412, Critic loss : 0.0252
+Episode 84/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2085, Critic loss : 0.2224
+     | Epoch 2/10 - Actor loss : -0.2424, Critic loss : 0.0579
+     | Epoch 3/10 - Actor loss : -0.2517, Critic loss : 0.0522
+     | Epoch 4/10 - Actor loss : -0.2481, Critic loss : 0.0452
+     | Epoch 5/10 - Actor loss : -0.2516, Critic loss : 0.0242
+     | Epoch 6/10 - Actor loss : -0.2442, Critic loss : 0.0209
+     | Epoch 7/10 - Actor loss : -0.2487, Critic loss : 0.0206
+     | Epoch 8/10 - Actor loss : -0.2545, Critic loss : 0.0193
+     | Epoch 9/10 - Actor loss : -0.2523, Critic loss : 0.0188
+     | Epoch 10/10 - Actor loss : -0.2566, Critic loss : 0.0190
+Episode 85/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1997, Critic loss : 0.7208
+     | Epoch 2/10 - Actor loss : -0.2447, Critic loss : 0.6365
+     | Epoch 3/10 - Actor loss : -0.2493, Critic loss : 0.4091
+     | Epoch 4/10 - Actor loss : -0.2438, Critic loss : 0.1428
+     | Epoch 5/10 - Actor loss : -0.2450, Critic loss : 0.0584
+     | Epoch 6/10 - Actor loss : -0.2380, Critic loss : 0.0410
+     | Epoch 7/10 - Actor loss : -0.2424, Critic loss : 0.0390
+     | Epoch 8/10 - Actor loss : -0.2433, Critic loss : 0.0350
+     | Epoch 9/10 - Actor loss : -0.2391, Critic loss : 0.0354
+     | Epoch 10/10 - Actor loss : -0.2371, Critic loss : 0.0340
+Episode 86/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1084, Critic loss : 0.2741
+     | Epoch 2/10 - Actor loss : -0.1676, Critic loss : 0.0718
+     | Epoch 3/10 - Actor loss : -0.2135, Critic loss : 0.0677
+     | Epoch 4/10 - Actor loss : -0.2276, Critic loss : 0.0647
+     | Epoch 5/10 - Actor loss : -0.2206, Critic loss : 0.0469
+     | Epoch 6/10 - Actor loss : -0.2274, Critic loss : 0.0251
+     | Epoch 7/10 - Actor loss : -0.2308, Critic loss : 0.0240
+     | Epoch 8/10 - Actor loss : -0.2278, Critic loss : 0.0235
+     | Epoch 9/10 - Actor loss : -0.2366, Critic loss : 0.0233
+     | Epoch 10/10 - Actor loss : -0.2299, Critic loss : 0.0228
+Episode 87/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1877, Critic loss : 0.7356
+     | Epoch 2/10 - Actor loss : -0.2423, Critic loss : 0.5299
+     | Epoch 3/10 - Actor loss : -0.2470, Critic loss : 0.3524
+     | Epoch 4/10 - Actor loss : -0.2439, Critic loss : 0.1928
+     | Epoch 5/10 - Actor loss : -0.2454, Critic loss : 0.1209
+     | Epoch 6/10 - Actor loss : -0.2466, Critic loss : 0.0723
+     | Epoch 7/10 - Actor loss : -0.2460, Critic loss : 0.0532
+     | Epoch 8/10 - Actor loss : -0.2481, Critic loss : 0.0451
+     | Epoch 9/10 - Actor loss : -0.2468, Critic loss : 0.0419
+     | Epoch 10/10 - Actor loss : -0.2468, Critic loss : 0.0384
+... saving models ...
+Episode 88/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1816, Critic loss : 0.4131
+     | Epoch 2/10 - Actor loss : -0.2406, Critic loss : 0.0834
+     | Epoch 3/10 - Actor loss : -0.2470, Critic loss : 0.0800
+     | Epoch 4/10 - Actor loss : -0.2437, Critic loss : 0.0695
+     | Epoch 5/10 - Actor loss : -0.2453, Critic loss : 0.0577
+     | Epoch 6/10 - Actor loss : -0.2504, Critic loss : 0.0312
+     | Epoch 7/10 - Actor loss : -0.2529, Critic loss : 0.0214
+     | Epoch 8/10 - Actor loss : -0.2450, Critic loss : 0.0189
+     | Epoch 9/10 - Actor loss : -0.2467, Critic loss : 0.0179
+     | Epoch 10/10 - Actor loss : -0.2536, Critic loss : 0.0172
+Episode 89/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2019, Critic loss : 0.6672
+     | Epoch 2/10 - Actor loss : -0.2404, Critic loss : 0.5964
+     | Epoch 3/10 - Actor loss : -0.2457, Critic loss : 0.5780
+     | Epoch 4/10 - Actor loss : -0.2478, Critic loss : 0.2792
+     | Epoch 5/10 - Actor loss : -0.2430, Critic loss : 0.1012
+     | Epoch 6/10 - Actor loss : -0.2463, Critic loss : 0.0427
+     | Epoch 7/10 - Actor loss : -0.2468, Critic loss : 0.0357
+     | Epoch 8/10 - Actor loss : -0.2547, Critic loss : 0.0340
+     | Epoch 9/10 - Actor loss : -0.2515, Critic loss : 0.0306
+     | Epoch 10/10 - Actor loss : -0.2466, Critic loss : 0.0300
+Episode 90/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2035, Critic loss : 0.2772
+     | Epoch 2/10 - Actor loss : -0.2363, Critic loss : 0.0873
+     | Epoch 3/10 - Actor loss : -0.2410, Critic loss : 0.0871
+     | Epoch 4/10 - Actor loss : -0.2427, Critic loss : 0.0843
+     | Epoch 5/10 - Actor loss : -0.2413, Critic loss : 0.0844
+     | Epoch 6/10 - Actor loss : -0.2409, Critic loss : 0.0808
+     | Epoch 7/10 - Actor loss : -0.2534, Critic loss : 0.0595
+     | Epoch 8/10 - Actor loss : -0.2488, Critic loss : 0.0502
+     | Epoch 9/10 - Actor loss : -0.2454, Critic loss : 0.0401
+     | Epoch 10/10 - Actor loss : -0.2468, Critic loss : 0.0335
+Episode 91/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2075, Critic loss : 0.8187
+     | Epoch 2/10 - Actor loss : -0.2341, Critic loss : 0.7079
+     | Epoch 3/10 - Actor loss : -0.2255, Critic loss : 0.7070
+     | Epoch 4/10 - Actor loss : -0.2305, Critic loss : 0.4598
+     | Epoch 5/10 - Actor loss : -0.2373, Critic loss : 0.1459
+     | Epoch 6/10 - Actor loss : -0.2352, Critic loss : 0.0654
+     | Epoch 7/10 - Actor loss : -0.2328, Critic loss : 0.0497
+     | Epoch 8/10 - Actor loss : -0.2309, Critic loss : 0.0440
+     | Epoch 9/10 - Actor loss : -0.2364, Critic loss : 0.0368
+     | Epoch 10/10 - Actor loss : -0.2395, Critic loss : 0.0336
+Episode 92/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1868, Critic loss : 0.2817
+     | Epoch 2/10 - Actor loss : -0.2158, Critic loss : 0.0585
+     | Epoch 3/10 - Actor loss : -0.2255, Critic loss : 0.0442
+     | Epoch 4/10 - Actor loss : -0.2342, Critic loss : 0.0347
+     | Epoch 5/10 - Actor loss : -0.2384, Critic loss : 0.0283
+     | Epoch 6/10 - Actor loss : -0.2409, Critic loss : 0.0274
+     | Epoch 7/10 - Actor loss : -0.2404, Critic loss : 0.0251
+     | Epoch 8/10 - Actor loss : -0.2372, Critic loss : 0.0260
+     | Epoch 9/10 - Actor loss : -0.2439, Critic loss : 0.0263
+     | Epoch 10/10 - Actor loss : -0.2445, Critic loss : 0.0255
+Episode 93/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1093, Critic loss : 1.0220
+     | Epoch 2/10 - Actor loss : -0.1332, Critic loss : 0.9503
+     | Epoch 3/10 - Actor loss : -0.1235, Critic loss : 1.0084
+     | Epoch 4/10 - Actor loss : -0.1359, Critic loss : 0.9423
+     | Epoch 5/10 - Actor loss : -0.1306, Critic loss : 0.9406
+     | Epoch 6/10 - Actor loss : -0.1366, Critic loss : 0.9214
+     | Epoch 7/10 - Actor loss : -0.1351, Critic loss : 0.8927
+     | Epoch 8/10 - Actor loss : -0.1338, Critic loss : 0.8687
+     | Epoch 9/10 - Actor loss : -0.1349, Critic loss : 0.8463
+     | Epoch 10/10 - Actor loss : -0.1351, Critic loss : 0.8383
+Episode 94/112 finished, total reward  : 9.560, actions taken : {'hold': 2010, 'buy': 1}
+     | Epoch 1/10 - Actor loss : -0.1058, Critic loss : 0.7264
+     | Epoch 2/10 - Actor loss : -0.1317, Critic loss : 0.6378
+     | Epoch 3/10 - Actor loss : -0.1560, Critic loss : 0.5585
+     | Epoch 4/10 - Actor loss : -0.1690, Critic loss : 0.5027
+     | Epoch 5/10 - Actor loss : -0.1740, Critic loss : 0.4729
+     | Epoch 6/10 - Actor loss : -0.1754, Critic loss : 0.4519
+     | Epoch 7/10 - Actor loss : -0.1805, Critic loss : 0.4377
+     | Epoch 8/10 - Actor loss : -0.1881, Critic loss : 0.4172
+     | Epoch 9/10 - Actor loss : -0.1894, Critic loss : 0.3787
+     | Epoch 10/10 - Actor loss : -0.1813, Critic loss : 0.3663
+Episode 95/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1384, Critic loss : 0.5944
+     | Epoch 2/10 - Actor loss : -0.1720, Critic loss : 0.4744
+     | Epoch 3/10 - Actor loss : -0.1803, Critic loss : 0.4736
+     | Epoch 4/10 - Actor loss : -0.1665, Critic loss : 0.5098
+     | Epoch 5/10 - Actor loss : -0.1777, Critic loss : 0.3864
+     | Epoch 6/10 - Actor loss : -0.1774, Critic loss : 0.3758
+     | Epoch 7/10 - Actor loss : -0.1810, Critic loss : 0.3627
+     | Epoch 8/10 - Actor loss : -0.1766, Critic loss : 0.3625
+     | Epoch 9/10 - Actor loss : -0.1817, Critic loss : 0.3319
+     | Epoch 10/10 - Actor loss : -0.1804, Critic loss : 0.3233
+Episode 96/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1192, Critic loss : 0.6405
+     | Epoch 2/10 - Actor loss : -0.1590, Critic loss : 0.5295
+     | Epoch 3/10 - Actor loss : -0.1801, Critic loss : 0.3818
+     | Epoch 4/10 - Actor loss : -0.1912, Critic loss : 0.2377
+     | Epoch 5/10 - Actor loss : -0.1978, Critic loss : 0.2015
+     | Epoch 6/10 - Actor loss : -0.1963, Critic loss : 0.1893
+     | Epoch 7/10 - Actor loss : -0.2006, Critic loss : 0.1717
+     | Epoch 8/10 - Actor loss : -0.1998, Critic loss : 0.1571
+     | Epoch 9/10 - Actor loss : -0.2109, Critic loss : 0.1551
+     | Epoch 10/10 - Actor loss : -0.2067, Critic loss : 0.1450
+Episode 97/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1268, Critic loss : 0.2971
+     | Epoch 2/10 - Actor loss : -0.1940, Critic loss : 0.1647
+     | Epoch 3/10 - Actor loss : -0.2003, Critic loss : 0.1541
+     | Epoch 4/10 - Actor loss : -0.2015, Critic loss : 0.1490
+     | Epoch 5/10 - Actor loss : -0.2013, Critic loss : 0.1388
+     | Epoch 6/10 - Actor loss : -0.1996, Critic loss : 0.1255
+     | Epoch 7/10 - Actor loss : -0.1955, Critic loss : 0.1175
+     | Epoch 8/10 - Actor loss : -0.2052, Critic loss : 0.1011
+     | Epoch 9/10 - Actor loss : -0.2028, Critic loss : 0.0902
+     | Epoch 10/10 - Actor loss : -0.2038, Critic loss : 0.0821
+Episode 98/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1608, Critic loss : 0.7351
+     | Epoch 2/10 - Actor loss : -0.2124, Critic loss : 0.6771
+     | Epoch 3/10 - Actor loss : -0.2205, Critic loss : 0.6290
+     | Epoch 4/10 - Actor loss : -0.2261, Critic loss : 0.5034
+     | Epoch 5/10 - Actor loss : -0.2303, Critic loss : 0.3724
+     | Epoch 6/10 - Actor loss : -0.2300, Critic loss : 0.2815
+     | Epoch 7/10 - Actor loss : -0.2382, Critic loss : 0.1607
+     | Epoch 8/10 - Actor loss : -0.2369, Critic loss : 0.0752
+     | Epoch 9/10 - Actor loss : -0.2372, Critic loss : 0.0545
+     | Epoch 10/10 - Actor loss : -0.2320, Critic loss : 0.0465
+Episode 99/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2129, Critic loss : 0.2747
+     | Epoch 2/10 - Actor loss : -0.2465, Critic loss : 0.0907
+     | Epoch 3/10 - Actor loss : -0.2505, Critic loss : 0.0876
+     | Epoch 4/10 - Actor loss : -0.2542, Critic loss : 0.0830
+     | Epoch 5/10 - Actor loss : -0.2551, Critic loss : 0.0633
+     | Epoch 6/10 - Actor loss : -0.2547, Critic loss : 0.0385
+     | Epoch 7/10 - Actor loss : -0.2516, Critic loss : 0.0280
+     | Epoch 8/10 - Actor loss : -0.2562, Critic loss : 0.0242
+     | Epoch 9/10 - Actor loss : -0.2605, Critic loss : 0.0202
+     | Epoch 10/10 - Actor loss : -0.2603, Critic loss : 0.0199
+Episode 100/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0910, Critic loss : 0.9946
+     | Epoch 2/10 - Actor loss : -0.0831, Critic loss : 1.0301
+     | Epoch 3/10 - Actor loss : -0.0981, Critic loss : 0.9923
+     | Epoch 4/10 - Actor loss : -0.1029, Critic loss : 0.9784
+     | Epoch 5/10 - Actor loss : -0.1093, Critic loss : 0.9849
+     | Epoch 6/10 - Actor loss : -0.1142, Critic loss : 0.9808
+     | Epoch 7/10 - Actor loss : -0.1171, Critic loss : 0.9679
+     | Epoch 8/10 - Actor loss : -0.1186, Critic loss : 0.9516
+     | Epoch 9/10 - Actor loss : -0.1170, Critic loss : 0.9497
+     | Epoch 10/10 - Actor loss : -0.1165, Critic loss : 0.9647
+Episode 101/112 finished, total reward  : -559.260, actions taken : {'hold': 2008, 'buy': 2, 'sell': 1}
+     | Epoch 1/10 - Actor loss : -0.1354, Critic loss : 0.7248
+     | Epoch 2/10 - Actor loss : -0.1794, Critic loss : 0.5392
+     | Epoch 3/10 - Actor loss : -0.1893, Critic loss : 0.4245
+     | Epoch 4/10 - Actor loss : -0.1954, Critic loss : 0.3589
+     | Epoch 5/10 - Actor loss : -0.2022, Critic loss : 0.3170
+     | Epoch 6/10 - Actor loss : -0.1988, Critic loss : 0.2917
+     | Epoch 7/10 - Actor loss : -0.2034, Critic loss : 0.2736
+     | Epoch 8/10 - Actor loss : -0.2092, Critic loss : 0.2796
+     | Epoch 9/10 - Actor loss : -0.2085, Critic loss : 0.2352
+     | Epoch 10/10 - Actor loss : -0.2105, Critic loss : 0.2259
+Episode 102/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1762, Critic loss : 0.3388
+     | Epoch 2/10 - Actor loss : -0.2209, Critic loss : 0.1952
+     | Epoch 3/10 - Actor loss : -0.2284, Critic loss : 0.0872
+     | Epoch 4/10 - Actor loss : -0.2256, Critic loss : 0.0682
+     | Epoch 5/10 - Actor loss : -0.2280, Critic loss : 0.0590
+     | Epoch 6/10 - Actor loss : -0.2384, Critic loss : 0.0606
+     | Epoch 7/10 - Actor loss : -0.2273, Critic loss : 0.0546
+     | Epoch 8/10 - Actor loss : -0.2391, Critic loss : 0.0524
+     | Epoch 9/10 - Actor loss : -0.2326, Critic loss : 0.0512
+     | Epoch 10/10 - Actor loss : -0.2359, Critic loss : 0.0482
+Episode 103/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1004, Critic loss : 0.9294
+     | Epoch 2/10 - Actor loss : -0.0998, Critic loss : 0.9217
+     | Epoch 3/10 - Actor loss : -0.1054, Critic loss : 0.9031
+     | Epoch 4/10 - Actor loss : -0.1126, Critic loss : 0.8891
+     | Epoch 5/10 - Actor loss : -0.1118, Critic loss : 0.8862
+     | Epoch 6/10 - Actor loss : -0.1108, Critic loss : 0.9236
+     | Epoch 7/10 - Actor loss : -0.1148, Critic loss : 0.9139
+     | Epoch 8/10 - Actor loss : -0.1097, Critic loss : 0.8946
+     | Epoch 9/10 - Actor loss : -0.1122, Critic loss : 0.8899
+     | Epoch 10/10 - Actor loss : -0.1127, Critic loss : 0.8872
+Episode 104/112 finished, total reward  : -1570.409, actions taken : {'hold': 1990, 'buy': 11, 'sell': 10}
+     | Epoch 1/10 - Actor loss : -0.1765, Critic loss : 0.5770
+     | Epoch 2/10 - Actor loss : -0.2146, Critic loss : 0.3718
+     | Epoch 3/10 - Actor loss : -0.2096, Critic loss : 0.2137
+     | Epoch 4/10 - Actor loss : -0.2078, Critic loss : 0.1717
+     | Epoch 5/10 - Actor loss : -0.2154, Critic loss : 0.1622
+     | Epoch 6/10 - Actor loss : -0.2150, Critic loss : 0.1513
+     | Epoch 7/10 - Actor loss : -0.2169, Critic loss : 0.1468
+     | Epoch 8/10 - Actor loss : -0.2120, Critic loss : 0.1365
+     | Epoch 9/10 - Actor loss : -0.2131, Critic loss : 0.1371
+     | Epoch 10/10 - Actor loss : -0.2223, Critic loss : 0.1344
+Episode 105/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1936, Critic loss : 0.3310
+     | Epoch 2/10 - Actor loss : -0.2276, Critic loss : 0.0860
+     | Epoch 3/10 - Actor loss : -0.2333, Critic loss : 0.0392
+     | Epoch 4/10 - Actor loss : -0.2348, Critic loss : 0.0277
+     | Epoch 5/10 - Actor loss : -0.2369, Critic loss : 0.0244
+     | Epoch 6/10 - Actor loss : -0.2422, Critic loss : 0.0214
+     | Epoch 7/10 - Actor loss : -0.2463, Critic loss : 0.0206
+     | Epoch 8/10 - Actor loss : -0.2417, Critic loss : 0.0189
+     | Epoch 9/10 - Actor loss : -0.2370, Critic loss : 0.0149
+     | Epoch 10/10 - Actor loss : -0.2405, Critic loss : 0.0130
+Episode 106/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2046, Critic loss : 0.2646
+     | Epoch 2/10 - Actor loss : -0.2358, Critic loss : 0.0727
+     | Epoch 3/10 - Actor loss : -0.2390, Critic loss : 0.0495
+     | Epoch 4/10 - Actor loss : -0.2375, Critic loss : 0.0422
+     | Epoch 5/10 - Actor loss : -0.2374, Critic loss : 0.0382
+     | Epoch 6/10 - Actor loss : -0.2452, Critic loss : 0.0342
+     | Epoch 7/10 - Actor loss : -0.2477, Critic loss : 0.0307
+     | Epoch 8/10 - Actor loss : -0.2477, Critic loss : 0.0290
+     | Epoch 9/10 - Actor loss : -0.2487, Critic loss : 0.0275
+     | Epoch 10/10 - Actor loss : -0.2552, Critic loss : 0.0254
+Episode 107/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.2113, Critic loss : 0.2795
+     | Epoch 2/10 - Actor loss : -0.2375, Critic loss : 0.0765
+     | Epoch 3/10 - Actor loss : -0.2448, Critic loss : 0.0369
+     | Epoch 4/10 - Actor loss : -0.2404, Critic loss : 0.0263
+     | Epoch 5/10 - Actor loss : -0.2468, Critic loss : 0.0215
+     | Epoch 6/10 - Actor loss : -0.2419, Critic loss : 0.0197
+     | Epoch 7/10 - Actor loss : -0.2443, Critic loss : 0.0190
+     | Epoch 8/10 - Actor loss : -0.2424, Critic loss : 0.0184
+     | Epoch 9/10 - Actor loss : -0.2418, Critic loss : 0.0174
+     | Epoch 10/10 - Actor loss : -0.2443, Critic loss : 0.0173
+Episode 108/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1988, Critic loss : 0.3961
+     | Epoch 2/10 - Actor loss : -0.2275, Critic loss : 0.1409
+     | Epoch 3/10 - Actor loss : -0.2265, Critic loss : 0.0363
+     | Epoch 4/10 - Actor loss : -0.2351, Critic loss : 0.0309
+     | Epoch 5/10 - Actor loss : -0.2363, Critic loss : 0.0281
+     | Epoch 6/10 - Actor loss : -0.2314, Critic loss : 0.0263
+     | Epoch 7/10 - Actor loss : -0.2373, Critic loss : 0.0252
+     | Epoch 8/10 - Actor loss : -0.2355, Critic loss : 0.0237
+     | Epoch 9/10 - Actor loss : -0.2430, Critic loss : 0.0233
+     | Epoch 10/10 - Actor loss : -0.2439, Critic loss : 0.0231
+Episode 109/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.0955, Critic loss : 1.0034
+     | Epoch 2/10 - Actor loss : -0.1100, Critic loss : 0.9972
+     | Epoch 3/10 - Actor loss : -0.1074, Critic loss : 0.9522
+     | Epoch 4/10 - Actor loss : -0.1097, Critic loss : 0.9681
+     | Epoch 5/10 - Actor loss : -0.1076, Critic loss : 0.9449
+     | Epoch 6/10 - Actor loss : -0.1110, Critic loss : 0.9667
+     | Epoch 7/10 - Actor loss : -0.1180, Critic loss : 0.9484
+     | Epoch 8/10 - Actor loss : -0.1179, Critic loss : 0.9863
+     | Epoch 9/10 - Actor loss : -0.1137, Critic loss : 0.9861
+     | Epoch 10/10 - Actor loss : -0.1200, Critic loss : 0.9485
+... saving models ...
+... saving models ...
+Reward is 4470.7798500061035
+Episode 110/112 finished, total reward  : 4470.780, actions taken : {'hold': 1965, 'buy': 23, 'sell': 23}
+     | Epoch 1/10 - Actor loss : -0.1689, Critic loss : 0.5183
+     | Epoch 2/10 - Actor loss : -0.2128, Critic loss : 0.1985
+     | Epoch 3/10 - Actor loss : -0.2233, Critic loss : 0.0385
+     | Epoch 4/10 - Actor loss : -0.2280, Critic loss : 0.0252
+     | Epoch 5/10 - Actor loss : -0.2229, Critic loss : 0.0211
+     | Epoch 6/10 - Actor loss : -0.2334, Critic loss : 0.0220
+     | Epoch 7/10 - Actor loss : -0.2375, Critic loss : 0.0181
+     | Epoch 8/10 - Actor loss : -0.2296, Critic loss : 0.0163
+     | Epoch 9/10 - Actor loss : -0.2250, Critic loss : 0.0161
+     | Epoch 10/10 - Actor loss : -0.2303, Critic loss : 0.0158
+Episode 111/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+     | Epoch 1/10 - Actor loss : -0.1857, Critic loss : 0.3420
+     | Epoch 2/10 - Actor loss : -0.2182, Critic loss : 0.2231
+     | Epoch 3/10 - Actor loss : -0.2283, Critic loss : 0.2243
+     | Epoch 4/10 - Actor loss : -0.2263, Critic loss : 0.2206
+     | Epoch 5/10 - Actor loss : -0.2292, Critic loss : 0.1822
+     | Epoch 6/10 - Actor loss : -0.2278, Critic loss : 0.0682
+     | Epoch 7/10 - Actor loss : -0.2337, Critic loss : 0.0590
+     | Epoch 8/10 - Actor loss : -0.2284, Critic loss : 0.0596
+     | Epoch 9/10 - Actor loss : -0.2264, Critic loss : 0.0563
+     | Epoch 10/10 - Actor loss : -0.2253, Critic loss : 0.0585
+Episode 112/112 finished, total reward  : 0.000, actions taken : {'hold': 2011}
+... saving models ...
+... loading models ...
+Total reward: 0.000, actions: {'hold': 2011}
+Annual return: 0.000, Avg profit: 0.000, Volatility: 0.000, Sharpe: 0.000, Max DD: 0.000
+QApplication: invalid style override 'kvantum' passed, ignoring it.
+	Available styles: Windows, Fusion
+... loading models ...
+Total reward: 0.000, actions: {'hold': 502}
+Annual return: 0.000, Avg profit: 0.000, Volatility: 0.000, Sharpe: 0.000, Max DD: 0.000
+[DB] Saved trial: trained=0.000, tested=0.000
+Saved trial 1
