@@ -32,3 +32,4 @@
 
 monitor.py
 monitor_PPO.py
+*.log
