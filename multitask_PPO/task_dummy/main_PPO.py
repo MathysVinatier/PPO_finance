@@ -9,6 +9,7 @@ import torch
 import sqlite3
 
 import numpy as np
+from pandas import to_datetime
 import matplotlib.pyplot as plt
 
 from conf_PPO import *
@@ -45,7 +46,10 @@ sys.stderr = sys.stdout
 
 
 def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, alpha, gae,
-                 policy_clip,checkpoint_step=False):
+                 policy_clip,checkpoint_step=False, threshold = 0.65):
+
+    tick = to_datetime(df.index).to_series().diff().mode()[0]
+    print(f"... starting training from {df.index.min()} to {df.index.max()} with {tick} tick (threshold={threshold}) ...")
 
     # -----------------------------
     # Load and preprocess data
@@ -73,7 +77,6 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, a
     # -----------------------------
     # Training loop
     # -----------------------------
-    threshold = 0.65
     action_names = {0: "hold", 1: "buy", 2: "sell"}
     best_reward = 0
 
@@ -122,9 +125,9 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, a
 
         if checkpoint_step!=False:
             if (ep+1)%checkpoint_step==0:
-                agent.save_models(episode=f"_{ep:04}")
+                agent.save_models(episode=f"{ep:04}")
             if total_reward >= best_reward:
-                agent.save_models(episode=f"_best_reward")
+                agent.save_models(episode=f"best_reward")
                 print(f"Reward is {total_reward}")
                 best_reward = total_reward
 
@@ -144,7 +147,10 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, a
     return agent, total_reward
 
 
-def test_ppo(agent_id, df, trading_days_per_year=252):
+def test_ppo(agent_id, df, trading_days_per_year=252,threshold = 0.65):
+    tick = to_datetime(df.index).to_series().diff().mode()[0]
+    print(f"... starting test from {df.index.min()} to {df.index.max()} with {tick} tick (threshold={threshold}) ...")
+
     env = TradingEnv(df, broker_fee=False)
 
     seq_len = 7
@@ -159,9 +165,8 @@ def test_ppo(agent_id, df, trading_days_per_year=252):
         chkpt_dir=MODELS_PATH,
         agent_id=agent_id
     )
-    agent.load_models(episode="_latest")
+    agent.load_models(episode="latest")
 
-    threshold = 0.65
     action_names = {0: "hold", 1: "buy", 2: "sell"}
 
     obs = env.reset()
@@ -425,7 +430,7 @@ def main(n_episode, n_epoch, batch_size, gamma, alpha, gae, policy_clip, chckpt,
                 checkpoint_step=chckpt
             )
 
-            agent_trained.save_models(episode="_latest")
+            agent_trained.save_models(episode="latest")
 
             plot_folder = "trial_"+id_str
             plot_path   = os.path.join(PLOT_PATH, plot_folder)
