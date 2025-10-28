@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PPO Training Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>PPO Training Dashboard</h1>
+
+    <div class="dashboard">
+
+        <div class="card">
+            <div class="tabs">
+                <button class="tab active" data-tab="train_tab">Monitor Training</button>
+                <button class="tab" data-tab="test_tab">Monitor Testing</button>
+            </div>
+
+            <div id="train_tab" class="tab-content active">
+                <div style="display:flex;gap:10px;margin-bottom:10px;">
+                    <label style="flex:1;">
+                        Task:
+                        <select id='task_select'></select>
+                    </label>
+                    <label style="flex:1;">
+                        Trial:
+                        <select id='trial_select'></select>
+                    </label>
+                </div>
+                <div id="trial_data" style="margin-top:10px;text-align:center;">
+                    <p>Select a task and trial to view results.</p>
+                </div>
+            </div>
+
+            <div id="test_tab" class="tab-content">
+                <h3>🧠 Monitor Testing</h3>
+                <p>Display testing runs, evaluation plots, or extra info here.</p>
+                <div id="test_data" style="text-align:center;">
+                    <img src="/static/placeholder.png" style="max-width:90%;border-radius:10px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>System Stats</h2>
+            <div id="stats">
+                <p>CPU: ...</p>
+                <p>RAM: ...</p>
+                <p>Temperature: ...</p>
+                <p>Active Task: <span id="active_task">None</span></p>
+                <button id="kill_btn" disabled>Kill Task</button>
+            </div>
+
+            <hr style="margin:20px 0;">
+
+            <h2>Launch New Training</h2>
+            <form id="launch_form">
+                <div class="grid">
+                    <label>Episodes: <input type="number" name="episode" value="10" step="1"></label>
+                    <label>Epochs: <input type="number" name="epoch" value="3" step="1"></label>
+                    <label>Batch size: <input type="number" name="batch_size" value="32" step="1"></label>
+                    <label>Gamma: <input type="number" name="gamma" value="0.99" step="0.01"></label>
+                    <label>Learning Rate: <input type="number" name="lr" value="0.0003" step="0.0001"></label>
+                    <label>GAE λ: <input type="number" name="gae" value="0.95" step="0.01"></label>
+                    <label>Policy Clip: <input type="number" name="policy_clip" value="0.2" step="0.01"></label>
+                    <label>Trial ID: <input type="number" name="trial" value="1" step="1"></label>
+                </div>
+                <br>
+                <button type="submit">🚀 Launch Task</button>
+            </form>
+            <div id="launch_status" style="margin-top:10px;font-family:monospace;"></div>
+            <div id="process_log" style="
+                background:#000;
+                color:#fff;
+                padding:8px;
+                font-family:monospace;
+                white-space:pre-wrap;
+                overflow-y:auto;
+                height:400px;
+            "></div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
