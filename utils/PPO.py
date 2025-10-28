@@ -8,7 +8,7 @@ import torch.optim as optim
 from torch.distributions.categorical import Categorical
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" or __name__ == "PPO":
     from Models import PPO_Transformer, Time2Vec
 else:
     from utils.Models import PPO_Transformer, Time2Vec
@@ -92,7 +92,10 @@ class ActorNetwork(nn.Module):
         torch.save(self.state_dict(), self.checkpoint_file+episode)
 
     def load_checkpoint(self, episode=""):
-        self.load_state_dict(torch.load(self.checkpoint_file+episode))
+        if episode == "":
+            self.load_state_dict(torch.load(self.checkpoint_file+episode))
+        else:
+            self.load_state_dict(torch.load(self.checkpoint_file+"_"+episode))
 
 
 class CriticNetwork(nn.Module):
@@ -162,7 +165,10 @@ class CriticNetwork(nn.Module):
         torch.save(self.state_dict(), self.checkpoint_file+episode)
 
     def load_checkpoint(self, episode=""):
-        self.load_state_dict(torch.load(self.checkpoint_file+episode))
+        if episode == "":
+            self.load_state_dict(torch.load(self.checkpoint_file+episode))
+        else:
+            self.load_state_dict(torch.load(self.checkpoint_file+"_"+episode))
 
 class ACAgent:
     def __init__(self, n_actions, num_features, seq_len, gamma=0.99, alpha=0.0003, gae_lambda=0.95,
