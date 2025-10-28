@@ -8,8 +8,7 @@ from gym import spaces
 import random
 import os
 
-TODAY            = 2024
-GENERAL_DATA_DIR = "./data/General/"
+from PPO_Training_conf import DATASET_PATH, TODAY, INPUT_SIZE
 
 class DataLoader:
 
@@ -56,7 +55,7 @@ class DataLoader:
         else : 
             company_dict = companies
 
-        dir = self.__check_repo(GENERAL_DATA_DIR)
+        dir = self.__check_repo(DATASET_PATH)
         list_dir = os.listdir(dir)
 
         for company in company_dict.keys():
@@ -105,8 +104,7 @@ class TradingEnv(gym.Env):
             self.broker_fee = 0.03 # commission percentage
         else :
             self.broker_fee = 0
-
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(4,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(INPUT_SIZE,), dtype=np.float32)
         self.action_space = spaces.Discrete(3)  # 0 = Hold, 1 = Buy, 2 = Sell
 
     def _get_obs(self):
