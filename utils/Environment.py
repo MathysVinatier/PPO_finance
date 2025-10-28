@@ -8,7 +8,7 @@ from gym import spaces
 import random
 import os
 
-from PPO_Training_conf import DATASET_PATH, TODAY, INPUT_SIZE
+from .PPO_Training_conf import DATASET_PATH, TODAY, INPUT_SIZE
 
 class DataLoader:
 
@@ -83,25 +83,22 @@ class DataLoader:
 
 
 class TradingEnv(gym.Env):
-    def __init__(self, df, broker_fee=False, share = 1):
+    def __init__(self, df, broker_fee=False, share = 200):
         super(TradingEnv, self).__init__()
 
         self.df = df.reset_index()
         self.n_steps = len(df)
         self.current_step = 0
         self.initial_balance = 100
-        self.balance = self.initial_balance
-        self.position = 0  # 0 = flat, 1 = holding
+        self.current_balance = self.initial_balance
+        self.previous_balance = self.initial_balance
+        self.position = 0  # 0 = short, 1 = long
         self.share = share
-        self.current_evolution = 0
         self.last_price = 0
-        self.step_since_last_action = 0
         self.reward = 0
-        self.reward_type = "portfolio_diff"
-        self.reward_evolution = "value_log"
 
         if broker_fee :
-            self.broker_fee = 0.03 # commission percentage
+            self.broker_fee = 50 # commission in dollars
         else :
             self.broker_fee = 0
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(INPUT_SIZE,), dtype=np.float32)
@@ -130,52 +127,41 @@ class TradingEnv(gym.Env):
             return [0, 1, 2]
 
     def step(self, action):
-        done = False
 
+        done  = False
         price = self.df.iloc[self.current_step]["Close"]
 
-        prev_portfolio_value = self.balance + self.position * price * self.share
-        reward = 0
-        commission = self.broker_fee*price
-
         if (action == 1) & (self.position == 0):   # BUY
-            self.balance -= (price + commission) * self.share
+            self.current_balance -= self.broker_fee
             self.position = 1
-            self.last_price = price
-            self.step_since_last_action = 0
 
         elif (action == 2) & (self.position == 1): # SELL
-            self.balance += (price - commission) * self.share
+            self.current_balance += 0
             self.position = 0
-            self.last_price = price
-            self.step_since_last_action = 0
+
+        elif (action == 0) & (self.position == 1): # LONG
+            market_evolution = (price-self.last_price)/self.last_price
+            self.current_balance += market_evolution*self.share
+
+        elif (action == 0) & (self.position == 0): # SHORT
+            market_evolution = 0
+            self.current_balance += 0
 
         # Advance time
-        if self.current_step == 0:
-            self.last_price = price
         self.current_step += 1
-        self.step_since_last_action += 1
         if self.current_step >= self.n_steps-1:
             done = True
 
-        # New price after step
-        new_price = self.df.iloc[self.current_step]["Close"] if not done else price
-
-        if self.position == 1:
-            self.current_evolution = -(self.last_price - price) * self.share / self.step_since_last_action
-        else:
-            self.current_evolution = (self.last_price - price) * self.share / self.step_since_last_action
-
-        current_portfolio_value = self.balance + self.position * new_price * self.share
-
-        raw_reward = current_portfolio_value - prev_portfolio_value
-
+        raw_reward = self.current_balance - self.previous_balance
         if raw_reward == 0:
             self.reward += 0
         else:
             self.reward = np.sign(raw_reward)*((np.abs(raw_reward)))
 
-        return self._get_obs(), self.reward, done, current_portfolio_value
+        self.previous_balance = self.current_balance
+        self.last_price       = price
+
+        return self._get_obs(), self.reward, done, self.current_balance
 
 
     def set_data(self, df):
@@ -224,7 +210,7 @@ if __name__ == '__main__':
     df = data_loader.read('data/General/^VIX_2015_2025.csv')  # This is the DataFrame to use
 
     # Step 2: Initialize the environment
-    env = TradingEnv(df, broker_fee=False)
+    env = TradingEnv(df, broker_fee=True)
     obs = env.reset()
     print("Initial observation:", obs)
 

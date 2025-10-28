@@ -89,7 +89,10 @@ class ActorNetwork(nn.Module):
         return dist
 
     def save_checkpoint(self, episode=""):
-        torch.save(self.state_dict(), self.checkpoint_file+episode)
+        if episode == "":
+            torch.save(self.state_dict(), self.checkpoint_file+episode)
+        else:
+            torch.save(self.state_dict(), self.checkpoint_file+"_"+episode)
 
     def load_checkpoint(self, episode=""):
         if episode == "":
@@ -162,7 +165,10 @@ class CriticNetwork(nn.Module):
         return value
 
     def save_checkpoint(self, episode=""):
-        torch.save(self.state_dict(), self.checkpoint_file+episode)
+        if episode == "":
+            torch.save(self.state_dict(), self.checkpoint_file+episode)
+        else:
+            torch.save(self.state_dict(), self.checkpoint_file+"_"+episode)
 
     def load_checkpoint(self, episode=""):
         if episode == "":
