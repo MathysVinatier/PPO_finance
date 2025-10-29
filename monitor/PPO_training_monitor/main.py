@@ -73,12 +73,6 @@ async def trial_data(task_name: str, trial_name: str):
     table_html = df.to_html(classes="table table-striped", index=False)
     return JSONResponse({"table_html": table_html})
 
-@app.get("/task/{task_name}/{trial_name}/plot.png")
-async def plot_img(task_name: str, trial_name: str):
-    buf = plot_training(get_df_training(get_db_path(task_name), trial_name),
-                        f"{task_name} - {trial_name}")
-    return StreamingResponse(buf, media_type="image/png")
-
 @app.get("/system_stats")
 async def system_stats():
     """Return real-time CPU, RAM, temps, and active task info."""
@@ -152,6 +146,20 @@ async def trial_plot(task_name: str, trial_name: str):
     df      = get_df_training(db_path, trial_name)
     buf     = plot_training(df, f"{task_name} - {trial_name}")
     return StreamingResponse(buf, media_type="image/png")
+
+@app.get("/task/{task_name}/{trial_name}/test.png")
+async def test_plot(task_name: str, trial_name: str):
+    test_path = f"/home/mathys/Documents/PPO_finance/multitask_PPO/{task_name}/data_training/plot/trial_{int(trial_name.split("_")[-1]):03d}/test.png"
+    if not os.path.exists(test_path):
+        return JSONResponse({"error": f"Test plot not found ({test_path})"}, status_code=404)
+    return StreamingResponse(open(test_path, "rb"), media_type="image/png")
+
+@app.get("/task/{task_name}/{trial_name}/train.png")
+async def train_plot(task_name: str, trial_name: str):
+    test_path = f"/home/mathys/Documents/PPO_finance/multitask_PPO/{task_name}/data_training/plot/trial_{int(trial_name.split("_")[-1]):03d}/train.png"
+    if not os.path.exists(test_path):
+        return JSONResponse({"error": f"Test plot not found ({test_path})"}, status_code=404)
+    return StreamingResponse(open(test_path, "rb"), media_type="image/png")
 
 if __name__ == "__main__":
     import uvicorn

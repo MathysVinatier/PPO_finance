@@ -11,31 +11,30 @@
 
         <div class="card">
             <div class="tabs">
-                <button class="tab active" data-tab="train_tab">Monitor Training</button>
-                <button class="tab" data-tab="test_tab">Monitor Testing</button>
+                <button class="tab active" data-tab="train_tab">Training Monitor</button>
+                <button class="tab" data-tab="test_tab">Testing Monitor</button>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-bottom:10px;">
+                <label style="flex:1;">
+                    Task :
+                    <select id='task_select'></select>
+                </label>
+                <label style="flex:1;">
+                    Trial :
+                    <select id='trial_select'></select>
+                </label>
             </div>
 
             <div id="train_tab" class="tab-content active">
-                <div style="display:flex;gap:10px;margin-bottom:10px;">
-                    <label style="flex:1;">
-                        Task:
-                        <select id='task_select'></select>
-                    </label>
-                    <label style="flex:1;">
-                        Trial:
-                        <select id='trial_select'></select>
-                    </label>
-                </div>
                 <div id="trial_data" style="margin-top:10px;text-align:center;">
-                    <p>Select a task and trial to view results.</p>
+                    <p>Select a task and trial to view training summary</p>
                 </div>
             </div>
 
             <div id="test_tab" class="tab-content">
-                <h3>🧠 Monitor Testing</h3>
-                <p>Display testing runs, evaluation plots, or extra info here.</p>
-                <div id="test_data" style="text-align:center;">
-                    <img src="/static/placeholder.png" style="max-width:90%;border-radius:10px;">
+                <div id="test_data" style="margin-top:10px;text-align:center;">
+                    <p>Select a task and trial to view testing results</p>
                 </div>
             </div>
         </div>

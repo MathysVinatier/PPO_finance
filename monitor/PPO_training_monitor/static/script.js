@@ -1,13 +1,24 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const tabs = document.querySelectorAll(".tab");
-    const contents = document.querySelectorAll(".tab-content");
+    const taskSelect = document.getElementById("task_select");
+    const trialSelect = document.getElementById("trial_select");
 
-    tabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-            tabs.forEach(t => t.classList.remove("active"));
-            contents.forEach(c => c.classList.remove("active"));
-            tab.classList.add("active");
-            document.getElementById(tab.dataset.tab).classList.add("active");
+    if (taskSelect) taskSelect.addEventListener("change", updateTrials);
+    if (trialSelect) trialSelect.addEventListener("change", updateTrialData);
+
+    updateTasks();
+    refreshStats();
+    setInterval(updateLogs, 2000);
+    setInterval(refreshStats, 3000);
+
+    document.querySelectorAll('.tab').forEach(tabBtn => {
+        tabBtn.addEventListener('click', () => {
+            // Remove active from all buttons and content
+            document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            // Add active to clicked button and corresponding tab-content
+            tabBtn.classList.add('active');
+            document.getElementById(tabBtn.dataset.tab).classList.add('active');
         });
     });
 });
@@ -35,16 +46,28 @@ async function updateTrials(){
     updateTrialData();
 }
 
-async function updateTrialData(){
-    const task=document.getElementById('task_select').value;
-    const trial=document.getElementById('trial_select').value;
-    if(!task || !trial) return;
-    const resp=await fetch(`/trial_data?task_name=${task}&trial_name=${trial}`);
-    const data=await resp.json();
-    document.getElementById('trial_data').innerHTML=
-        `<h3>${task} - ${trial}</h3>
-        <img src="/task/${task}/${trial}/plot.png" style="max-width:100%;margin-bottom:20px;">
-        ${data.table_html}`;
+async function updateTrialData() {
+    
+    const task = document.getElementById('task_select').value;
+    const trial = document.getElementById('trial_select').value;
+    if (!task || !trial) return;
+    
+    const resp = await fetch(`/trial_data?task_name=${task}&trial_name=${trial}`);
+    const data = await resp.json();
+    
+    document.getElementById('trial_data').innerHTML = `
+    <h3>${task} - ${trial}</h3>
+    <img src="/task/${task}/${trial}/plot.png" style="max-width:100%;margin-bottom:20px;">
+    ${data.table_html}
+    `;
+
+    document.getElementById('test_data').innerHTML = `
+        <h2>${task} - ${trial}</h3>
+        <h3>- Testing -</h2>
+        <img src="/task/${task}/${trial}/test.png" style="max-width:100%;">
+        <h3>- Training -</h2>
+        <img src="/task/${task}/${trial}/train.png" style="max-width:100%;">
+    `;
 }
 
 async function refreshStats() {
@@ -97,7 +120,3 @@ async function updateLogs() {
 // Refresh periodically
 setInterval(updateLogs,2000);
 setInterval(refreshStats,3000);
-task_select?.addEventListener('change',updateTrials);
-trial_select?.addEventListener('change',updateTrialData);
-updateTasks();
-refreshStats();

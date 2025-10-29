@@ -37,15 +37,11 @@ h2 {
     text-align: center;
     transition: 0.2s;
 }
-.tab.active { color: #4a90e2; border-bottom: 2px solid #4a90e2; }
 .tab:hover { color: #d8e3f5; }
-.tab-content {
-    display: none; /* hide all tab contents by default */
-}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.tab.active { color: #4a90e2; border-bottom: 2px solid #4a90e2; font-weight: bold;}
 
-.tab-content.active {
-    display: block; /* show only active tab */
-}
 .card {
     background: white;
     border-radius: 12px;
