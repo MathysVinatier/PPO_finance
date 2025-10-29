@@ -12,38 +12,9 @@ import numpy as np
 from pandas import to_datetime
 import matplotlib.pyplot as plt
 
-from conf_PPO import *
+from main_PPO_conf import *
 
-current_dir = os.getcwd()
-
-with os.scandir("/home/mathys/Documents/PPO_finance"):
-    os.chdir("/home/mathys/Documents/PPO_finance")
-    sys.path.insert(0, os.getcwd())
-    from utils import DataLoader, TradingEnv, ACAgent
-
-os.chdir(current_dir)
-
-LOG_FOLDER = os.path.join(current_dir, "logs")
-os.makedirs(LOG_FOLDER, exist_ok=True)
-LOG_FILE = os.path.join(LOG_FOLDER, f"training.log")
-
-class Logger:
-    def __init__(self, filename):
-        self.terminal = sys.stdout
-        self.log = open(filename, "a")
-
-    def write(self, message):
-        self.terminal.write(message)
-        self.log.write(message)
-        self.log.flush()
-
-    def flush(self):
-        self.terminal.flush()
-        self.log.flush()
-
-sys.stdout = Logger(LOG_FILE)
-sys.stderr = sys.stdout
-
+from PPO_Library import DataLoader, TradingEnv, ACAgent, ModelReport, ModelTest
 
 def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, alpha, gae,
                  policy_clip,checkpoint_step=False, threshold = 0.65):
@@ -63,7 +34,7 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, a
     # -----------------------------
     # Create environment
     # -----------------------------
-    env = TradingEnv(df, broker_fee=False)
+    env = TradingEnv(df, broker_fee=True)
 
     # -----------------------------
     # Initialize ACAgent
@@ -145,150 +116,6 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, a
         )
 
     return agent, total_reward
-
-
-def test_ppo(agent_id, df, trading_days_per_year=252,threshold = 0.65):
-    tick = to_datetime(df.index).to_series().diff().mode()[0]
-    print(f"... starting test from {df.index.min()} to {df.index.max()} with {tick} tick (threshold={threshold}) ...")
-
-    env = TradingEnv(df, broker_fee=False)
-
-    seq_len = 7
-    num_features = env.observation_space.shape[0]
-    n_actions = env.action_space.n
-    agent = ACAgent(
-        n_actions=n_actions,
-        num_features=num_features,
-        seq_len=seq_len,
-        batch_size=1,
-        n_epochs=1,
-        chkpt_dir=MODELS_PATH,
-        agent_id=agent_id
-    )
-    agent.load_models(episode="latest")
-
-    action_names = {0: "hold", 1: "buy", 2: "sell"}
-
-    obs = env.reset()
-    done = False
-    total_reward = 0
-    seq_buffer = []
-    actions_taken = []
-    portfolio_values = []
-    probs_history = []
-
-    while not done:
-        seq_buffer.append(obs)
-        if len(seq_buffer) > seq_len:
-            seq_buffer.pop(0)
-        seq = seq_buffer if len(seq_buffer) == seq_len else [seq_buffer[0]]*(seq_len-len(seq_buffer)) + seq_buffer
-
-        valid_actions = env.get_valid_actions()
-        seq_array = np.array(seq, dtype=np.float32)[None, ...]  # batch dimension
-
-        # Forward pass for visualization
-        with torch.no_grad():
-            state = torch.tensor(seq_array, dtype=torch.float32).to(agent.actor.device)
-            dist = agent.actor(state)
-            probs = dist.probs.cpu().numpy().squeeze()
-        probs_history.append(probs)
-
-        # Choose action
-        action, log_prob, value = agent.choose_action(seq_array, valid_actions, threshold=threshold)
-        actions_taken.append(action)
-        next_obs, reward, done, current_portfolio_value = env.step(action)
-        total_reward += reward
-        portfolio_values.append(current_portfolio_value)
-
-        agent.remember(seq_array, action, log_prob, value, reward, done)
-        obs = next_obs
-
-    # --- Trading metrics ---
-    portfolio_values = np.array(portfolio_values)
-    returns = np.diff(portfolio_values) / portfolio_values[:-1]
-
-    # Annualized return
-    total_period = len(df)
-    total_return = portfolio_values[-1] / portfolio_values[0] - 1
-    annual_return = (1 + total_return) ** (trading_days_per_year / total_period) - 1
-
-    # Average daily profit
-    avg_profit = np.mean(returns)
-
-    # Annualized volatility
-    annual_vol = np.std(returns) * np.sqrt(trading_days_per_year)
-
-    # Sharpe ratio (risk-free rate = 0)
-    sharpe_ratio = (np.mean(returns) / np.std(returns)) * np.sqrt(trading_days_per_year) if np.std(returns) != 0 else 0
-
-    # Max drawdown
-    cumulative = portfolio_values / portfolio_values[0]
-    peak = np.maximum.accumulate(cumulative)
-    drawdowns = (cumulative - peak) / peak
-    max_drawdown = drawdowns.min()
-
-    # --- Summary ---
-    unique, counts = np.unique(actions_taken, return_counts=True)
-    action_summary = {action_names[int(u)]: int(c) for u, c in zip(unique, counts)}
-    print(f"Total reward: {total_reward:.3f}, actions: {action_summary}")
-    print(f"Annual return: {annual_return:.3f}, Avg profit: {avg_profit:.3f}, "
-          f"Volatility: {annual_vol:.3f}, Sharpe: {sharpe_ratio:.3f}, Max DD: {max_drawdown:.3f}")
-
-    return {
-        "actions_taken": actions_taken,
-        "probs_history": probs_history,
-        "portfolio_values": portfolio_values,
-        "total_reward": total_reward,
-        "annual_return": annual_return,
-        "average_profit": avg_profit,
-        "annual_volatility": annual_vol,
-        "sharpe_ratio": sharpe_ratio,
-        "max_drawdown": max_drawdown
-    }
-
-def plot_testppo(df, actions_taken, probs_history, portfolio_values):
-    # --- Visualization ---
-    prices = df["Close"].values[:len(actions_taken)]
-    probs_history = np.array(probs_history)
-    steps = np.arange(len(prices))
-
-    fig, (ax_main, ax_probs) = plt.subplots(2, 1, figsize=(16, 6), sharex=True,
-                                            gridspec_kw={'height_ratios': [2, 1]})
-
-    # === Price + Portfolio ===
-    ax_main.plot(steps, prices, color="black", label="Market Price", linewidth=1.2)
-    buy_idx = [i for i, a in enumerate(actions_taken) if a == 1]
-    sell_idx = [i for i, a in enumerate(actions_taken) if a == 2]
-    ax_main.plot(buy_idx, prices[buy_idx], "^", color="tab:green", label="Buy", markersize=8)
-    ax_main.plot(sell_idx, prices[sell_idx], "v", color="tab:red", label="Sell", markersize=8)
-    ax_main.set_ylabel("Price")
-    ax_main.set_title("Market Price & Portfolio Value")
-
-    # twin y-axis for portfolio
-    ax_portfolio = ax_main.twinx()
-    ax_portfolio.plot(steps, portfolio_values, color="blue", label="Portfolio Value", linewidth=1.2, alpha=0.7)
-    ax_portfolio.set_ylabel("Portfolio Value")
-
-    # combine legends
-    lines_1, labels_1 = ax_main.get_legend_handles_labels()
-    lines_2, labels_2 = ax_portfolio.get_legend_handles_labels()
-    ax_main.legend(lines_1 + lines_2, labels_1 + labels_2, loc="upper left")
-    ax_main.grid(True, linestyle='--', alpha=0.6)
-
-    # === Action probability bars ===
-    width = 0.25
-    #ax_probs.bar(steps - width, probs_history[:, 0], width, label="Hold", color="gray", alpha=0.7)
-    ax_probs.bar(steps, probs_history[:, 1], width, label="Buy", color="tab:gray", alpha=0.5)
-    ax_probs.bar(steps + width, probs_history[:, 2], width, label="Sell", color="tab:red", alpha=1)
-    ax_probs.set_ylim(0, 1)
-    ax_probs.set_xlabel("Step")
-    ax_probs.set_ylabel("Probability")
-    ax_probs.set_title("Action Probabilities per Step")
-    ax_probs.legend()
-    ax_probs.grid(True, linestyle='--', alpha=0.6)
-
-    plt.tight_layout()
-    return fig
 
 
 def init_db():
@@ -440,27 +267,29 @@ def main(n_episode, n_epoch, batch_size, gamma, alpha, gae, policy_clip, chckpt,
             plot_training_path = os.path.join(plot_path, "train.png")
             plot_testing_path  = os.path.join(plot_path, "test.png")
 
-            results_train = test_ppo(agent_id=id_str, df=df_train)
-            plot_train = plot_testppo(df_train, results_train['actions_taken'], results_train['probs_history'], results_train['portfolio_values'])
+            # model_saved = ModelReport(agent_id=TASK_FOLDER)
+
+            results_train = ModelTest(agent_trained, df_test)
+            plot_train = results_train.plot()
             plot_train.savefig(plot_training_path)
 
-            results_test = test_ppo(agent_id=id_str, df=df_test)
-            plot_test  = plot_testppo(df_test, results_test['actions_taken'], results_test['probs_history'], results_test['portfolio_values'])
+            results_test = ModelTest(agent_trained, df_train)
+            plot_test  = results_test.plot()
             plot_test.savefig(plot_testing_path)
 
             loss_actor_mean  = np.mean(agent_trained.all_actor_losses)
             loss_critic_mean = np.mean(agent_trained.all_critic_losses)
 
             save_trial(
-                trained_reward    = results_train['total_reward'],
+                trained_reward    = results_train.info['total_reward'],
                 loss_actor_mean   = loss_actor_mean,
                 loss_critic_mean  = loss_critic_mean,
-                tested_reward     = results_test["total_reward"],
-                annual_return     = results_test["annual_return"],
-                average_profit    = results_test["average_profit"],
-                annual_volatility = results_test["annual_volatility"],
-                sharpe_ratio      = results_test["sharpe_ratio"],
-                max_drawdown      = results_test["max_drawdown"]
+                tested_reward     = results_test.info["total_reward"],
+                annual_return     = results_test.info["annual_return"],
+                average_profit    = results_test.info["average_profit"],
+                annual_volatility = results_test.info["annual_volatility"],
+                sharpe_ratio      = results_test.info["sharpe_ratio"],
+                max_drawdown      = results_test.info["max_drawdown"]
             )
 
             print(f"Saved trial {id}")
