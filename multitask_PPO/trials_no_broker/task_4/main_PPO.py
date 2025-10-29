@@ -18,7 +18,7 @@ current_dir = os.getcwd()
 with os.scandir("/home/mathys/Documents/PPO_finance"):
     os.chdir("/home/mathys/Documents/PPO_finance")
     sys.path.insert(0, os.getcwd())
-    from utils import DataLoader, TradingEnv, ACAgent
+    from PPO_Library import DataLoader, TradingEnv, ACAgent
 
 os.chdir(current_dir)
 
