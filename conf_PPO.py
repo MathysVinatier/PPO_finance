@@ -1,6 +1,8 @@
 import os
 
 PATH_TRAINING = "tmp/ppo_training"
+TASK_PATH = os.curdir
+print(TASK_PATH)
 
 # DataSet
 DATASET_NAME   = "^VIX_2015_2025.csv"
