@@ -33,3 +33,4 @@
 monitor.py
 monitor_PPO.py
 *.log
+library/PPO_Library.egg-info
