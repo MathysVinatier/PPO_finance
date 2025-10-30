@@ -8,7 +8,10 @@ from gym import spaces
 import random
 import os
 
-from .PPO_Training_conf import DATASET_PATH, TODAY, INPUT_SIZE
+if __name__ in ["__main__", "Environment"]:
+    from PPO_Training_conf import DATASET_PATH, TODAY, INPUT_SIZE
+else:   
+    from .PPO_Training_conf import DATASET_PATH, TODAY, INPUT_SIZE
 
 class DataLoader:
 
