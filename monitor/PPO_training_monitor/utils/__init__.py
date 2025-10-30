@@ -14,7 +14,7 @@ from .config import (
     PLOT_FOLDER,
 )
 from .plot import plot_training
-from .info_system import get_system_stats, kill_all_main_processes
+from .info_system import get_system_stats, kill_all_main_processes, get_all_main_processes
 from .listing import list_databases, list_task, list_trial, list_model
 from .task_manager import TrainingTask
 from .getter import (
@@ -52,5 +52,6 @@ __all__ = [
     "get_db_path",
     "get_df_training",
     "get_df_result",
-    "TrainingTask"
+    "TrainingTask",
+    "get_all_main_processes"
 ]

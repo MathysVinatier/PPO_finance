@@ -1,6 +1,9 @@
+import os
 import psutil
 import time
 import platform
+from subprocess import Popen, PIPE
+import signal
 
 def get_system_stats():
     """
@@ -38,13 +41,34 @@ def get_system_stats():
         "os": platform.system()
     }
 
+def get_all_main_processes():
+    proc_dict = dict()
+
+    ps = Popen(['ps', '-eo', "pid,args"], stdout=PIPE, text=True)
+    grep = Popen(['grep', 'multitask'], stdin=ps.stdout, stdout=PIPE, text=True)
+    ps.stdout.close()
+    stdout, _ = grep.communicate()
+
+    for line in stdout.splitlines():
+        pid, cmdline = line.split(' ', 1)
+        if "--episode" in cmdline:
+            proc_dict[pid] = cmdline.split(" ")[2].split("/")[-2]
+    if len(proc_dict.keys()) == 0:
+        return None
+    else:
+        return proc_dict
 
 def kill_all_main_processes():
-    """Kill all main_PPO processes"""
-    for proc in psutil.process_iter(attrs=['pid', 'cmdline']):
+    procs_alive = get_all_main_processes()
+    errors = []
+
+    for pid_str, name in procs_alive.items():
         try:
-            cmdline = proc.info['cmdline']
-            if cmdline and any("main" in part for part in cmdline):
-                proc.kill()
-        except Exception:
-            continue
+            if name.split("_")[0] == "task":
+                pid = int(pid_str)
+                os.kill(pid, signal.SIGTERM)
+        except Exception as e:
+            errors.append((pid_str, str(e)))
+
+    if errors:
+        raise RuntimeError(f"Failed to kill some processes ({procs_alive}) : {errors}")

@@ -1,12 +1,14 @@
 import os, psutil, threading, os, signal
 
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Form, Request, Query
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from ansi2html import Ansi2HTMLConverter
 
-from utils import get_df_training, get_db_path, plot_training, get_system_stats, list_trial, list_task, TrainingTask
+from typing import Optional
+
+from utils import get_df_training, get_db_path, plot_training, get_system_stats, list_trial, list_task, TrainingTask, get_all_main_processes, kill_all_main_processes
 
 app = FastAPI(title="PPO Training Monitor")
 app.mount("/static", StaticFiles(directory="/home/mathys/Documents/PPO_finance/monitor/PPO_training_monitor/static"), name="static")
@@ -82,51 +84,33 @@ async def trial_data(task_name: str, trial_name: str):
 async def system_stats():
     """Return real-time CPU, RAM, temps, and active task info."""
     stats = get_system_stats()
-    task_state = task.current_task if task.current_task else "None"
+    procs_alive = get_all_main_processes()
+    if procs_alive != None:
+        state_proc = " / ".join(list(procs_alive.values()))
+    else :
+        state_proc = None
+
     return JSONResponse({
         "cpu": stats["cpu_percent"],
         "ram": psutil.virtual_memory().percent,
         "temps": stats.get("temps", {})["k10temp"],
-        "active_task": task_state,
+        "active_task": state_proc,
         "is_running": task.running_process is not None
     })
 
 @app.post("/kill_task")
 async def kill_task():
-    if task.running_process:
+    if get_all_main_processes() != None:
         try:
-            pid = task.running_process.pid
-            # UNIX: kill the whole process group
-            if os.name == "posix":
-                try:
-                    os.killpg(pid, signal.SIGTERM)
-                except PermissionError:
-                    # Try stronger kill
-                    os.killpg(pid, signal.SIGKILL)
-            else:
-                # Windows: send CTRL_BREAK_EVENT to the group if possible
-                try:
-                    task.running_process.send_signal(signal.CTRL_BREAK_EVENT)
-                except Exception:
-                    task.running_process.terminate()
-
-            # wait for it to die (best-effort)
-            try:
-                task.running_process.wait(timeout=5)
-            except Exception:
-                # fallback: terminate forcefully
-                try:
-                    task.running_process.kill()
-                except Exception:
-                    pass
-
-            task.process_log.append("[USER ACTION] Task manually terminated.")
+            kill_all_main_processes()
+            task.process_log.append("[USER ACTION] Task manually terminated")
             task.running_process = None
             task.current_task = None
-            return JSONResponse({"status": "Task killed successfully."})
+            return JSONResponse({"status": "Task killed successfully"})
         except Exception as e:
-            return JSONResponse({"status": f"Error killing task: {e}"})
-    return JSONResponse({"status": "No active task to kill."})
+            return JSONResponse({"status": f"Error killing task : {e}"})
+    else:
+        return JSONResponse({"status": "No active task to kill"})
 
 
 @app.post("/task", response_class=HTMLResponse)
@@ -152,6 +136,14 @@ async def trial_plot(task_name: str, trial_name: str):
     buf     = plot_training(df, f"{task_name} - {trial_name}")
     return StreamingResponse(buf, media_type="image/png")
 
+@app.get("/task/{task_name}/{trial_name}/analysis_plot.png")
+async def analysis_plot(task_name: str, trial_name: str):
+    analysis_path = f"/home/mathys/Documents/PPO_finance/multitask_PPO/{task_name}/data_training/plot/trial_{int(trial_name.split("_")[-1]):03d}/analysis.png"
+    if not os.path.exists(analysis_path):
+        return JSONResponse({"error": f"Analysis plot not found ({analysis_path})"}, status_code=404)
+    return StreamingResponse(open(analysis_path, "rb"), media_type="image/png")
+
+
 @app.get("/task/{task_name}/{trial_name}/test.png")
 async def test_plot(task_name: str, trial_name: str):
     test_path = f"/home/mathys/Documents/PPO_finance/multitask_PPO/{task_name}/data_training/plot/trial_{int(trial_name.split("_")[-1]):03d}/test.png"
@@ -163,7 +155,7 @@ async def test_plot(task_name: str, trial_name: str):
 async def train_plot(task_name: str, trial_name: str):
     test_path = f"/home/mathys/Documents/PPO_finance/multitask_PPO/{task_name}/data_training/plot/trial_{int(trial_name.split("_")[-1]):03d}/train.png"
     if not os.path.exists(test_path):
-        return JSONResponse({"error": f"Test plot not found ({test_path})"}, status_code=404)
+        return JSONResponse({"error": f"Train plot not found ({test_path})"}, status_code=404)
     return StreamingResponse(open(test_path, "rb"), media_type="image/png")
 
 if __name__ == "__main__":
