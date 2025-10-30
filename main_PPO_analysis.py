@@ -1,10 +1,10 @@
 from PPO_Library import ModelReport
 
 def model_analysis(task_path):
-    model1 = ModelReport(task_path)
-    print(model1._db)
+    task = ModelReport(task_path)
+    task.plot(show=True, save_path="./analysis")
 
 if __name__ == "__main__":
 
-    task_path = "multitask_PPO/task_4"
-    model_analysis(task_path)
+    task_path = "multitask_PPO/task_1"
+    task = model_analysis(task_path)

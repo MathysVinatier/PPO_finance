@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 import csv
 from torch import no_grad, tensor, float32
 
-if __name__ == "__main__":
+if __name__ in ["__main__", "PPO_analysis"]:
     from PPO_Training_conf import *
-    from Environment import TradingEnv
+    from Environment import TradingEnv, DataLoader
     from PPO import ACAgent
 else:
-    from PPO_Library.PPO_Training_conf import *
-    from PPO_Library.PPO import ACAgent
-    from PPO_Library.Environment import TradingEnv
+    from .PPO_Training_conf import *
+    from .PPO import ACAgent
+    from .Environment import TradingEnv, DataLoader
 
 
 class _ModelFormat:
@@ -139,7 +139,71 @@ class ModelReport(_ModelFormat):
 
         title = f"TRAINING INFO  (Agent {self._current_agent_id})"
 
-        self.__make_output_tabular__(info_line=info_dict, tab_title=title)
+        self.__make_output_tabular__(info_line=info_dict, tab_title=title)    
+    
+    def plot(self, show=False, save_path=None):
+        test_dict   = dict()
+        train_dict  = dict()
+        reward_dict = dict()
+
+        episode_path = self._models_path
+
+        df_path = self._dataset_path
+        df_train, df_test = DataLoader().split_train_test(df_path)
+
+        for mod in os.listdir(episode_path):
+            episode = "_".join(mod.split("_")[3:])
+            if episode not in test_dict.keys():
+                model   = self.get_model(model_episode = episode)
+                train   = ModelTest(model=model, df=df_train)
+                test    = ModelTest(model=model, df=df_test)
+
+                reward        = train.info["total_reward"]
+                balance_test  = test.info["portfolio_values"]
+                balance_train = train.info["portfolio_values"]
+
+                test_dict[episode]   = balance_test
+                train_dict[episode]  = balance_train
+                reward_dict[episode] = reward
+
+
+        fig, axes = plt.subplots(figsize=(16, 6), nrows=2, ncols=1)
+
+        X_train = [x for x in range(len(df_train["Close"]))]
+        X_test  = [x for x in range(len(df_test["Close"]))]
+        axes[0].plot(X_train, df_train["Close"], color="black", linewidth=0.5, linestyle="--")
+        axes[1].plot(X_test, df_test["Close"], color="black", linewidth=0.5, linestyle="--")
+
+        ax_train = axes[0].twinx()
+        ax_test  = axes[1].twinx()
+
+        reward_array = np.array(list(reward_dict.values()))
+        reward_max   = reward_array.max()
+
+        train_color = "tab:blue"
+        test_color  = "tab:green"
+        for ep in test_dict.keys():
+            if len(reward_array) == 1:
+                hue = 1
+            else:
+                hue = abs(reward_dict[ep]/reward_max)
+            ax_train.plot(X_train[:-1], train_dict[ep], color=train_color, alpha = hue, label=f"episode {ep} ({int(reward_dict[ep])})")
+            ax_test.plot(X_test[:-1], test_dict[ep], color=test_color, alpha = hue, label=f"episode {ep} ({int(reward_dict[ep])})")
+
+        for ax in [ax_train, ax_test]:
+            ax.grid(True, linestyle='--', alpha=0.6)
+            ax.legend(loc="center left", bbox_to_anchor=(0, 0.5), frameon=True)
+
+        ax_train.set_title("Training Set")
+        ax_test.set_title("Testing Set")
+
+        plt.tight_layout()
+        if save_path != None:
+            plt.savefig(save_path)
+        if show:
+            plt.show()
+
+        return fig
 
     def __check_model_dir(self, model_trial, model_episode):
         actor_id  = self.__get_actor_format__(model_trial=model_trial, model_episode=model_episode)
@@ -306,12 +370,13 @@ class ModelTest(_ModelFormat):
 if __name__ == "__main__":
     from Environment import DataLoader
 
-    model = ModelReport('/home/mathys/Documents/PPO_finance/multitask_PPO/task_4')
-    agent = model.get_model()
-
-    df_train, df_test = DataLoader().split_train_test(model._dataset_path)
-    test_result       = ModelTest(agent, df_test)
-    train_result      = ModelTest(agent, df_train)
-
-    train_result.plot(show=True)
-    test_result.plot(show=True)
+    model = ModelReport('/home/mathys/Documents/PPO_finance/multitask_PPO/task_0')
+    model.plot(show=True, save_path=None)
+    # agent = model.get_model()
+# 
+    # df_train, df_test = DataLoader().split_train_test(model._dataset_path)
+    # test_result       = ModelTest(agent, df_test)
+    # train_result      = ModelTest(agent, df_train)
+# 
+    # train_result.plot(show=True)
+    # test_result.plot(show=True)
