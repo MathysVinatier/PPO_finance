@@ -26,15 +26,18 @@ async def dashboard(request: Request):
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
 @app.get("/logs")
-async def logs():
-    if task.current_task:
-        log_path = os.path.join("logs", f"training_{task.current_task}.log")
-        if os.path.exists(log_path):
-            with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
-                content = f.read()
-            conv = Ansi2HTMLConverter()
-            return HTMLResponse(conv.convert(content, full=False))
-    return HTMLResponse("<p>No logs yet.</p>")
+async def logs(task_name: Optional[str] = Query(None)):
+    if not task_name:
+        return HTMLResponse(f"<p>{task_name} task</p>")
+    # current_task check (you may want to ignore that if you want to read logs even if nothing is running)
+    log_path = os.path.join("logs", f"training_{task_name}.log")
+    if os.path.exists(log_path):
+        with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read()
+        conv = Ansi2HTMLConverter()
+        return HTMLResponse(conv.convert(content, full=False))
+    else:
+        return HTMLResponse("<p>No logs yet.</p>")
 
 
 @app.post("/launch_task")

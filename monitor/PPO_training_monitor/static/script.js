@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const taskSelect = document.getElementById("task_select");
     const trialSelect = document.getElementById("trial_select");
 
@@ -35,6 +35,7 @@ async function updateTasks(){
     updateTrials();
 }
 
+
 async function updateTrials(){
     const task=document.getElementById('task_select').value;
     const trials=await fetchJSON(`/trials/${task}`);
@@ -63,6 +64,8 @@ async function updateTrialData() {
 
     document.getElementById('test_data').innerHTML = `
         <h2>${task} - ${trial}</h3>
+        <h3>- Analysis Report -</h2>
+        <img src="/task/${task}/${trial}/analysis_plot.png" style="max-width:100%;">
         <h3>- Testing -</h2>
         <img src="/task/${task}/${trial}/test.png" style="max-width:100%;">
         <h3>- Training -</h2>
@@ -86,8 +89,8 @@ async function refreshStats() {
     try {
         const resp = await fetch("/kill_task", { method: "POST" });
         const msg = await resp.json();
-        statusEl.textContent = msg.status;   // show result inline
-        refreshStats();                       // update dashboard
+        statusEl.textContent = msg.status;
+        refreshStats();
     } catch (e) {
         statusEl.textContent = `[ERROR] ${e}`;
     }
@@ -107,10 +110,18 @@ document.getElementById('launch_form').addEventListener('submit', async (e)=>{
 
 async function updateLogs() {
     try {
-        const response = await fetch("/logs");
-        const html = await response.text();
+        const task = document.getElementById('task_select').value;
         const container = document.getElementById("process_log");
-        container.innerHTML = html || "<p>No logs yet.</p>";
+        console.log(task)
+
+        if (!task) {
+            container && (container.innerHTML = "<p>No task selected.</p>");
+            return;
+        }
+
+        const response = await fetch(`/logs?task_name=${task}`);
+        const html = await response.text();
+        container.innerHTML = html;
         container.scrollTop = container.scrollHeight;
     } catch (err) {
         console.error("Error fetching logs:", err);
