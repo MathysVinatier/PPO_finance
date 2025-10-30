@@ -61,10 +61,12 @@ async def launch_task(
 
 @app.get("/tasks")
 async def get_tasks():
-    return JSONResponse(list_task())
+    sorted_list = sorted(list_task(), key=lambda x: int(x.split("_")[1]), reverse=True)
+    return JSONResponse(sorted_list)
 
 @app.get("/trials/{task_name}")
 async def get_trials(task_name: str):
+    sorted_list = sorted(list_trial(task_name), key=lambda x: int(x.split("_")[1]), reverse=True)
     return JSONResponse(list_trial(task_name))
 
 @app.get("/trial_data")
