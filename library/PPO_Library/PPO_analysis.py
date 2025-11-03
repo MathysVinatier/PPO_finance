@@ -179,14 +179,12 @@ class ModelReport(_ModelFormat):
 
         reward_array = np.array(list(reward_dict.values()))
         reward_max   = reward_array.max()
+        reward_min   = reward_array.min()
 
         train_color = "tab:blue"
         test_color  = "tab:green"
         for ep in test_dict.keys():
-            if len(reward_array) == 1:
-                hue = 1
-            else:
-                hue = abs(reward_dict[ep]/reward_max)
+            hue = 0.3 + (reward_dict[ep]-reward_min) * (1-0.3)/(reward_max-reward_min)
             ax_train.plot(X_train[:-1], train_dict[ep], color=train_color, alpha = hue, label=f"episode {ep} ({int(reward_dict[ep])})")
             ax_test.plot(X_test[:-1], test_dict[ep], color=test_color, alpha = hue, label=f"episode {ep} ({int(reward_dict[ep])})")
 
@@ -370,13 +368,13 @@ class ModelTest(_ModelFormat):
 if __name__ == "__main__":
     from Environment import DataLoader
 
-    model = ModelReport('/home/mathys/Documents/PPO_finance/multitask_PPO/task_0')
-    model.plot(show=True, save_path=None)
+    model = ModelReport('/home/mathys/Documents/PPO_finance/multitask_PPO/task_6')
+    model.plot(show=True, save_path="./analysis")
     # agent = model.get_model()
-# 
+
     # df_train, df_test = DataLoader().split_train_test(model._dataset_path)
     # test_result       = ModelTest(agent, df_test)
     # train_result      = ModelTest(agent, df_train)
-# 
+
     # train_result.plot(show=True)
     # test_result.plot(show=True)
