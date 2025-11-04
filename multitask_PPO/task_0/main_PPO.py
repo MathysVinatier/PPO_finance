@@ -264,10 +264,9 @@ def main(n_episode, n_epoch, batch_size, gamma, alpha, gae, policy_clip, chckpt,
             if plot_folder not in os.listdir(PLOT_PATH):
                 os.mkdir(plot_path)
 
-            plot_training_path = os.path.join(plot_path, "train.png")
-            plot_testing_path  = os.path.join(plot_path, "test.png")
-
-            # model_saved = ModelReport(agent_id=TASK_FOLDER)
+            plot_training_path  = os.path.join(plot_path, "train.png")
+            plot_testing_path   = os.path.join(plot_path, "test.png")
+            plot_analysis_path  = os.path.join(plot_path, "analysis.png")
 
             results_train = ModelTest(agent_trained, df_test)
             plot_train = results_train.plot()
@@ -276,6 +275,9 @@ def main(n_episode, n_epoch, batch_size, gamma, alpha, gae, policy_clip, chckpt,
             results_test = ModelTest(agent_trained, df_train)
             plot_test  = results_test.plot()
             plot_test.savefig(plot_testing_path)
+
+            plot_analysis = ModelReport(TASK_FOLDER).plot()
+            plot_analysis.savefig(plot_analysis_path)
 
             loss_actor_mean  = np.mean(agent_trained.all_actor_losses)
             loss_critic_mean = np.mean(agent_trained.all_critic_losses)

@@ -10,7 +10,7 @@ import os
 
 if __name__ in ["__main__", "Environment"]:
     from PPO_Training_conf import DATASET_PATH, TODAY, INPUT_SIZE
-else:   
+else:
     from .PPO_Training_conf import DATASET_PATH, TODAY, INPUT_SIZE
 
 class DataLoader:
@@ -25,7 +25,7 @@ class DataLoader:
             os.makedirs(repo_path)
 
         return repo_path+"/"
-    
+
     def __formating(self, company, start, end=None):
         if end == None:
             year_start = start.split('-')[0]

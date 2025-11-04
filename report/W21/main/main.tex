@@ -52,6 +52,7 @@
 \usepackage{tabularx}
 \usepackage{multirow}
 \usepackage[table]{xcolor}
+\usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{arydshln}
 
@@ -65,6 +66,7 @@
 \usepackage{pgfmath}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning}
 \usetikzlibrary{fit, backgrounds, calc}
+\usepackage{dirtree}
 
 \usepackage{afterpage}
 
@@ -333,6 +335,237 @@
 %\printbibliography
 
 \newpage
+
+\setcounter{chapter}{22}
+\chapter{Week 23}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{The PPO Training API}
+
+\indent In this section, we present the key components of the API we developed to automate the instantiation of PPO training for different agents. This API is crucial for fine-tuning agents and understanding the structure of the reward function.
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+    \dirtree{%
+    .1 /PPO\_training\_monitor/.
+        .2 \textbf{logs}/.
+            .3 training\_task\_0.log.
+            .3 training\_task\_1.log.
+            .3 \ldots.
+        .2 \textbf{static}/.
+            .3 script.js.
+            .3 style.css.
+        .2 \textbf{templates}/.
+            .3 dashboard.html.
+        .2 \textbf{utils}/.
+            .3 \_\_init\_\_.py.
+            .3 config.py.
+            .3 getter.py.
+            .3 info\_system.py.
+            .3 listing.py.
+            .3 plot.py.
+            .3 task\_manager.py.
+        .2 \textbf{main.py}.
+    }
+    \caption{API Directory Architecture}
+    \vspace{-2cm}
+\end{wrapfigure}
+\noindent The API consists of both frontend and backend components. The frontend, built using HTML and CSS, provides a dynamic dashboard to visualize the training process in real time. The \texttt{logs} directory contains the raw output of the training scripts executed via the command line, which is essential for debugging and monitoring the progress of each training episode.
+
+\noindent The \texttt{static} and \texttt{templates} directories support the frontend interface, managing visual elements and the real-time display of training metrics. These components are critical for handling errors gracefully without interrupting training or saving models, which are the core pieces of information.
+
+\noindent Finally, the \texttt{utils} directory contains helper functions that complement \texttt{main.py}, the central script responsible for running the FastAPI application with Uvicorn. This setup enables a dynamic connection between the frontend and the backend databases, where all training data and model information are stored securely and efficiently.\par
+
+\vspace{1cm}
+
+\noindent The Dashboard of the front end has 3 main parts :
+
+\begin{itemize}
+    \item \textbf{Training Monitor} : Show a graph of the overview of each episode (Loss / number of trade / reward) with a tabular that display the detailed information of each databases of the selected task
+    \item \textbf{Testing Monitor} : Display 3 graphics : The analysis report that is giving the results of each saved models on both the training and the testing dataset. Two plots that gievs for the training and testing dataset the detailed of the chosen action of the latest saved model.
+    \item \textbf{System Stats} : Provide the computer statistics, the current active tasks, the launcher of training and a logs that is giving live information about the selected task.
+\end{itemize}
+
+\newpage
+
+\hfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_api/dashboard_training.png}
+    \caption{Dashboard - Training Monitor}
+\end{figure}
+
+\hfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_api/dashboard_testing.png}
+    \caption{Dashboard - Testing Monitor}
+\end{figure}
+
+\hfill
+
+\newpage
+
+\subsection{Task 0 - \textrm{batch\_size} = 32, epochs = 50}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_0/data_training/plot/trial_001/analysis.png}
+    \caption{Task 0 - Analysis plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_0/data_training/plot/trial_001/train.png}
+    \caption{Task 0 - Training plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_0/data_training/plot/trial_001/test.png}
+    \caption{Task 0 - Testing plot}
+\end{figure}
+
+\newpage
+
+\subsection{Task 1 - \textrm{batch\_size} = 32, epochs = 100}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_1/data_training/plot/trial_001/analysis.png}
+    \caption{Task 1 - Analysis plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_1/data_training/plot/trial_001/train.png}
+    \caption{Task 1 - Training plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_1/data_training/plot/trial_001/test.png}
+    \caption{Task 1 - Testing plot}
+\end{figure}
+
+\newpage
+
+\subsection{Task 2 - \textrm{batch\_size} = 64, epochs = 50}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_2/data_training/plot/trial_001/analysis.png}
+    \caption{Task 2 - Analysis plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_2/data_training/plot/trial_001/train.png}
+    \caption{Task 2 - Training plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_2/data_training/plot/trial_001/test.png}
+    \caption{Task 2 - Testing plot}
+\end{figure}
+
+\newpage
+
+\subsection{Task 3 - \textrm{batch\_size} = 64, epochs = 100}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_3/data_training/plot/trial_001/analysis.png}
+    \caption{Task 3 - Analysis plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_3/data_training/plot/trial_001/train.png}
+    \caption{Task 3 - Training plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_3/data_training/plot/trial_001/test.png}
+    \caption{Task 3 - Testing plot}
+\end{figure}
+
+\newpage
+
+\subsection{Task 4 - \textrm{batch\_size} = 128, epochs = 50}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_4/data_training/plot/trial_001/analysis.png}
+    \caption{Task 4 - Analysis plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_4/data_training/plot/trial_001/train.png}
+    \caption{Task 4 - Training plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_4/data_training/plot/trial_001/test.png}
+    \caption{Task 4 - Testing plot}
+\end{figure}
+
+\newpage
+
+\subsection{Task 5 - \textrm{batch\_size} = 128, epochs = 100}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_5/data_training/plot/trial_001/analysis.png}
+    \caption{Task 5 - Analysis plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_5/data_training/plot/trial_001/train.png}
+    \caption{Task 5 - Training plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_5/data_training/plot/trial_001/test.png}
+    \caption{Task 5 - Testing plot}
+\end{figure}
+
+\newpage
+
+\subsection{Task 6 - \textrm{batch\_size} = 256, epochs = 50}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_6/data_training/plot/trial_001/analysis.png}
+    \caption{Task 6 - Analysis plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_6/data_training/plot/trial_001/train.png}
+    \caption{Task 6 - Training plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_6/data_training/plot/trial_001/test.png}
+    \caption{Task 6 - Testing plot}
+\end{figure}
+
+\newpage
+
+\subsection{Task 7 - \textrm{batch\_size} = 256, epochs = 100}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_7/data_training/plot/trial_001/analysis.png}
+    \caption{Task 7 - Analysis plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_7/data_training/plot/trial_001/train.png}
+    \caption{Task 7 - Training plot}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_7/data_training/plot/trial_001/test.png}
+    \caption{Task 7 - Testing plot}
+\end{figure}
+
+\subsection{Conclusion on tasks}
+
+\indent As we saw, the results of this first week of training had been 
+
+\newpage
+
 
 %Glossaire
 \printacronyms

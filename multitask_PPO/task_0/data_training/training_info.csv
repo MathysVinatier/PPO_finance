@@ -1,2 +1,2 @@
 n_epoch,n_episode,batch_size,gamma,lr,gae,policy_clip
-100,100,32,0.99,0.0003,0.95,0.2
+50,100,256,0.99,0.003,0.95,0.2
