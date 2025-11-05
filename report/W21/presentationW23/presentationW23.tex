@@ -1,0 +1,223 @@
+\documentclass[11pt]{beamer}
+\usetheme{Madrid}
+\usefonttheme{serif}
+
+\usepackage[utf8]{inputenc}       % Encoding
+\usepackage[english]{babel}       % Language
+\usepackage[T1]{fontenc}          % Font encoding
+
+\usepackage{amsmath, amsfonts, amssymb} % Math packages
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{subcaption}
+
+\usepackage{tikz}
+\usepackage{tikz-uml}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{blkarray}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+%Tabular
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{arydshln}
+
+% Code formatting
+\usepackage{minted}
+\usepackage{adjustbox}
+\usepackage[ruled,vlined]{algorithm2e}
+\SetKwProg{While}{while}{}{}
+\SetKwProg{For}{for}{}{}
+\SetKwProg{Function}{function}{}{}
+
+% Custom math operators
+\DeclareMathOperator{\sen}{sen}
+\DeclareMathOperator{\tg}{tg}
+
+% Numbered captions in figures/tables
+\setbeamertemplate{caption}[numbered]
+
+\usepackage{dirtree}
+
+% Metadata
+\author[Mathys Vinatier]{Mathys Vinatier}
+\title{PPO Market Bot}
+\setbeamercovered{transparent}
+\setbeamertemplate{navigation symbols}{}
+\logo{\includegraphics[scale=.05]{../img/logoSNU.png}}
+\institute[]{Seoul National University}
+\date{\today}
+
+% Bibliography
+\usepackage{biblatex} 
+\addbibresource{../references.bib}
+\usepackage{csquotes}
+
+%Glossary
+\usepackage[acronym]{glossaries}
+\makeglossaries
+\input{../glossary.tex}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{PPO Training API}
+    \begin{figure}[H]
+        \includegraphics[width=.9\linewidth]{../img/training_api/dashboard_training.png}
+        \caption{Dashboard - Training Monitor}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{PPO Training API}
+    \begin{figure}[H]
+        \includegraphics[width=.9\linewidth]{../img/training_api/dashboard_testing.png}
+        \caption{Dashboard - Testing Monitor}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{PPO Training API}
+    \centering
+    \includegraphics[height=0.8\textheight, keepaspectratio]{../img/training_api/api_seq_diagram.png.drawio.png}
+\end{frame}
+
+\begin{frame}{Training (no broker) - {\scriptsize \textrm{batch\_size} = 64, epochs = 112, episode = 10}}
+    \vfill
+
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_3/data_training/plot/trial_001/train.png}
+        \caption{Task 3 - Training plot (no broker)}
+    \end{figure}
+
+    \vfill
+
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_3/data_training/plot/trial_001/test.png}
+        \caption{Task 3 - Testing plot (no broker)}
+    \end{figure}
+
+    \vfill
+\end{frame}
+
+\begin{frame}{Training (no broker) - {\scriptsize \textrm{batch\_size} = 32, epochs = 100, episode = 100}}
+    \vfill
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_4/data_training/plot/trial_001/train.png}
+        \caption{Task 4 - Training plot (no broker)}
+    \end{figure}
+    \vfill
+    \begin{figure}[H]
+        \includegraphics[width=.6\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_4/data_training/plot/trial_001/test.png}
+        \caption{Task 4 - Testing plot (no broker)}
+    \end{figure}
+    \vfill
+\end{frame}
+
+\begin{frame}{Training (no broker) - Conslusion}
+    \centering
+    \vfill
+    \scalebox{0.7}{%
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{annual return} & \textbf{avg profit} & \textbf{annual vol.} & \textbf{max drawdown} \\ \hline
+        $0.082$ & $0.0003$ & $0.11$ & $6\%$ \\ \hline
+    \end{tabular}
+    }
+    \vfill
+    \scalebox{0.7}{%
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        \textbf{Episodes} & \textbf{Epochs} & \textbf{Tick} & \textbf{Batch Size} & \textbf{Learning Rate} & \textbf{Final Profit on test}\\ \hline
+        $100$ & $100$ & Daily & $32$ & $0.0003$ & $17\%$\\ \hline
+    \end{tabular}
+    }
+    \vfill
+\end{frame}
+
+\begin{frame}{Training (with broker) - {\scriptsize \textrm{batch\_size} = 128, epochs = 50}}
+    \begin{figure}[H]
+        \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_4/data_training/plot/trial_001/analysis.png}
+        \caption{Task 4 - Analysis plot}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Training (with broker) - {\scriptsize \textrm{batch\_size} = 128, epochs = 50, episode = 19}}
+    \begin{figure}[H]
+        \includegraphics[width=.8\linewidth]{../img/training_api/task_6_episode_19_test.png}
+        \caption{Task 6 - Episode 19 Test}
+    \end{figure}
+    \scalebox{0.8}{%
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \textbf{Episodes} & \textbf{Epochs} & \textbf{Tick} & \textbf{Batch Size} & \textbf{Learning Rate} & \textbf{Final Profit on test}\\ \hline
+        $19$ & $50$ & Daily & $256$ & $0.0003$ & $17\%$\\
+    \end{tabular}
+    }
+\end{frame}
+
+\begin{frame}{Latest Results - {\scriptsize \textrm{batch\_size} = 256, epochs = 50, episode = 99}}
+    \begin{figure}[H]
+        \includegraphics[width=.9\linewidth]{../img/training_api/episode_0099_analysis.png}
+        \caption{Task 0 - Analysis}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Latest Results - {\scriptsize \textrm{batch\_size} = 256, epochs = 50, episode = 99}}
+    \centering
+    \begin{figure}[H]
+        \includegraphics[width=.8\linewidth]{../img/training_api/episode_0099_test.png}
+        \caption{Task 0 - Test}
+    \end{figure}
+    \scalebox{0.7}{%
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        \textbf{Episodes} & \textbf{Epochs} & \textbf{Tick} & \textbf{Batch Size} & \textbf{Learning Rate} & \textbf{Final Profit on test}\\ \hline
+        $99$ & $50$ & Daily & $256$ & $0.0003$ & $15\%$\\ \hline
+    \end{tabular}
+    }
+    \scalebox{0.7}{%
+    \begin{tabular}{|c|c|c|c|}
+        \textbf{annual return} & \textbf{avg profit} & \textbf{annual vol.} & \textbf{max drawdown} \\ \hline
+        $0.067$ & $0.001$ & $3.12\%$ & $3\%$ \\ \hline
+    \end{tabular}
+    }
+
+\end{frame}
+
+\begin{frame}{Workflow - What's next}
+    \begin{itemize}
+        \item - Changing the dataset tick to a 5-minutes basis
+        \item - Add the S\&P500 market and VVIX index
+        \item - It has been suggested to use the following signal :
+            \begin{enumerate}[label=(\alph*)]
+                \item
+                \begin{align*}
+                    a_{\text{signal}} &= VVIX_{\text{index}} \times VIX_{\text{index}} \times a_{\text{signal}} \\
+                    &= \frac{VVIX_{\text{index}}}{VIX_{\text{index}}} \times a_{\text{signal}} \\
+                    &= VIX_{\text{index}} \times VVIX_{\text{index}} \, (\text{ratio})
+                \end{align*}
+
+                \item 
+                \begin{align*}
+                    b_{\text{signal}} &= \ln\left(VVIX_{\text{index}}\right) - \ln\left(VIX_{\text{index}}\right)
+                \end{align*}
+            \end{enumerate}
+        \item - Fine-tune another time with the new training features
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \centering
+    \vspace{2cm}
+    {\LARGE Thank You}
+\end{frame}
+
+\end{document}

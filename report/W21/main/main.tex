@@ -382,6 +382,11 @@
 
 \vspace{1cm}
 
+\begin{wrapfigure}{r}{0.4\textwidth}
+    \includegraphics[width=\linewidth]{../img/training_api/api_seq_diagram.png.drawio.png}
+    \caption{API - Sequence Diagram}
+\end{wrapfigure}
+
 \noindent The Dashboard of the front end has 3 main parts :
 
 \begin{itemize}
@@ -410,20 +415,182 @@
 
 \newpage
 
+\section{Training without borker fees}
+
+\subsection{Task 0 (no broker) - \textrm{batch\_size} = 128, epochs = 50, episode = 200}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_0/data_training/plot/trial_001/train.png}
+    \caption{Task 0 - Training plot (no broker)}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_0/data_training/plot/trial_001/test.png}
+    \caption{Task 0 - Testing plot (no broker)}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\subsection{Task 1 (no broker) - \textrm{batch\_size} = 128, epochs = 10, episode = 100}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_1/data_training/plot/trial_001/train.png}
+    \caption{Task 1 - Training plot (no broker)}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_1/data_training/plot/trial_001/test.png}
+    \caption{Task 1 - Testing plot (no broker)}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\subsection{Task 2 (no broker) - \textrm{batch\_size} = 128, epochs = 100, episode = 100}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_2/data_training/plot/trial_001/train.png}
+    \caption{Task 2 - Training plot (no broker)}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_2/data_training/plot/trial_001/test.png}
+    \caption{Task 2 - Testing plot (no broker)}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\subsection{Task 3 (no broker) - \textrm{batch\_size} = 64, epochs = 112, episode = 10}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_3/data_training/plot/trial_001/train.png}
+    \caption{Task 3 - Training plot (no broker)}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_3/data_training/plot/trial_001/test.png}
+    \caption{Task 3 - Testing plot (no broker)}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\subsection{Task 4 (no broker) - \textrm{batch\_size} = 32, epochs = 100, episode = 100}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_4/data_training/plot/trial_001/train.png}
+    \caption{Task 4 - Training plot (no broker)}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_4/data_training/plot/trial_001/test.png}
+    \caption{Task 4 - Testing plot (no broker)}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\subsection{Task 5 (no broker) - \textrm{batch\_size} = 64, epochs = 100, episode = 100}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_5/data_training/plot/trial_001/train.png}
+    \caption{Task 5 - Training plot (no broker)}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_5/data_training/plot/trial_001/test.png}
+    \caption{Task 5 - Testing plot (no broker)}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\subsection{Conslusion on tasks (no broker)}
+
+\indent We can see than half of the models did not took a trade, it seems that with few episode or epochs ($\sim 10$), the model is making to trades, which make sense since it has not learn enough. Overall, the models seems to understand the dynamic of the market during trading and the best model on test has been for the task 4 :
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_no_broker/task_4/data_training/plot/trial_001/test.png}
+    \caption{recap of Task 4 - Testing plot (no broker)}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \textbf{annual return} & \textbf{avg profit} & \textbf{annual vol.} & \textbf{max drawdown} \\ \hline
+        $0.082$ & $0.0003$ & $0.11$ & $6\%$ \\
+    \end{tabular}
+    \caption{Report Analysis of task 4}
+\end{figure}
+
+\noindent This model has a good drawdown and seems reliable and able to understand the market dynamic, so far the best model has been :
+
+\vspace{1cm}
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \textbf{Episodes} & \textbf{Epochs} & \textbf{Tick} & \textbf{Batch Size} & \textbf{Learning Rate} & \textbf{Final Profit on test}\\ \hline
+        $100$ & $100$ & Daily & $32$ & $0.0003$ & $17\%$\\
+    \end{tabular}
+    \caption{Detailed of the best trial}
+\end{figure}
+
+\vspace{1cm}
+
+\noindent Let's remember that there is no borker's fee during these tests. The next part is dedicated to the broker's fee experiment. That way we can see if our model and training are adapted to the real world market.
+
+
+\newpage
+
+\section{Training with borker fees}
+
 \subsection{Task 0 - \textrm{batch\_size} = 32, epochs = 50}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_0/data_training/plot/trial_001/analysis.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_0/data_training/plot/trial_001/analysis.png}
     \caption{Task 0 - Analysis plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_0/data_training/plot/trial_001/train.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_0/data_training/plot/trial_001/train.png}
     \caption{Task 0 - Training plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_0/data_training/plot/trial_001/test.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_0/data_training/plot/trial_001/test.png}
     \caption{Task 0 - Testing plot}
 \end{figure}
 
@@ -432,17 +599,17 @@
 \subsection{Task 1 - \textrm{batch\_size} = 32, epochs = 100}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_1/data_training/plot/trial_001/analysis.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_1/data_training/plot/trial_001/analysis.png}
     \caption{Task 1 - Analysis plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_1/data_training/plot/trial_001/train.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_1/data_training/plot/trial_001/train.png}
     \caption{Task 1 - Training plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_1/data_training/plot/trial_001/test.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_1/data_training/plot/trial_001/test.png}
     \caption{Task 1 - Testing plot}
 \end{figure}
 
@@ -451,17 +618,17 @@
 \subsection{Task 2 - \textrm{batch\_size} = 64, epochs = 50}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_2/data_training/plot/trial_001/analysis.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_2/data_training/plot/trial_001/analysis.png}
     \caption{Task 2 - Analysis plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_2/data_training/plot/trial_001/train.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_2/data_training/plot/trial_001/train.png}
     \caption{Task 2 - Training plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_2/data_training/plot/trial_001/test.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_2/data_training/plot/trial_001/test.png}
     \caption{Task 2 - Testing plot}
 \end{figure}
 
@@ -470,17 +637,17 @@
 \subsection{Task 3 - \textrm{batch\_size} = 64, epochs = 100}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_3/data_training/plot/trial_001/analysis.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_3/data_training/plot/trial_001/analysis.png}
     \caption{Task 3 - Analysis plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_3/data_training/plot/trial_001/train.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_3/data_training/plot/trial_001/train.png}
     \caption{Task 3 - Training plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_3/data_training/plot/trial_001/test.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_3/data_training/plot/trial_001/test.png}
     \caption{Task 3 - Testing plot}
 \end{figure}
 
@@ -489,17 +656,17 @@
 \subsection{Task 4 - \textrm{batch\_size} = 128, epochs = 50}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_4/data_training/plot/trial_001/analysis.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_4/data_training/plot/trial_001/analysis.png}
     \caption{Task 4 - Analysis plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_4/data_training/plot/trial_001/train.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_4/data_training/plot/trial_001/train.png}
     \caption{Task 4 - Training plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_4/data_training/plot/trial_001/test.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_4/data_training/plot/trial_001/test.png}
     \caption{Task 4 - Testing plot}
 \end{figure}
 
@@ -508,17 +675,17 @@
 \subsection{Task 5 - \textrm{batch\_size} = 128, epochs = 100}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_5/data_training/plot/trial_001/analysis.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_5/data_training/plot/trial_001/analysis.png}
     \caption{Task 5 - Analysis plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_5/data_training/plot/trial_001/train.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_5/data_training/plot/trial_001/train.png}
     \caption{Task 5 - Training plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_5/data_training/plot/trial_001/test.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_5/data_training/plot/trial_001/test.png}
     \caption{Task 5 - Testing plot}
 \end{figure}
 
@@ -527,17 +694,17 @@
 \subsection{Task 6 - \textrm{batch\_size} = 256, epochs = 50}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_6/data_training/plot/trial_001/analysis.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_6/data_training/plot/trial_001/analysis.png}
     \caption{Task 6 - Analysis plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_6/data_training/plot/trial_001/train.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_6/data_training/plot/trial_001/train.png}
     \caption{Task 6 - Training plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_6/data_training/plot/trial_001/test.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_6/data_training/plot/trial_001/test.png}
     \caption{Task 6 - Testing plot}
 \end{figure}
 
@@ -546,23 +713,72 @@
 \subsection{Task 7 - \textrm{batch\_size} = 256, epochs = 100}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_7/data_training/plot/trial_001/analysis.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_7/data_training/plot/trial_001/analysis.png}
     \caption{Task 7 - Analysis plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_7/data_training/plot/trial_001/train.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_7/data_training/plot/trial_001/train.png}
     \caption{Task 7 - Training plot}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/task_7/data_training/plot/trial_001/test.png}
+    \includegraphics[width=\linewidth]{/home/mathys/Documents/PPO_finance/multitask_PPO/trials_epochs/task_7/data_training/plot/trial_001/test.png}
     \caption{Task 7 - Testing plot}
 \end{figure}
 
 \subsection{Conclusion on tasks}
 
-\indent As we saw, the results of this first week of training had been 
+\indent As we saw, the results of this first week of training had been poor. The model has a real issue handling the broker's fees, except for one task. The task number 6 had poor perforance during the training, however, the episode 19 showed a good final results by well handling a peak at step 400 :
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_api/task_6_episode_19_train.png}
+    \caption{Task 6 - Episode 19 Train}
+\end{figure}
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{../img/training_api/task_6_episode_19_test.png}
+    \caption{Task 6 - Episode 19 Test}
+\end{figure}
+
+\noindent As we can see, the test dataset has good performance but is making only one trade during two years. Also the training is terrible. We think that there is an issue with the reward function since it is always bad, further investigation needs to be done. However the conclusion on that first week training is that the best results has been on these parameters :
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \textbf{Episodes} & \textbf{Epochs} & \textbf{Tick} & \textbf{Batch Size} & \textbf{Learning Rate} & \textbf{Final Profit on test}\\ \hline
+        $19$ & $50$ & Daily & $256$ & $0.0003$ & $17\%$\\
+    \end{tabular}
+    \caption{Detailed of the best trial}
+\end{figure}
+
+\vfill
+
+\section{Workflow - What's left ?}
+
+\indent So far our main core of the workflow has been built, trhough the API, it is now possible to train any robot thanks to a test bench. However, some tasks needs to be explored :
+
+\begin{itemize}
+    \item Changing the dataset tick to a 5-minutes baselineski
+    \item Add the S\&P500 market and VVIX index
+    \item It has been suggested to use the following signal :
+        \begin{enumerate}[label=(\alph*)]
+            \item
+            \begin{align*}
+                a_{\text{signal}} &= VVIX_{\text{index}} \times VIX_{\text{index}} \times a_{\text{signal}} \\
+                &= \frac{VVIX_{\text{index}}}{VIX_{\text{index}}} \times a_{\text{signal}} \\
+                &= VIX_{\text{index}} \times VVIX_{\text{index}} \, (\text{ratio})
+            \end{align*}
+
+            \item 
+            \begin{align*}
+                b_{\text{signal}} &= \ln\left(VVIX_{\text{index}}\right) - \ln\left(VIX_{\text{index}}\right)
+            \end{align*}
+        \end{enumerate}
+    \item Fine-tune another time with the new training features
+\end{itemize}
 
 \newpage
 
