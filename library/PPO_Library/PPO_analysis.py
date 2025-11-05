@@ -184,7 +184,10 @@ class ModelReport(_ModelFormat):
         train_color = "tab:blue"
         test_color  = "tab:green"
         for ep in test_dict.keys():
-            hue = 0.3 + (reward_dict[ep]-reward_min) * (1-0.3)/(reward_max-reward_min)
+            if len(reward_array) == 1 :
+                hue = 1
+            else:
+                hue = 0.3 + (reward_dict[ep]-reward_min) * (1-0.3)/(reward_max-reward_min)
             ax_train.plot(X_train[:-1], train_dict[ep], color=train_color, alpha = hue, label=f"episode {ep} ({int(reward_dict[ep])})")
             ax_test.plot(X_test[:-1], test_dict[ep], color=test_color, alpha = hue, label=f"episode {ep} ({int(reward_dict[ep])})")
 
