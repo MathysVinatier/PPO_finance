@@ -92,7 +92,7 @@ class TradingEnv(gym.Env):
         self.df = df.reset_index()
         self.n_steps = len(df)
         self.current_step = 0
-        self.initial_balance = 100
+        self.initial_balance = 2000
         self.current_balance = self.initial_balance
         self.previous_balance = self.initial_balance
         self.position = 0  # 0 = short, 1 = long
@@ -101,7 +101,7 @@ class TradingEnv(gym.Env):
         self.reward = 0
 
         if broker_fee :
-            self.broker_fee = 50 # commission in dollars
+            self.broker_fee = 2 # commission in dollars
         else :
             self.broker_fee = 0
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(INPUT_SIZE,), dtype=np.float32)
@@ -133,21 +133,23 @@ class TradingEnv(gym.Env):
 
         done  = False
         price = self.df.iloc[self.current_step]["Close"]
+        if self.last_price != 0:
+            market_evolution = (price-self.last_price)/self.last_price
+        else:
+            market_evolution = 0
 
         if (action == 1) & (self.position == 0):   # BUY
             self.current_balance -= self.broker_fee
             self.position = 1
 
         elif (action == 2) & (self.position == 1): # SELL
-            self.current_balance += 0
+            self.current_balance += market_evolution*100/0.005
             self.position = 0
 
         elif (action == 0) & (self.position == 1): # LONG
-            market_evolution = (price-self.last_price)/self.last_price
-            self.current_balance += market_evolution*self.share
+            self.current_balance += market_evolution*100/0.005
 
         elif (action == 0) & (self.position == 0): # SHORT
-            market_evolution = 0
             self.current_balance += 0
 
         # Advance time
@@ -156,10 +158,7 @@ class TradingEnv(gym.Env):
             done = True
 
         raw_reward = self.current_balance - self.previous_balance
-        if raw_reward == 0:
-            self.reward += 0
-        else:
-            self.reward = np.sign(raw_reward)*((np.abs(raw_reward)))
+        self.reward = self.current_balance - self.initial_balance
 
         self.previous_balance = self.current_balance
         self.last_price       = price
@@ -173,11 +172,10 @@ class TradingEnv(gym.Env):
         self.reset()
 
     def reset(self):
-        self.current_step = 0
-        self.balance = self.initial_balance
-        self.position = 0
-        self.last_action = 0
-        self.reward = 0
+        self.current_step    = 0
+        self.current_balance = self.initial_balance
+        self.position        = 0
+        self.reward          = 0
         return self._get_obs()
 
 
