@@ -81,7 +81,7 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, a
 
             # Step environment
             next_obs, reward, done, _ = env.step(action)
-            total_reward += reward
+            total_reward = reward
 
             # Store experience
             agent.remember(seq_array, action, log_prob, value, reward, done)
