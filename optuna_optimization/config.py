@@ -1,8 +1,8 @@
 import os
 
 #--------- Params ---------
-N_TRIALS = 2
-N_WORKERS = 2
+N_TRIALS = 100
+N_WORKERS = 3
 N_JOBS_PER_WORKER = 1
 
 

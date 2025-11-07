@@ -120,8 +120,8 @@ def objective(trial):
 
     # --- suggestions ---
     params = {
-        "n_training_episodes": trial.suggest_int("n_training_episodes", 1, 2),
-        "n_epoch":             trial.suggest_int("n_epoch", 5, 10),
+        "n_training_episodes": trial.suggest_int("n_training_episodes", 50, 200),
+        "n_epoch":             trial.suggest_int("n_epoch", 10, 200),
         "batch_size":          trial.suggest_categorical("batch_size", [32, 64, 128, 256, 512]),
         "learning_rate":       trial.suggest_float("learning_rate", 0.01, 1.0, step=0.01)
     }

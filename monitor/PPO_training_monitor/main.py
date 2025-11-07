@@ -41,7 +41,29 @@ async def logs(task_name: Optional[str] = Query(None)):
         return HTMLResponse(conv.convert(content, full=False))
     else:
         return HTMLResponse("<p>No logs yet.</p>")
+    
+@app.get("/logs_optuna", response_class=HTMLResponse)
+async def logs_optuna():
+    log_dir = "logs"
+    if not os.path.exists(log_dir):
+        return HTMLResponse("<p>No logs directory found.</p>")
 
+    logs_html = ""
+    conv = Ansi2HTMLConverter()
+
+    for filename in sorted(os.listdir(log_dir)):
+        if filename.startswith("optuna_"):
+            file_path = os.path.join(log_dir, filename)
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            logs_html += f"<h3>{filename}</h3>"
+            logs_html += conv.convert(content, full=False)
+            logs_html += "<hr>"
+
+    if not logs_html:
+        return HTMLResponse("<p>No Optuna logs found.</p>")
+
+    return HTMLResponse(logs_html)
 
 @app.post("/launch_task")
 async def launch_task(

@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateTasks();
     refreshStats();
     setInterval(updateLogs, 2000);
+    setInterval(updateOptunaLogs, 2000);
     setInterval(refreshStats, 3000);
 
     document.querySelectorAll('.tab').forEach(tabBtn => {
@@ -151,20 +152,16 @@ async function updateLogs() {
 }
 
 async function updateOptunaLogs() {
+
     try {
         const container = document.getElementById("optuna_log");
-        if (!container) return;
 
-        const response = await fetch("/optuna_logs");
-        if (!response.ok) {
-            container.innerHTML = `[Error ${response.status}] Cannot fetch Optuna logs`;
-            return;
-        }
-        const text = await response.text();
-        container.textContent = text;
+        const response = await fetch(`/logs_optuna`);
+        const html = await response.text();
+        container.innerHTML = html;
         container.scrollTop = container.scrollHeight;
     } catch (err) {
-        console.error("Error fetching Optuna logs:", err);
+        console.error("Error fetching logs:", err);
     }
 }
 
