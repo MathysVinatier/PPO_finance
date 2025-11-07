@@ -3,14 +3,14 @@ from PPO_Library import ModelReport, ModelTest, DataLoader
 
 def model_analysis(task_path, episode):
     task = ModelReport(task_path)
-    task.plot(show=True)#, save_path=f"episode_{episode}_analysis")
+    # task.plot(show=True)#, save_path=f"episode_{episode}_analysis")
     df_train, df_test = DataLoader().split_train_test(task._dataset_path)
 
     model = task.get_model(model_episode=episode)
     test  = ModelTest(model, df_test)
     train = ModelTest(model, df_train)
 
-    train.plot(show=True)#, save_path=f"episode_{episode}_train")
+    # train.plot(show=True)#, save_path=f"episode_{episode}_train")
     test.plot(show=True)#, save_path=f"episode_{episode}_test")
 
 def show_best_ep_on_test(task_path):
@@ -36,8 +36,13 @@ def show_best_ep_on_test(task_path):
 
 
 if __name__ == "__main__":
+    import argparse
 
-    task_path = "multitask_PPO/task_1"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--task", help="task value")
+    args = parser.parse_args()
+
+    task_path = f"multitask_PPO/{args.task}"
     show_best_ep_on_test(task_path=task_path)
     # episode = 19
     # task = model_analysis(task_path, episode)

@@ -76,6 +76,7 @@ async function updateTrialData() {
 async function refreshStats() {
     const res = await fetch("/system_stats");
     const data = await res.json();
+
     document.querySelector("#stats").innerHTML = `
         <p>🧠 CPU : ${data.cpu}%</p>
         <p>💾 RAM : ${data.ram}%</p>
@@ -83,18 +84,23 @@ async function refreshStats() {
         <p>🎯 Active Task : <strong>${data.active_task}</strong></p>
         <button id="kill_btn" ${data.is_running ? "" : "disabled"}>🛑 Kill Task</button>
     `;
-    document.querySelector("#kill_btn").onclick = async () => {
-    const statusEl = document.getElementById("launch_status"); // reuse same status display
-    statusEl.textContent = "🛑 Killing task...";
-    try {
-        const resp = await fetch("/kill_task", { method: "POST" });
-        const msg = await resp.json();
-        statusEl.textContent = msg.status;
-        refreshStats();
-    } catch (e) {
-        statusEl.textContent = `[ERROR] ${e}`;
+
+    // ✅ rebind the event each time the DOM is updated
+    const killBtn = document.getElementById("kill_btn");
+    if (killBtn) {
+        killBtn.onclick = async () => {
+            const statusEl = document.getElementById("launch_status");
+            statusEl.textContent = "🛑 Killing task...";
+            try {
+                const resp = await fetch("/kill_task", { method: "POST" });
+                const msg = await resp.json();
+                statusEl.textContent = msg.status;
+                refreshStats();
+            } catch (e) {
+                statusEl.textContent = `[ERROR] ${e}`;
+            }
+        };
     }
-};
 }
 
 // Launch Task
@@ -107,6 +113,22 @@ document.getElementById('launch_form').addEventListener('submit', async (e)=>{
     const res=await r.json();
     document.getElementById('launch_status').textContent=res.status;
 });
+
+document.getElementById('launch_optuna_form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const data = new FormData(e.target);
+    const status = document.getElementById('launch_status');
+    status.textContent = '🚧 Launching Optuna...';
+
+    const res = await fetch('/launch_optuna', { method: 'POST', body: data });
+    const json = await res.json();
+
+    status.textContent = json.status + (json.log_file ? ` (log: ${json.log_file})` : '');
+
+    // ✅ Start auto-updating Optuna logs
+    setInterval(updateOptunaLogs, 2000);
+});
+
 
 async function updateLogs() {
     try {
@@ -125,6 +147,24 @@ async function updateLogs() {
         container.scrollTop = container.scrollHeight;
     } catch (err) {
         console.error("Error fetching logs:", err);
+    }
+}
+
+async function updateOptunaLogs() {
+    try {
+        const container = document.getElementById("optuna_log");
+        if (!container) return;
+
+        const response = await fetch("/optuna_logs");
+        if (!response.ok) {
+            container.innerHTML = `[Error ${response.status}] Cannot fetch Optuna logs`;
+            return;
+        }
+        const text = await response.text();
+        container.textContent = text;
+        container.scrollTop = container.scrollHeight;
+    } catch (err) {
+        console.error("Error fetching Optuna logs:", err);
     }
 }
 

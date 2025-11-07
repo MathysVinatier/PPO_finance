@@ -127,7 +127,7 @@ def objective(trial, df):
 def run_worker(study, objective, df):
     study.optimize(lambda trial: objective(trial, df), n_trials=50, show_progress_bar=True, n_jobs=1)
 
-def optimization_encoder_transformer():
+def optimization_PPO():
     fdir = "data/General/^VIX_2015_2025.csv"
     dataloader = DataLoader()
     df = dataloader.read(fdir)
@@ -172,5 +172,5 @@ def get_best_param():
 
 if __name__ == "__main__":
     multiprocessing.set_start_method("spawn", force=True)
-    #optimization_encoder_transformer()
+    optimization_PPO()
     get_best_param()

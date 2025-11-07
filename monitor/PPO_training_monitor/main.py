@@ -1,14 +1,14 @@
 import os, psutil, threading, os, signal
 
 from fastapi import FastAPI, Form, Request, Query
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from ansi2html import Ansi2HTMLConverter
 
 from typing import Optional
 
-from utils import get_df_training, get_db_path, plot_training, get_system_stats, list_trial, list_task, TrainingTask, get_all_main_processes, kill_all_main_processes
+from utils import get_df_training, get_db_path, plot_training, get_system_stats, list_trial, list_task, OptunaTask, TrainingTask, get_all_main_processes, kill_all_main_processes
 
 app = FastAPI(title="PPO Training Monitor")
 app.mount("/static", StaticFiles(directory="/home/mathys/Documents/PPO_finance/monitor/PPO_training_monitor/static"), name="static")
@@ -18,7 +18,8 @@ templates = Jinja2Templates(directory="/home/mathys/Documents/PPO_finance/monito
 # --------------------------
 # Process / Log management
 # --------------------------
-task = TrainingTask()
+task   = TrainingTask()
+optuna = OptunaTask()
 
 # --------------------------
 # ROUTES
@@ -64,6 +65,43 @@ async def launch_task(
 
     return JSONResponse({"status": "Task launched!"})
 
+
+@app.post("/launch_optuna")
+async def launch_optuna(
+    n_trial: int = Form(...),
+    n_agent: int = Form(...)
+):
+    """
+    Launch the Optuna process using the OptunaTask class.
+    """
+
+    if optuna.running_process != True:
+        optuna.run(n_trial, n_agent)
+
+        return JSONResponse({
+            "status": f"🚀 Optuna launched (trial={n_trial}, worker={n_agent})",
+            "log_file": optuna.log_file or "pending initialization..."
+        })
+    else:
+        return JSONResponse({
+            "status": f"Optuna already launched (trial={n_trial}, worker={n_agent})",
+            "log_file": optuna.log_file
+        })
+
+
+@app.get("/optuna_logs")
+async def optuna_logs():
+    """Stream the Optuna optimization log file to the dashboard."""
+    log_path = optuna.log_file
+    if not log_path or not os.path.exists(log_path):
+        return PlainTextResponse("[No Optuna log file found yet]", status_code=200)
+    try:
+        with open(log_path, "r") as f:
+            content = f.read()
+    except Exception as e:
+        content = f"[Error reading log file: {e}]"
+    return PlainTextResponse(content)
+
 @app.get("/tasks")
 async def get_tasks():
     sorted_list = sorted(list_task(), key=lambda x: int(x.split("_")[1]), reverse=True)
@@ -95,22 +133,27 @@ async def system_stats():
         "ram": psutil.virtual_memory().percent,
         "temps": stats.get("temps", {})["k10temp"],
         "active_task": state_proc,
-        "is_running": task.running_process is not None
+        "is_running": (task.running_process is not None) or (optuna.running_process is not None)
     })
 
 @app.post("/kill_task")
 async def kill_task():
-    if get_all_main_processes() != None:
-        try:
-            kill_all_main_processes()
-            task.process_log.append("[USER ACTION] Task manually terminated")
-            task.running_process = None
-            task.current_task = None
-            return JSONResponse({"status": "Task killed successfully"})
-        except Exception as e:
-            return JSONResponse({"status": f"Error killing task : {e}"})
-    else:
-        return JSONResponse({"status": "No active task to kill"})
+    procs = get_all_main_processes()
+    if not procs:
+        return JSONResponse({"status": "❌ No active task or Optuna process found"})
+
+    try:
+        kill_all_main_processes()
+
+        # Update both task states
+        task.process_log.append("[USER ACTION] Task manually terminated")
+        task.running_process = None
+        task.current_task = None
+        optuna.running_process = None
+
+        return JSONResponse({"status": "🛑 All processes (training + optuna) killed successfully"})
+    except Exception as e:
+        return JSONResponse({"status": f"Error killing processes: {e}"})
 
 
 @app.post("/task", response_class=HTMLResponse)

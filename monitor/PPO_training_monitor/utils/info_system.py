@@ -41,7 +41,7 @@ def get_system_stats():
         "os": platform.system()
     }
 
-def get_all_main_processes():
+def get_all_task_processes():
     proc_dict = dict()
 
     ps = Popen(['ps', '-eo', "pid,args"], stdout=PIPE, text=True)
@@ -54,9 +54,33 @@ def get_all_main_processes():
         if "--episode" in cmdline:
             proc_dict[pid] = cmdline.split(" ")[2].split("/")[-2]
     if len(proc_dict.keys()) == 0:
-        return None
+        return {}
     else:
         return proc_dict
+    
+def get_all_optuna_processes():
+    proc_dict = {}
+
+    ps = Popen(['ps', '-eo', "pid,args"], stdout=PIPE, text=True)
+    grep = Popen(['grep', 'optuna_optimization/main.py'], stdin=ps.stdout, stdout=PIPE, text=True)
+    ps.stdout.close()
+    stdout, _ = grep.communicate()
+
+    for line in stdout.splitlines():
+        if "grep" in line:
+            continue  # skip our own grep line
+        pid, cmdline = line.strip().split(" ", 1)
+        if "--trial" in cmdline:
+            # Try to get a nice name for the process
+            name = f"optuna_{cmdline.split('--trial')[1].strip().split(' ')[0]}"
+            proc_dict[pid] = name
+
+    return proc_dict
+
+def get_all_main_processes():
+    tasks_procs = get_all_task_processes() or {}
+    optunas_procs = get_all_optuna_processes() or {}
+    return tasks_procs | optunas_procs
 
 def kill_all_main_processes():
     procs_alive = get_all_main_processes()
@@ -64,11 +88,10 @@ def kill_all_main_processes():
 
     for pid_str, name in procs_alive.items():
         try:
-            if name.split("_")[0] == "task":
-                pid = int(pid_str)
-                os.kill(pid, signal.SIGTERM)
+            pid = int(pid_str)
+            os.kill(pid, signal.SIGTERM)
         except Exception as e:
             errors.append((pid_str, str(e)))
 
     if errors:
-        raise RuntimeError(f"Failed to kill some processes ({procs_alive}) : {errors}")
+        raise RuntimeError(f"Failed to kill some processes: {errors}")

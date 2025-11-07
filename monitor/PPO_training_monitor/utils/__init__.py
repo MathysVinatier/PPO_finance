@@ -16,7 +16,7 @@ from .config import (
 from .plot import plot_training
 from .info_system import get_system_stats, kill_all_main_processes, get_all_main_processes
 from .listing import list_databases, list_task, list_trial, list_model
-from .task_manager import TrainingTask
+from .task_manager import TrainingTask, OptunaTask
 from .getter import (
     get_task_info,
     get_models_path,
@@ -53,5 +53,6 @@ __all__ = [
     "get_df_training",
     "get_df_result",
     "TrainingTask",
+    "OptunaTask",
     "get_all_main_processes"
 ]

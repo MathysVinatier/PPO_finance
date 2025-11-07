@@ -121,3 +121,95 @@ class TrainingTask:
                 pass
 
         threading.Thread(target=watcher, daemon=True).start()
+
+
+class OptunaTask:
+    def __init__(self):
+        self.process_log = []
+        self.running_process = None   # Popen object for the training Python process
+        self.current_task = None
+        self.log_file = None
+        self.n_launch = 0
+
+    def run(self, trial, worker):
+        """
+        Launches an Optuna trial as an isolated process.
+        Each trial gets its own folder and log file.
+        """
+        self.process_log = []
+        self.n_launch += 1
+        # 1) Create a dedicated task folder for this Optuna trial
+        task_name = f"optuna_trial_{self.n_launch}"
+        task_path = os.path.join(TASK_FOLDER, task_name)
+        os.makedirs(task_path, exist_ok=True)
+
+        self.current_task = task_name
+    
+        # 3) Prepare log file
+        os.makedirs("logs", exist_ok=True)
+        log_file = os.path.abspath(os.path.join("logs", f"{task_name}.log"))
+        self.log_file = log_file
+
+        # 4) Build python command
+        py_cmd = [
+            sys.executable, "-u", "/home/mathys/Documents/PPO_finance/optuna_optimization/main.py",
+            "--trial", str(trial),
+            "--worker", str(worker)
+        ]
+
+        # 5) Launch Python process directly, set new process group (Unix)
+        try:
+            logfile_handle = open(log_file, "a", buffering=1)  # line-buffered
+        except Exception as e:
+            self.process_log.append(f"[ERROR] Could not open log file {log_file}: {e}")
+            return
+
+        preexec_fn = os.setsid if os.name == "posix" else None
+        creationflags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name != "posix" else 0
+
+        try:
+            self.running_process = subprocess.Popen(
+                py_cmd,
+                stdout=logfile_handle,
+                stderr=subprocess.STDOUT,
+                bufsize=1,
+                universal_newlines=True,
+                preexec_fn=preexec_fn,
+                creationflags=creationflags
+            )
+        except Exception as e:
+            logfile_handle.close()
+            self.process_log.append(f"[ERROR] Failed to start Optuna trial process: {e}")
+            return
+
+        self.process_log.append(f"[RUNNING] {' '.join(py_cmd)} (pid={self.running_process.pid})")
+        self.process_log.append(f"[LOG] Writing to {log_file}")
+
+        # 6) Tail logs in a terminal (optional)
+        tail_cmd = f'tail -f "{log_file}"; exec bash'
+        try:
+            subprocess.Popen(["gnome-terminal", "--", "bash", "-c", tail_cmd])
+        except FileNotFoundError:
+            try:
+                subprocess.Popen(["x-terminal-emulator", "-e", f"bash -c \"{tail_cmd}\""])
+            except Exception as e:
+                self.process_log.append(f"[WARN] Could not open terminal to tail logs: {e}")
+
+        # 7) Watcher thread for cleanup
+        def watcher():
+            rc = self.running_process.wait()
+            status = "[DONE]" if rc == 0 else f"[FAILED rc={rc}]"
+            try:
+                with open(log_file, "a") as fh:
+                    fh.write(status + "\n")
+            except Exception:
+                pass
+            self.process_log.append(status)
+            self.running_process = None
+            self.current_task = None
+            try:
+                logfile_handle.close()
+            except Exception:
+                pass
+
+        threading.Thread(target=watcher, daemon=True).start()
