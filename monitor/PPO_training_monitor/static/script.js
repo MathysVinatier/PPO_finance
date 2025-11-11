@@ -118,7 +118,7 @@ document.getElementById('launch_form').addEventListener('submit', async (e)=>{
 document.getElementById('launch_optuna_form').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const data = new FormData(e.target);
-    const status = document.getElementById('launch_status');
+    const status = document.getElementById('optuna_status');
     status.textContent = '🚧 Launching Optuna...';
 
     const res = await fetch('/launch_optuna', { method: 'POST', body: data });
