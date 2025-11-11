@@ -204,9 +204,9 @@ def main(n_trial, n_worker):
 
     print(f"[Optuna] Launching optimization with {n_trial} trials and {n_worker} workers")
     api.optimization(
-        n_workers=n_worker,
-        n_trials=n_trial,
-        storage_url=OPTUNA_DB_PATH
+        n_workers   = n_worker,
+        n_trials    = n_trial,
+        storage_url = OPTUNA_DB_PATH
     )
 
     print("[Optuna] Optimization finished.")
