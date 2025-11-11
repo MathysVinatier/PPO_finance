@@ -10,7 +10,7 @@ def model_analysis(task_path, episode):
     test  = ModelTest(model, df_test)
     train = ModelTest(model, df_train)
 
-    # train.plot(show=True)#, save_path=f"episode_{episode}_train")
+    train.plot(show=True)#, save_path=f"episode_{episode}_train")
     test.plot(show=True)#, save_path=f"episode_{episode}_test")
 
 def show_best_ep_on_test(task_path):
@@ -39,10 +39,13 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--task", help="task value")
+    parser.add_argument("-t", "--task", help="task name")
+    parser.add_argument("-p", "--path", help="task path")
     args = parser.parse_args()
 
-    task_path = f"multitask_PPO/{args.task}"
-    show_best_ep_on_test(task_path=task_path)
+    task_path = os.path.join(args.path)
+
+    # show_best_ep_on_test(task_path=task_path)
+    model_analysis(task_path=task_path, episode=args.task)
     # episode = 19
     # task = model_analysis(task_path, episode)
