@@ -780,6 +780,326 @@
     \item Fine-tune another time with the new training features
 \end{itemize}
 
+
+\chapter{Week 24}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{Optuna Optimization}
+
+\subsection{Optuna's performances}
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/optuna_trial_duration.png}
+    \caption{Duration of individual Optuna trials}
+\end{wrapfigure}
+
+\indent This week, we conducted a hyperparameter optimization of our model using Optuna. The study focused on tuning four key parameters : the number of epochs, the number of episodes, the batch size and the learning rate. Although the experiment was initially planned for 100 trials, the optimization process ran for approximately four days and completed only 59 trials in total. Due to the large episode and epoch sizes required, each trial took on average about three hours to train, making the overall process computationally expensive and time-consuming.
+
+\noindent The optimization objective was to maximize the average trade value on the test data to fine-tune the model's performance. As shown below, most trials achieved positive results, with two noticeable outliers reaching values of 0.24 and 0.41. Although these scores appeared promising, further analysis revealed that this target metric was not well-suited for improving the model's generalization and stability.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/optuna_trial_goals.png}
+    \caption{Overview of Optuna trial performance metrics}
+\end{figure}
+
+\begin{wrapfigure}{l}{0.5\linewidth}
+    \vspace{-0.5cm}
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/optuna_hyperparam_importance.png}
+    \caption{Relative importance of hyperparameters according to Optuna analysis}
+    \vspace{-1cm}
+\end{wrapfigure}
+
+\noindent Finally, the following plot illustrates the relative importance of each hyperparameter. Consistent with previous reports, the number of epochs and number of episodes had the greatest influence on the model's overall performance, confirming their critical role in training dynamics and model convergence.\par
+
+\clearpage
+
+\subsection{Trial \#01}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/trial_001_train.png}
+    \caption{Trial 1 - Training results}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/trial_001_test.png}
+    \caption{Trial 1 - Testing results}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Episode} & \textbf{Epochs} & \textbf{Batch size} & \textbf{Learning rate} \\ \hline
+        136 & 23 & 128 & 0.36 \\ 
+        \hline
+    \end{tabular}
+    } \\[6pt]
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Average profit (/year)} & \textbf{Average return} & \textbf{Annual return} & \textbf{Sharpe ratio} \\ \hline
+        \$10{,}000 & 0.003 & 2.69 & 0.273 \\ 
+        \hline
+    \end{tabular}
+    }
+    \caption{Overview of Trial 1 parameters and results}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\subsection{Trial \#14}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/trial_014_train.png}
+    \caption{Trial 14 - Training results}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/trial_014_test.png}
+    \caption{Trial 14 - Testing results}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Episode} & \textbf{Epochs} & \textbf{Batch size} & \textbf{Learning rate} \\ \hline
+    194 & 72 & 128 & 1.00 \\ 
+        \hline
+    \end{tabular}
+    } \\[6pt]
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Average profit (/year)} & \textbf{Average return} & \textbf{Annual return} & \textbf{Sharpe ratio} \\ \hline
+        \$16{,}000 & 0.026 & 36.27 &  0.181 \\
+        \hline
+    \end{tabular}
+    }
+    \caption{Overview of Trial 1 parameters and results}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\subsection{Trial \#22}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/trial_022_train.png}
+    \caption{Trial 22 - Training results}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/trial_022_test.png}
+    \caption{Trial 22 - Testing results}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Episode} & \textbf{Epochs} & \textbf{Batch size} & \textbf{Learning rate} \\ \hline
+        199 & 58 & 128 & 0.96 \\
+        \hline
+    \end{tabular}
+    } \\[6pt]
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Average profit (/year)} & \textbf{Average return} & \textbf{Annual return} & \textbf{Sharpe ratio} \\ \hline
+        \$20{,}000 &  0.024 &  7.68 &  0.792 \\
+        \hline
+    \end{tabular}
+    }
+    \caption{Overview of Trial 22 parameters and results}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\subsection{Trial \#33}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/trial_033_train.png}
+    \caption{Trial 33 - Training results}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/trial_033_test.png}
+    \caption{Trial 33 - Testing results}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Episode} & \textbf{Epochs} & \textbf{Batch size} & \textbf{Learning rate} \\ \hline
+        127 & 33 &  32 & 0.32 \\
+        \hline
+    \end{tabular}
+    } \\[6pt]
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Average profit (/year)} & \textbf{Average return} & \textbf{Annual return} & \textbf{Sharpe ratio} \\ \hline
+        \$17{,}000 &  0.004 &  0.69 &  0.880 \\
+        \hline
+    \end{tabular}
+    }
+    \caption{Overview of Trial 33 parameters and results}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\subsection{Trial \#51}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/trial_051_train.png}
+    \caption{Trial 51 - Training results}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_1/trial_051_test.png}
+    \caption{Trial 51 - Testing results}
+\end{figure}
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Episode} & \textbf{Epochs} & \textbf{Batch size} & \textbf{Learning rate} \\ \hline
+        195 & 25 &  64 & 0.52 \\
+        \hline
+    \end{tabular}
+    } \\[6pt]
+    \scalebox{1.2}{
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Average profit (/year)} & \textbf{Average return} & \textbf{Annual return} & \textbf{Sharpe ratio} \\ \hline
+        \$11{,}000 & -0.014 &  0.62 & -0.339 \\
+        \hline
+    \end{tabular}
+    }
+    \caption{Overview of Trial 51 parameters and results}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\section{Optuna Conslusion}
+
+\subsection{Optuna's results Overview}
+
+\begin{figure}[H]
+    \centering
+    \scalebox{1.1}{
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Trial} & \textbf{Reward} & \textbf{Average return} & \textbf{Annual return} & \textbf{Sharpe ratio} \\ \hline
+        \textit{01} & $158$M &  $0.003$ &  $2.69$ &  $0.273$ \\
+        \textit{14} & $106$M &  $0.026$ & $36.27$ &  $0.181$ \\
+        \textit{22} & $102$M &  $0.024$ &  $7.68$ &  $0.792$ \\
+        \textit{33} &  $65$M &  $0.004$ &  $0.69$ &  $0.880$ \\
+        \textit{51} & $107$M & $-0.014$ &  $0.62$ & $-0.339$ \\
+        \hline
+    \end{tabular}
+    }
+    \caption{Overview of each trial performances}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \scalebox{1.1}{
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        \textbf{Trial} & \textbf{Episode} & \textbf{Epochs} & \textbf{Batsh size} & \textbf{Learning rate} & \textbf{Average profit} ($\$$/year)\\ \hline
+        \textit{01} & $136$ & $23$ & $128$ & $0.36$ & $10$k \\
+        \textit{14} & $194$ & $72$ & $128$ & $1.00$ & $16$k \\
+        \textit{22} & $199$ & $58$ & $128$ & $0.96$ & $20$k \\
+        \textit{33} & $127$ & $33$ &  $32$ & $0.32$ & $17$k \\
+        \textit{51} & $195$ & $25$ &  $64$ & $0.52$ & $11$k \\
+        \hline
+    \end{tabular}
+    }
+    \caption{Overview of the trial parameters}
+\end{figure}
+
+\noindent The results indicate that the reward parameter does not significantly influence the quality of fine-tuning on the test dataset. However, it also appears that the current Optuna optimization objective is not well aligned with our model's behavior. Therefore, it would be beneficial to define a new objective function for instance, using the sharpe ratio as an optimization target could provide a more reliable measure of performance. Additionally, some hyperparameters, such as the batch size and learning rate, seem to have stable optimal values (approximately 128 and 0.3, respectively) and could be fixed in future optimization runs to reduce search complexity.
+
+
+\subsection{Fine tuning the model}
+
+\indent To achieve better performance, several modifications and experiments are planned for the next round of Optuna optimization. The main improvements include:
+
+\begin{itemize}
+    \item \textbf{Optimization Objective :} Redefine Optuna's objective function to use the \textbf{Sharpe ratio}, allowing the optimization process to balance both drawdown and profit simultaneously
+    
+    \item \textbf{Tick Interval Adjustment :} As mentioned in previous reports, the tick interval should be modified to a \textbf{5-minute timeframe} to evaluate the model's responsiveness and stability at a finer temporal resolution
+    
+    \item \textbf{Additional Input Features :} Following prior recommendations, we plan to include new input variables such as the \textbf{VVIX} and the \textbf{S\&P 500 index}, which could enhance the model's ability to capture broader market volatility and sentiment
+\end{itemize}
+
+
 \newpage
 
 
