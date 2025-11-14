@@ -38,9 +38,9 @@ class DataLoader:
     def save_company(self, df_full_path = "./", company_name = "my_extraction", start_date = "2020-01-01", end_date = None):
         if end_date==None:
             year = int(start_date.split('-')[0])
-            self.df = yf.download(company_name, start=start_date, end=f'{year+1}-01-01', auto_adjust=True)
+            self.df = yf.download(company_name, start=start_date, end=f'{year+1}-01-01', auto_adjust=True, period="5d", interval="5m")
         else:
-            self.df = yf.download(company_name, start=start_date, end=end_date, auto_adjust=True)
+            self.df = yf.download(company_name, start=start_date, end=end_date, auto_adjust=True, period="5d", interval="5m")
         self.df.to_csv(f'{df_full_path}{self.__formating(company_name, start_date, end_date)}', index=True)
 
     def save_companies(self, companies=None):
@@ -150,7 +150,7 @@ class TradingEnv(gym.Env):
             self.current_balance += market_evolution*100/0.005
 
         elif (action == 0) & (self.position == 0): # SHORT
-            self.current_balance += 0
+            self.current_balance -= market_evolution*100/0.005
 
         # Advance time
         self.current_step += 1
@@ -208,14 +208,14 @@ if __name__ == '__main__':
         return action, current_portfolio, reward
 
     data_loader = DataLoader()
-    df = data_loader.read('data/General/^VIX_2015_2025.csv')  # This is the DataFrame to use
+    df = data_loader.read('data/General/^VIX5_2011_2025.csv')
 
     # Step 2: Initialize the environment
     env = TradingEnv(df, broker_fee=True)
     obs = env.reset()
     print("Initial observation:", obs)
 
-    total_step = len(df)-1
+    total_step = int(len(df)*0.8)
 
     list_action    = list()
     list_portfolio = list()
