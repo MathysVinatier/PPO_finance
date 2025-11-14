@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.distributions.categorical import Categorical
+from torch.optim.lr_scheduler import StepLR
 
 
 if __name__ == "__main__" or __name__ == "PPO":
@@ -191,6 +191,9 @@ class ACAgent:
         self.actor  = ActorNetwork(num_features=num_features, seq_len=seq_len, n_actions=n_actions, chkpt_dir=chkpt_dir, agent_id=agent_id)
         self.critic = CriticNetwork(num_features=num_features, seq_len=seq_len, alpha=alpha, chkpt_dir=chkpt_dir, agent_id=agent_id)
         self.memory = PPOMemory(batch_size)
+
+        self.actor_scheduler  = StepLR(self.actor.optimizer,  step_size=10, gamma=0.9)
+        self.critic_scheduler = StepLR(self.critic.optimizer, step_size=10, gamma=0.9)
 
     def remember(self, state, action, probs, vals, reward, done):
         self.memory.store_memory(state, action, probs, vals, reward, done)
