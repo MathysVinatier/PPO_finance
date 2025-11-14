@@ -7,7 +7,7 @@ TRAINING_FOLER = "data_training"
 TRAINING_PATH  = os.path.join(TRAINING_FOLER)
 
 # Dataset
-DATASET_NAME   = "^VIX_2015_2025.csv"
+DATASET_NAME   = "^VIX5_2011_2025.csv"
 DATASET_FOLDER = "/home/mathys/Documents/PPO_finance/data/General"
 DATASET_PATH   = os.path.join(DATASET_FOLDER, DATASET_NAME)
 
@@ -28,8 +28,8 @@ PLOT_FOLDER = "plot"
 PLOT_PATH   = os.path.join(TRAINING_FOLER,PLOT_FOLDER)
 
 # Training
-TODAY        = 2024
-TRAINING_SEQ = 7
+TODAY        = 2025
+TRAINING_SEQ = 1*24*12
 ACTION_SPACE = 3
 INPUT_SIZE   = 4
 TRADING_DAYS_PER_YEARS = 252

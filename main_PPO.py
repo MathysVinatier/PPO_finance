@@ -28,12 +28,12 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, checkpoi
     # -----------------------------
     # Create environment
     # -----------------------------
-    env = TradingEnv(df, broker_fee=False)
+    env = TradingEnv(df, broker_fee=True)
 
     # -----------------------------
     # Initialize ACAgent
     # -----------------------------
-    seq_len = 7
+    seq_len = 7*24*12*5
     num_features = env.observation_space.shape[0]
     n_actions = env.action_space.n
     agent = ACAgent(n_actions=n_actions, num_features=num_features, seq_len=seq_len, batch_size=batch_size, n_epochs=n_epoch_per_episode, chkpt_dir=MODELS_PATH, agent_id=agent_id)
@@ -41,7 +41,6 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, checkpoi
     # -----------------------------
     # Training loop
     # -----------------------------
-    threshold = 0.65
     action_names = {0: "hold", 1: "buy", 2: "sell"}
     best_reward = 0
 
@@ -70,12 +69,12 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, checkpoi
             seq_array = np.expand_dims(seq_array, axis=0)  # Add batch dimension
 
             # Choose action
-            action, log_prob, value = agent.choose_action(seq_array, valid_actions, threshold=threshold)
-            actions_taken.append(action)  # <-- Save action
+            action, log_prob, value = agent.choose_action(seq_array, valid_actions, threshold=0.65)
+            actions_taken.append(action)
 
             # Step environment
             next_obs, reward, done, _ = env.step(action)
-            total_reward += reward
+            total_reward = reward
 
             # Store experience
             agent.remember(seq_array, action, log_prob, value, reward, done)
@@ -83,15 +82,13 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, checkpoi
 
         # Update agent after each episode
         agent.learn()
+        agent.actor_scheduler.step()
+        agent.critic_scheduler.step()
 
         # Count actions and map to names
         unique, counts = np.unique(actions_taken, return_counts=True)
         action_summary = {action_names[int(u)]: int(c) for u, c in zip(unique, counts)}
 
-        if checkpoint_step!=False:
-            if total_reward >= best_reward:
-                agent.save_models()
-                best_reward = total_reward
 
         print(f"Episode {ep+1}/{n_episode} finished, "
               f"total reward  : {total_reward:.3f}, "
@@ -427,8 +424,8 @@ def main(n_episode, n_epoch, batch_size):
 if __name__ == "__main__":
     import csv
 
-    n_episode  = 200
-    n_epoch    = 50
+    n_episode  = 10
+    n_epoch    = 10
     batch_size = 128
 
     csv_training_info = [{
