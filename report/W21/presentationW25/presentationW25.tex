@@ -1,0 +1,158 @@
+\documentclass[11pt]{beamer}
+\usetheme{Madrid}
+\usefonttheme{serif}
+
+\usepackage[utf8]{inputenc}       % Encoding
+\usepackage[english]{babel}       % Language
+\usepackage[T1]{fontenc}          % Font encoding
+
+\usepackage{amsmath, amsfonts, amssymb} % Math packages
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{subcaption}
+
+\usepackage{tikz}
+\usepackage{tikz-uml}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\usepackage{blkarray}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+%Tabular
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{arydshln}
+
+% Code formatting
+\usepackage{minted}
+\usepackage{adjustbox}
+\usepackage[ruled,vlined]{algorithm2e}
+\SetKwProg{While}{while}{}{}
+\SetKwProg{For}{for}{}{}
+\SetKwProg{Function}{function}{}{}
+
+% Custom math operators
+\DeclareMathOperator{\sen}{sen}
+\DeclareMathOperator{\tg}{tg}
+
+% Numbered captions in figures/tables
+\setbeamertemplate{caption}[numbered]
+
+\usepackage{dirtree}
+
+% Metadata
+\author[Mathys Vinatier]{Mathys Vinatier}
+\title{PPO Market Bot}
+\setbeamercovered{transparent}
+\setbeamertemplate{navigation symbols}{}
+\logo{\includegraphics[scale=.05]{../img/logoSNU.png}}
+\institute[]{Seoul National University}
+\date{\today}
+
+% Bibliography
+\usepackage{biblatex} 
+\addbibresource{../references.bib}
+\usepackage{csquotes}
+
+%Glossary
+\usepackage[acronym]{glossaries}
+\makeglossaries
+\input{../glossary.tex}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}{New Environment}
+    \textbf{Modifications}
+    \begin{itemize}
+        \item Added \textbf{5-minute tick} to the state space
+        \item Enabled \textbf{short positions}
+        \item Optuna optimization on \textbf{max drawdown} and \textbf{average profit}
+    \end{itemize}
+
+    \vspace{0.3cm}
+
+    \textbf{Issues Encountered}
+    \begin{itemize}
+        \item \textbf{RAM saturation}: long training runs crashed the OS
+        \item \textbf{VRAM limitation}: sequence length reduced to \textbf{1 day} (288 samples)
+    \end{itemize}
+    \centering
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=.6\linewidth]{../img/new_env_overview.png}
+        \caption{Overview of the new environment dynamics}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{First results}
+    \textbf{Training dataset}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\linewidth]{../img/new_env_test.png}
+        \caption{Agent performance on the training dataset}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{First results}
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{|l|l|}
+            \hline
+            \textbf{Model Training Result (threshold=0.65)} & \\ \hline
+            \textbf{total\_reward}      & 163{,}491{,}909 \\
+            \textbf{action\_per\_day}   & 6               \\
+            \textbf{annual\_return}     & 0.29            \\
+            \textbf{average\_profit}    & -0.08\%         \\
+            \textbf{annual\_volatility} & 22.92           \\
+            \textbf{sharpe\_ratio}      & -0.90           \\
+            \textbf{max\_drawdown}      & -1.49           \\
+            \hline
+        \end{tabular}
+        \caption{Training phase results}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{First results}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=\linewidth]{../img/new_env_train.png}
+        \caption{Agent performance on the testing dataset}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{First results}
+    \begin{figure}[H]
+        \centering
+        \begin{tabular}{|l|l|}
+            \hline
+            \textbf{Model Testing Result (threshold=0.65)} & \\ \hline
+            \textbf{total\_reward}      & 3{,}960{,}964     \\
+            \textbf{action\_per\_day}   & 4                 \\
+            \textbf{annual\_return}     & nan               \\
+            \textbf{average\_profit}    & -0.186\%          \\
+            \textbf{annual\_volatility} & 195.909           \\
+            \textbf{sharpe\_ratio}      & -0.240            \\
+            \textbf{max\_drawdown}      & -1.547            \\
+            \hline
+        \end{tabular}
+    \end{figure}
+\end{frame}
+
+
+\begin{frame}
+    \centering
+    \vspace{2cm}
+    {\LARGE Thank You}
+\end{frame}
+
+\end{document}

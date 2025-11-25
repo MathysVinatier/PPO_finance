@@ -14,7 +14,8 @@ from optimization import OptunaAPI
 
 from PPO_Library import DataLoader, TradingEnv, ACAgent, ModelTest
 
-DF_TRAIN, DF_TEST = DataLoader().split_train_test(DATASET_PATH)
+DF_TRAIN, DF_TEST = DataLoader().split_train_test(DATASET_PATH, training_size=0.01)
+DF_TEST = DF_TEST[:int(len(DF_TEST)*0.045)]
 
 def train_ppo(agent_id, n_episode, n_epoch_per_episode, batch_size, gamma, alpha, gae,
                  policy_clip,checkpoint_step=False, threshold = 0.65):
@@ -41,7 +42,7 @@ def train_ppo(agent_id, n_episode, n_epoch_per_episode, batch_size, gamma, alpha
     # -----------------------------
     # Initialize ACAgent
     # -----------------------------
-    seq_len = 7
+    seq_len = 1*24*12
     num_features = env.observation_space.shape[0]
     n_actions = env.action_space.n
     train_path = os.path.join(MODELS_PATH, f"trial_{agent_id}")
@@ -55,6 +56,7 @@ def train_ppo(agent_id, n_episode, n_epoch_per_episode, batch_size, gamma, alpha
     action_names = {0: "hold", 1: "buy", 2: "sell"}
 
     for ep in range(n_episode):
+        print(f"Episode {ep+1}/{n_episode} started")
         obs = env.reset()
         done = False
         total_reward = 0
@@ -97,7 +99,7 @@ def train_ppo(agent_id, n_episode, n_epoch_per_episode, batch_size, gamma, alpha
         unique, counts = np.unique(actions_taken, return_counts=True)
         action_summary = {action_names[int(u)]: int(c) for u, c in zip(unique, counts)}
 
-        print(f"Episode {ep+1}/{n_episode} finished, "
+        print(f"Episode finished, "
                 f"total reward  : {total_reward:.3f}, "
                 f"actions taken : {action_summary}")
 
@@ -120,10 +122,9 @@ def objective(trial):
 
     # --- suggestions ---
     params = {
-        "n_training_episodes": trial.suggest_int("n_training_episodes", 50, 200),
+        "n_training_episodes": trial.suggest_int("n_training_episodes", 50, 150),
         "n_epoch":             trial.suggest_int("n_epoch", 10, 200),
-        "batch_size":          trial.suggest_categorical("batch_size", [32, 64, 128, 256, 512]),
-        "learning_rate":       trial.suggest_float("learning_rate", 0.01, 1.0, step=0.01)
+        "batch_size":          trial.suggest_categorical("batch_size", [32, 64, 128])
     }
 
     # Make sure DB exists
@@ -142,7 +143,7 @@ def objective(trial):
         n_epoch_per_episode = params["n_epoch"],
         batch_size          = params["batch_size"],
         gamma               = 0.99,
-        alpha               = params["learning_rate"],
+        alpha               = 0.3,
         gae                 = 0.95,
         policy_clip         = 0.2,
         checkpoint_step     = params["n_training_episodes"]
@@ -169,9 +170,9 @@ def objective(trial):
         max_drawdown       = results_test.info.get("max_drawdown", 0.0)
     )
 
-    print(f"[Objective] Trial {trial_name} done, returning average_profit = {results_test.info.get('average_profit', 0.0)}")
+    print(f"[Objective] Trial {trial_name} done, returning sharpe_ratio = {results_test.info.get('sharpe_ratio', 0.0)}")
 
-    return float(results_test.info.get("average_profit", 0.0))
+    return float(results_test.info.get("sharpe_ratio", 0.0))
 
 
 def main(n_trial, n_worker):

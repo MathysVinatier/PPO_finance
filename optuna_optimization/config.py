@@ -2,7 +2,7 @@ import os
 
 #--------- Params ---------
 N_TRIALS = 100
-N_WORKERS = 3
+N_WORKERS = 1
 N_JOBS_PER_WORKER = 1
 
 
@@ -10,7 +10,7 @@ N_JOBS_PER_WORKER = 1
 TASK_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 # Dataset
-DATASET_NAME   = "^VIX_2015_2025.csv"
+DATASET_NAME   = "^VIX5_2011_2025.csv"
 DATASET_FOLDER = "/home/mathys/Documents/PPO_finance/data/General"
 DATASET_PATH   = os.path.join(DATASET_FOLDER, DATASET_NAME)
 

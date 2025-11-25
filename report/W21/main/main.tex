@@ -1103,6 +1103,115 @@
 \newpage
 
 
+\chapter{Week 24}
+\minitoc
+
+\newpage
+\blankpage
+
+\newpage
+
+\section{New Environment}
+
+\indent The previous environment was modified to create a new one designed to operate at a higher resolution and incorporate more dynamic behaviors. The main improvements are :
+
+\begin{enumerate}
+    \item Inclusion of a \textbf{5-minute tick} in the state space
+    \item Addition of \textbf{short positions}
+    \item Optuna optimization using \textbf{maximum drawdown} and \textbf{average profit} as objectives
+\end{enumerate}
+
+\noindent However, after testing the new model, several issues surfaced. Due to the increased number of ticks, RAM usage grew significantly. The first long-run experiment, executed over a weekend, resulted in a complete system crash: the operating system ran out of memory and stopped all processes, preventing the training from resuming automatically. After debugging, we confirmed that RAM saturation was the cause.
+
+\noindent Secondly, the sequence length had to be reduced from one week to a single day because of GPU memory limitations. When the sequence exceeds 288 samples and the batch size is set to 256 (73,728 items per batch), the VRAM cannot handle the workload.
+
+\vfill
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/new_env_overview.png}
+    \caption{Overview of the new environment dynamics}
+\end{figure}
+
+\vfill
+
+\newpage
+
+\section{First Results}
+
+\indent We conducted a 72-hour Optuna search to identify promising hyperparameters. Below are the results on both the training and testing datasets. The model was trained using the following parameters :
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Epochs}     & 29  \\
+        \textbf{Episodes}   & 52  \\
+        \textbf{Batch Size} & 128 \\
+        \hline
+    \end{tabular}
+\end{figure}
+
+\noindent Although the number of epochs and episodes is relatively low, the training duration was long---almost three days---due to the environment's complexity and computational requirements.
+
+\subsection{Training Results}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/new_env_test.png}
+    \caption{Agent performance on the training dataset}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Model Training Result (threshold=0.65)} & \\ \hline
+        \textbf{total\_reward}      & 163{,}491{,}909 \\
+        \textbf{action\_per\_day}   & 6               \\
+        \textbf{annual\_return}     & 0.29            \\
+        \textbf{average\_profit}    & -0.08\%         \\
+        \textbf{annual\_volatility} & 22.92           \\
+        \textbf{sharpe\_ratio}      & -0.90           \\
+        \textbf{max\_drawdown}      & -1.49           \\
+        \hline
+    \end{tabular}
+    \caption{Training phase results}
+\end{figure}
+
+\noindent The training curve shows that the agent dipped into negative profitability multiple times. Although the final cumulative reward is positive, the average profit remains negative, indicating unstable or inconsistent behavior.
+
+\newpage
+
+\subsection{Testing Results}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/new_env_train.png}
+    \caption{Agent performance on the testing dataset}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Model Testing Result (threshold=0.65)} & \\ \hline
+        \textbf{total\_reward}      & 3{,}960{,}964     \\
+        \textbf{action\_per\_day}   & 4                 \\
+        \textbf{annual\_return}     & nan               \\
+        \textbf{average\_profit}    & -0.186\%          \\
+        \textbf{annual\_volatility} & 195.909           \\
+        \textbf{sharpe\_ratio}      & -0.240            \\
+        \textbf{max\_drawdown}      & -1.547            \\
+        \hline
+    \end{tabular}
+\end{figure}
+
+\indent As anticipated, the model performs poorly on the testing dataset. The volatility is extremely high, the Sharpe ratio is negative, and the average profit is significantly worse than during training. Additional training cycles, preferably during the week to avoid long unattended runtime failures, are necessary to stabilize and improve the model.
+
+
+\newpage
+
 %Glossaire
 \printacronyms
 

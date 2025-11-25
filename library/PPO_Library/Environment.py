@@ -215,7 +215,7 @@ if __name__ == '__main__':
     obs = env.reset()
     print("Initial observation:", obs)
 
-    total_step = int(len(df)*0.8)
+    total_step = int(len(df)*0.08)
 
     list_action    = list()
     list_portfolio = list()

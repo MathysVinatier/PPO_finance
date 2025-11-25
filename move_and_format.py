@@ -19,7 +19,11 @@ def main(to_copy, to_paste):
             continue
 
 if __name__ == "__main__":
-    from_path = "./optuna_optimization/trained_model/"
-    to_path   = "./multitask_PPO/optuna_trial_1/data_training/trained_model"
+    import argparse
 
-    main(from_path, to_path)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--copy", default="./optuna_optimization/trained_model/", help="copy from the given file")
+    parser.add_argument("-p", "--paste", default="./multitask_PPO/optuna_trial_1/data_training/trained_model",help="paste to the given file")
+    args = parser.parse_args()
+
+    main(args.copy, args.paste)

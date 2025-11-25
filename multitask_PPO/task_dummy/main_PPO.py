@@ -4,7 +4,6 @@ import time
 from datetime import datetime
 
 from sklearn.preprocessing import StandardScaler
-import torch
 
 import sqlite3
 
@@ -39,7 +38,7 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, a
     # -----------------------------
     # Initialize ACAgent
     # -----------------------------
-    seq_len = 7
+    seq_len = 1*24*12
     num_features = env.observation_space.shape[0]
     n_actions = env.action_space.n
     agent = ACAgent(n_actions=n_actions, num_features=num_features, seq_len=seq_len, batch_size=batch_size, n_epochs=n_epoch_per_episode, gamma=gamma, alpha=alpha, gae_lambda=gae,
@@ -52,11 +51,11 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, a
     best_reward = 0
 
     for ep in range(n_episode):
-        obs = env.reset()
-        done = False
-        total_reward = 0
-        seq_buffer = []
-        actions_taken = []
+        obs     = env.reset()
+        done    = False
+        total_reward    = 0
+        seq_buffer      = []
+        actions_taken   = []
 
         while not done:
             # Build sequence for Transformer
@@ -89,6 +88,8 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, a
 
         # Update agent after each episode
         agent.learn()
+        agent.actor_scheduler.step()
+        agent.critic_scheduler.step()
 
         # Count actions and map to names
         unique, counts = np.unique(actions_taken, return_counts=True)
@@ -237,7 +238,7 @@ def main(n_episode, n_epoch, batch_size, gamma, alpha, gae, policy_clip, chckpt,
     start_id = get_last_trial_id() + 1
     print(f"Starting from trial ID {start_id}")
 
-    df_train, df_test = DataLoader().split_train_test(DATASET_PATH)
+    df_train, df_test = DataLoader().split_train_test(DATASET_PATH, training_size=0.01)
 
     try:
         for id in range(start_id, start_id + n_trial):
@@ -268,7 +269,7 @@ def main(n_episode, n_epoch, batch_size, gamma, alpha, gae, policy_clip, chckpt,
             plot_testing_path   = os.path.join(plot_path, "test.png")
             plot_analysis_path  = os.path.join(plot_path, "analysis.png")
 
-            results_train = ModelTest(agent_trained, df_test)
+            results_train = ModelTest(agent_trained, df_test[:int(len(df_test)*0.1)])
             plot_train = results_train.plot()
             plot_train.savefig(plot_training_path)
 
