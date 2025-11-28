@@ -65,7 +65,7 @@ pip install -e library/
 
 ### Library Components
 
-The library automatically exposes the following classes:
+The library automatically exposes the following classes :
 
 | Class             | Description                                                                   |
 | ----------------- | ----------------------------------------------------------------------------- |
@@ -79,9 +79,16 @@ The library automatically exposes the following classes:
 | **ModelTest**     | Backtesting, evaluation tools and metrics for trained agents.                 |
 
 
-# Example of usage
+# General usage of the repository
 
 ## [main.py](./main.py)
 ## [PPO_Library](./library)
 ## [optuna_optimization](./optuna_optimization/)
 ## [monitor](./monitor/)
+
+# Example of usage
+
+Some examples scripts can be found in the [example section](./example/) :
+
+- [Deep Reinforcement Learning Example](./example/01_DeepReinforcementLearning.py) : showing off how to train a Deep Learning RL agent based on GPT neural network
+- [PPO Example](./example/02_PPO.py) : showing off how to use the different method of the PPO library by implementing a basic PPO training loop
