@@ -1,5 +1,3 @@
-import os
-
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 from pandas import to_datetime
