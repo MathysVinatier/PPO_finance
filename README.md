@@ -33,10 +33,55 @@ Training data comes from the **VIX market** (CSV time series). The repository im
 ```
 ---
 
-# Installation + homemade library
+# Installation
+
+We created a homemade environement to easily launch the PPO agent training logic and Analysis that can be found ine the [library file](./library). Also we will detail the requirement of the enviornement the project has been created.
+
+## Requirement
+
+```bash
+pip install -r requirements.txt
+```
+
+| Monitor Libraries      | Environment Libraries | Reinforcement Learning / Data Science |
+|------------------------|-----------------------|---------------------------------------|
+| ansi2html==1.9.2       | gym==0.26.2           | matplotlib==3.10.7                    |
+| fastapi==0.122.0       | yfinance==0.2.65      | numpy==2.3.5                          |
+| uvicorn==0.38.0        |                       | pandas==2.3.3                         |
+|                        |                       | psutil==7.0.0                         |
+|                        |                       | scikit_learn==1.7.2                   |
+|                        |                       | seaborn==0.13.2                       |
+|                        |                       | setuptools==80.9.0                    |
+|                        |                       | torch==2.7.1                          |
+|                        |                       | tqdm==4.67.1                          |
+|                        |                       | transformers==4.55.2                  |
+
+
+## PPO_Library - Homemade Library
+
+```bash
+pip install -e library/
+```
+
+### Library Components
+
+The library automatically exposes the following classes:
+
+| Class             | Description                                                                   |
+| ----------------- | ----------------------------------------------------------------------------- |
+| **TradingEnv**    | Gymnasium-compatible trading environment built from CSV market data.          |
+| **DataLoader**    | Utility class for loading, preprocessing and spliting market data.            |
+| **QLearning**     | Classic tabular Q-Learning agent for discrete state experiments.              |
+| **DeepQLearning** | DQN-style agent using a neural network for value approximation.               |
+| **PPOAgent**      | Proximal Policy Optimization agent for continuous or discrete action trading. |
+| **ACAgent**       | Actor-Critic baseline agent (PPO backbone variant).                           |
+| **ModelReport**   | Automatic generation of performance reports, graphs, metrics.                 |
+| **ModelTest**     | Backtesting, evaluation tools and metrics for trained agents.                 |
+
 
 # Example of usage
 
-## Main
-## Optuna Optimization
-## Monitor
+## [main.py](./main.py)
+## [PPO_Library](./library)
+## [optuna_optimization](./optuna_optimization/)
+## [monitor](./monitor/)
