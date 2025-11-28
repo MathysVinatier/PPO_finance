@@ -94,3 +94,24 @@ Some examples scripts can be found in the [example section](./example/) :
 
 - [Deep Reinforcement Learning Example](./example/01_DeepReinforcementLearning.py) : showing off how to train a Deep Learning RL agent based on GPT neural network
 - [PPO Example](./example/02_PPO.py) : showing off how to use the different method of the PPO library by implementing a basic PPO training loop
+
+# Report 
+
+The [report](./report/) gather the weekly reports of the project with their associated presentations :
+- Report :
+    - [Week 07 - 20](./report/W07_20/main/main.pdf)
+    - [Week 21 - 27](./report/W21_27/main/main.pdf)
+
+- Presentations :
+    - [Week 10 - The Greedy Policy](./report/W07_20/presentationW10/presentationW10.pdf)
+    - [Week 11 - QLearning results](./report/W07_20/presentationW11/presentationW11.pdf)
+    - [Week 14 - DQLearning theory](./report/W07_20/presentationW14/presentationW14.pdf)
+    - [Week 15 - Experiment on RL rewards](./report/W07_20/presentationW15/presentationW15.pdf)
+    - [Week 16 - Optimizing DQL with Optuna](./report/W07_20/presentationW16/presentationW16.pdf)
+    - [Week 17 - Comparing GPT transformer and homemade's](./report/W07_20/presentationW17/presentationW17.pdf)
+    - [Week 18 - PPO Agent Theory](./report/W07_20/presentationW18/presentationW18.pdf)
+    - [Week 20 - PPO Agent Rework](./report/W07_20/presentationW20/presentationW20.pdf)
+    - [Week 21 - Optimizing PPO's episode](./report/W21__27/presentationW21/presentationW21.pdf)
+    - [Week 23 - Optimizing PPO (1 day tick)](./report/W21__27/presentationW23/presentationW23.pdf)
+    - [Week 24 - Optimizing PPO v1 (5 minute tick)](./report/W21__27/presentationW24/presentationW24.pdf)
+    - [Week 26 - Optimizing PPO v2 (5 minute tick)](./report/W21__27/presentationW26/presentationW26.pdf)
