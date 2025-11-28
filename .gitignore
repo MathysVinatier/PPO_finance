@@ -32,3 +32,5 @@
 
 *.log
 library/PPO_Library.egg-info
+
+optuna_optimization/trained_model

@@ -39,7 +39,7 @@ def train_ppo(agent_id, df, n_episode, n_epoch_per_episode, batch_size, gamma, a
     # -----------------------------
     # Initialize ACAgent
     # -----------------------------
-    seq_len = 7
+    seq_len = TRAINING_SEQUENCE
     num_features = env.observation_space.shape[0]
     n_actions = env.action_space.n
     agent = ACAgent(n_actions=n_actions, num_features=num_features, seq_len=seq_len, batch_size=batch_size, n_epochs=n_epoch_per_episode, gamma=gamma, alpha=alpha, gae_lambda=gae,
@@ -268,15 +268,15 @@ def main(n_episode, n_epoch, batch_size, gamma, alpha, gae, policy_clip, chckpt,
             plot_testing_path   = os.path.join(plot_path, "test.png")
             plot_analysis_path  = os.path.join(plot_path, "analysis.png")
 
-            results_train = ModelTest(agent_trained, df_test)
+            results_train = ModelTest(agent_trained, df_test, TRAINING_SEQUENCE)
             plot_train = results_train.plot()
             plot_train.savefig(plot_training_path)
 
-            results_test = ModelTest(agent_trained, df_train)
+            results_test = ModelTest(agent_trained, df_train, TRAINING_SEQUENCE)
             plot_test  = results_test.plot()
             plot_test.savefig(plot_testing_path)
 
-            plot_analysis = ModelReport(TASK_FOLDER).plot()
+            plot_analysis = ModelReport(TASK_FOLDER, TRAINING_SEQUENCE).plot()
             plot_analysis.savefig(plot_analysis_path)
 
             loss_actor_mean  = np.mean(agent_trained.all_actor_losses)

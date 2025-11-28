@@ -67,7 +67,7 @@ class _ModelFormat:
         print("+" + "-" * (total_width - 2) + "+")
 
 class ModelReport(_ModelFormat):
-    def __init__(self, task_path):
+    def __init__(self, task_path, seq_size):
         super().__init__()
 
         # -------- Private --------
@@ -79,6 +79,7 @@ class ModelReport(_ModelFormat):
         self._plot_path     = os.path.join(task_path, PLOT_PATH)
         self._dataset_path  = DATASET_PATH
         self._model_file    = ""
+        self.seq_size = seq_size
 
         # FILE
         self._db = os.path.join(task_path, DB_PATH)
@@ -100,7 +101,7 @@ class ModelReport(_ModelFormat):
     def get_model(self, model_episode="latest", model_trial="001"):
         self.__check_model_dir(model_trial=model_trial, model_episode=model_episode)
         if not self.__check_current_model_version(model_id=model_episode, model_trial=model_trial):
-            seq_len = TRAINING_SEQ
+            seq_len = self.seq_size
             agent_trial = self.__get_agent_trial__(model_trial=model_trial)
 
             agent = ACAgent(
@@ -134,7 +135,7 @@ class ModelReport(_ModelFormat):
             "Dataset path"  : DATASET_PATH,
             "Action space"  : ACTION_SPACE,
             "Input size"    : INPUT_SIZE,
-            "Training seq"  : TRAINING_SEQ,
+            "Training seq"  : self.seq_size,
         }
 
         title = f"TRAINING INFO  (Agent {self._current_agent_id})"
@@ -155,8 +156,8 @@ class ModelReport(_ModelFormat):
             episode = "_".join(mod.split("_")[3:])
             if episode not in test_dict.keys():
                 model   = self.get_model(model_episode = episode)
-                train   = ModelTest(model=model, df=df_train)
-                test    = ModelTest(model=model, df=df_test)
+                train   = ModelTest(model=model, df=df_train, seq_size = self.seq_size)
+                test    = ModelTest(model=model, df=df_test, seq_size = self.seq_size)
 
                 reward        = train.info["total_reward"]
                 balance_test  = test.info["portfolio_values"]
@@ -226,18 +227,19 @@ class ModelReport(_ModelFormat):
 
 class ModelTest(_ModelFormat):
 
-    def __init__(self, model, df):
+    def __init__(self, model, df, seq_size):
         super().__init__()
         self.agent = model
         self.df    = df
         self.env   = TradingEnv(df, broker_fee=True)
+        self.seq_size = seq_size
         self._launch_test()
 
     def _launch_test(self, threshold = 0.65):
         tick = pd.to_datetime(self.df.index).to_series().diff().mode()[0]
         print(f"... starting test from {self.df.index.min()} to {self.df.index.max()} with {tick} tick (threshold={threshold}) ...")
 
-        seq_len         = TRAINING_SEQ
+        seq_len         = self.seq_size
         action_names    = ACTION_NAME_DICT
 
         obs              = self.env.reset()

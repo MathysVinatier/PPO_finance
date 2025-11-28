@@ -41,7 +41,7 @@ def train_ppo(agent_id, n_episode, n_epoch_per_episode, batch_size, gamma, alpha
     # -----------------------------
     # Initialize ACAgent
     # -----------------------------
-    seq_len = 7
+    seq_len = TRAINING_SEQUENCE
     num_features = env.observation_space.shape[0]
     n_actions = env.action_space.n
     train_path = os.path.join(MODELS_PATH, f"trial_{agent_id}")

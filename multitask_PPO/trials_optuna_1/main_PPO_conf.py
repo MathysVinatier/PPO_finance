@@ -1,6 +1,7 @@
 import os
 
 TASK_FOLDER = os.path.dirname(os.path.abspath(__file__))
+TRAINING_SEQUENCE = 7
 
 # Base training path
 TRAINING_FOLER = "data_training"

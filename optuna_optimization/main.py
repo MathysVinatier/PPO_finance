@@ -14,11 +14,10 @@ from optimization import OptunaAPI
 
 from PPO_Library import DataLoader, TradingEnv, ACAgent, ModelTest
 
-DF_TRAIN, DF_TEST = DataLoader().split_train_test(DATASET_PATH, training_size=0.01)
-DF_TEST = DF_TEST[:int(len(DF_TEST)*0.045)]
+DF_TRAIN, DF_TEST = DataLoader().split_train_test(DATASET_PATH, training_size=0.8)
 
 def train_ppo(agent_id, n_episode, n_epoch_per_episode, batch_size, gamma, alpha, gae,
-                 policy_clip,checkpoint_step=False, threshold = 0.65):
+                 policy_clip, training_seq, checkpoint_step=False, threshold = 0.65):
 
     df = DF_TRAIN
 
@@ -42,7 +41,7 @@ def train_ppo(agent_id, n_episode, n_epoch_per_episode, batch_size, gamma, alpha
     # -----------------------------
     # Initialize ACAgent
     # -----------------------------
-    seq_len = 1*24*12
+    seq_len = training_seq
     num_features = env.observation_space.shape[0]
     n_actions = env.action_space.n
     train_path = os.path.join(MODELS_PATH, f"trial_{agent_id}")
@@ -124,7 +123,7 @@ def objective(trial):
     params = {
         "n_training_episodes": trial.suggest_int("n_training_episodes", 50, 150),
         "n_epoch":             trial.suggest_int("n_epoch", 10, 200),
-        "batch_size":          trial.suggest_categorical("batch_size", [32, 64, 128])
+        "training_seq":        trial.suggest_int("training_seq", 3, 365)
     }
 
     # Make sure DB exists
@@ -141,17 +140,18 @@ def objective(trial):
         agent_id            = trial_name,
         n_episode           = params["n_training_episodes"],
         n_epoch_per_episode = params["n_epoch"],
-        batch_size          = params["batch_size"],
+        batch_size          = 126,
         gamma               = 0.99,
         alpha               = 0.3,
         gae                 = 0.95,
         policy_clip         = 0.2,
-        checkpoint_step     = params["n_training_episodes"]
+        checkpoint_step     = params["n_training_episodes"],
+        training_seq        = params["training_seq"]
     )
 
     # --- Evaluate ---
-    results_train = ModelTest(agent_trained, DF_TEST)
-    results_test  = ModelTest(agent_trained, DF_TRAIN)
+    results_train = ModelTest(agent_trained, DF_TEST, params["training_seq"])
+    results_test  = ModelTest(agent_trained, DF_TRAIN, params["training_seq"])
 
     loss_actor_mean  = np.mean(agent_trained.all_actor_losses) if len(agent_trained.all_actor_losses)>0 else 0.0
     loss_critic_mean = np.mean(agent_trained.all_critic_losses) if len(agent_trained.all_critic_losses)>0 else 0.0

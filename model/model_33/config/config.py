@@ -4,7 +4,7 @@ import os
 N_TRIALS = 100
 N_WORKERS = 3
 N_JOBS_PER_WORKER = 1
-
+TRAINING_SEQUENCE = 7
 
 #--------- Folders ---------
 TASK_FOLDER = os.path.dirname(os.path.abspath(__file__))
