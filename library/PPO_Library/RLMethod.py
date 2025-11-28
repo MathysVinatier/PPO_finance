@@ -339,7 +339,7 @@ class DecisionTransformerQ(nn.Module):
 
 class DeepQLearning(ModelRL):
 
-    def __init__(self, env, steps=1, gpt=False, log=False, hidden_dims=(128, 128)):
+    def __init__(self, env, steps=1, log=False, hidden_dims=(128, 128)):
         super().__init__(env=env, log=log)
         self.steps = max(1, int(steps))
 
@@ -347,21 +347,16 @@ class DeepQLearning(ModelRL):
         self.action_space = env.action_space.n
 
         # Transformer input is per-step state vector
-        input_dim = self.state_space
+        input_dim = self.state_space[0]
         output_dim = self.action_space
 
         if gpt == True:
             self.policy_net = DecisionTransformerQ(input_dim, output_dim).to(DEVICE)
-        else:
-            self.policy_net = Encoder_Transformer(num_features=5, d_model=512, num_heads=8, num_classes=3).to(DEVICE)
-
         if self.log:
             print(self.policy_net)
         
         if gpt == True:
             self.target_net = DecisionTransformerQ(input_dim, output_dim).to(DEVICE)
-        else:
-            self.target_net = Encoder_Transformer(num_features=5, d_model=512, num_heads=8, num_classes=3).to(DEVICE)
 
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
