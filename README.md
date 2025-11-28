@@ -59,6 +59,8 @@ pip install -r requirements.txt
 
 ## PPO_Library - Homemade Library
 
+You can find the details of this library in the [PPO Library documentation](./library/README.md)
+
 ```bash
 pip install -e library/
 ```
