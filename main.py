@@ -18,7 +18,7 @@ def show_best_ep_on_test(task_path, seq_size):
     best_episode   = dict()
 
     task = ModelReport(task_path, seq_size)
-    df_train, df_test = DataLoader().split_train_test(task._dataset_path, training_size=0.01)
+    df_train, df_test = DataLoader().split_train_test(task._dataset_path, training_size=0.8)
 
     for mod in os.listdir(task._models_path):
         episode         = "_".join(mod.split("_")[3:])
