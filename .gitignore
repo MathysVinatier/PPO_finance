@@ -29,6 +29,7 @@
 /report/**/*.glg
 /report/**/*.gls
 /report/**/*SAVE-ERROR
+.main*
 
 *.log
 library/PPO_Library.egg-info
