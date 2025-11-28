@@ -91,12 +91,15 @@ class ModelReport(_ModelFormat):
 
     def get_info(self):
         data_list = list()
-        with open(self._info_training, mode='r', newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                if row not in data_list:
-                    data_list.append(row)
-        return data_list[0]
+        if not os.path.exists(self._info_training):
+            return data_list
+        else:
+            with open(self._info_training, mode='r', newline='', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    if row not in data_list:
+                        data_list.append(row)
+            return data_list[0]
 
     def get_model(self, model_episode="latest", model_trial="001"):
         self.__check_model_dir(model_trial=model_trial, model_episode=model_episode)
@@ -120,7 +123,8 @@ class ModelReport(_ModelFormat):
             self._current_agent_id  = self.__get_agent_id__(model_trial=agent_trial, model_episode=agent_episode)
         else:
             print("... models already loaded ...")
-        self.show_info()
+        if os.path.exists(self._info_training):
+            self.show_info()
         return self.agent
 
     def show_info(self):
