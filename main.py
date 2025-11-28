@@ -8,9 +8,12 @@ from pandas import to_datetime
 
 from PPO_Library import DataLoader, TradingEnv, ACAgent, ModelTest, ModelReport
 
+# CONFIGURATION
 SEQUENCE_LENGTH = 5
-MODEL_NAME = "001_ppo_transformer"
-MODEL_PATH = "tmp/data_training/trained_model"
+MODEL_NAME      = "001_ppo_transformer"
+MODEL_PATH      = "tmp/data_training/trained_model"
+
+# FUNCTIONS
 
 def model_analysis(task_path, episode):
     task = ModelReport(task_path, seq_size = SEQUENCE_LENGTH)
