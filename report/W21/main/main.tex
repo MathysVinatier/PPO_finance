@@ -1103,7 +1103,7 @@
 \newpage
 
 
-\chapter{Week 24}
+\chapter{Week 26}
 \minitoc
 
 \newpage
@@ -1209,6 +1209,61 @@
 
 \indent As anticipated, the model performs poorly on the testing dataset. The volatility is extremely high, the Sharpe ratio is negative, and the average profit is significantly worse than during training. Additional training cycles, preferably during the week to avoid long unattended runtime failures, are necessary to stabilize and improve the model.
 
+\newpage
+
+\section{Optuna best results}
+
+\indent We ran an additional week of Optuna trials, expecting improved performance during testing. Over this week, two processes were running in parallel, and the scripts trained a total of ten agents using various batch sizes (32, 64, 128, 256), with episodes ranging between 50 and 100 and epochs also ranging between 50 and 100. Among all configurations, Trial 10 produced the best results during the evaluation phase.
+ 
+
+\subsection{Training - Trial 10}
+
+\indent The training phase exhibits weak performance, likely influenced by a pronounced market decline that occurred during this period. Despite this, the agent demonstrates substantially better results when evaluated on the testing dataset.
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Epochs}     & 81  \\
+        \textbf{Episodes}   & 87  \\
+        \textbf{Batch Size} & 128 \\
+        \hline
+    \end{tabular}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_2/trial10_train.png}
+    \caption{Agent performance on the training dataset}
+\end{figure}
+
+\newpage
+
+\subsection{Testing - Trial 10}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{../img/OPTUNA_2/trial10_test.png}
+    \caption{Agent performance on the testing dataset}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Model Testing Result (threshold=0.65)} & \\ \hline
+        \textbf{total\_reward}      & 6{,}431{,}756     \\
+        \textbf{action\_per\_day}   & 6                 \\
+        \textbf{annual\_return}     & 0.113             \\
+        \textbf{average\_profit}    & -0.034\%          \\
+        \textbf{annual\_volatility} & 54.216            \\
+        \textbf{sharpe\_ratio}      & -0.203            \\
+        \textbf{max\_drawdown}      & -1.398            \\
+        \hline
+    \end{tabular}
+\end{figure}
+
+\indent We can observe a relatively strong equity curve, suggesting that the agent achieved good generalization of the learned policy. However, further evaluation is necessary. Additional testing on a larger and more diverse set of datasets is required to gather sufficient statistics and properly assess the robustness of the model.
 
 \newpage
 
