@@ -15,14 +15,14 @@ MODEL_PATH      = "tmp/data_training/trained_model"
 
 # FUNCTIONS
 
-def model_analysis(task_path, episode):
-    task = ModelReport(task_path, seq_size = SEQUENCE_LENGTH)
+def model_analysis(task_path, episode, seq_len):
+    task = ModelReport(task_path, seq_size = seq_len)
     # task.plot(show=True)#, save_path=f"episode_{episode}_analysis")
     df_train, df_test = DataLoader().split_train_test(task._dataset_path, training_size=0.8)
 
     model = task.get_model(model_episode=episode)
-    test  = ModelTest(model, df_test, SEQUENCE_LENGTH)
-    train = ModelTest(model, df_train, SEQUENCE_LENGTH)
+    test  = ModelTest(model, df_test, seq_len)
+    train = ModelTest(model, df_train, seq_len)
 
     train.plot(show=True)#, save_path=f"episode_{episode}_train")
     test.plot(show=True)#, save_path=f"episode_{episode}_test")
@@ -48,7 +48,7 @@ def show_best_ep_on_test(task_path):
     model_analysis(task_path=task_path, episode=best_episode, seq_size=SEQUENCE_LENGTH)
     return best_model
 
-def PPO_training(epoch, episode, batch_size, df_path):
+def PPO_training(epoch, episode, batch_size, seq_len, df_path):
 
     df_train, df_test = DataLoader().split_train_test(df_path, training_size=0.8)
 
@@ -71,7 +71,6 @@ def PPO_training(epoch, episode, batch_size, df_path):
     # -----------------------------
     # Initialize ACAgent
     # -----------------------------
-    seq_len = SEQUENCE_LENGTH
     num_features = env.observation_space.shape[0]
     n_actions = env.action_space.n
     agent = ACAgent(n_actions=n_actions, num_features=num_features, seq_len=seq_len, batch_size=batch_size, n_epochs=epoch, chkpt_dir=MODEL_PATH, agent_id=MODEL_NAME)
@@ -140,7 +139,7 @@ def main(args):
             raise AttributeError("By choosing --mode analysis, you should input a --task and --path")
         else:
             task_path = os.path.join(args.path)
-            model_analysis(task_path=task_path, episode=args.task)
+            model_analysis(task_path=task_path, episode=args.task, seq_len=int(args.sequence))
 
     elif args.mode == "training":
         if args.epoch is None or args.episode is None or args.batch is None:
@@ -150,6 +149,7 @@ def main(args):
                 epoch=int(args.epoch),
                 episode=int(args.episode),
                 batch_size=int(args.batch),
+                seq_len=int(args.sequence),
                 df_path="./data/General/^VIX_2015_2025.csv"
             )
 
@@ -199,6 +199,12 @@ if __name__ == "__main__":
         help="Batch size for training (default: 64)."
     )
 
+    parser.add_argument(
+        "-seq", "--sequence",
+        type=int,
+        default=5,
+        help="Sequence length (default: 65)"
+    )
 
     args = parser.parse_args()
     main(args)
