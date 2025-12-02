@@ -55,7 +55,7 @@ def train_ppo(agent_id, n_episode, n_epoch_per_episode, batch_size, gamma, alpha
     action_names = {0: "hold", 1: "buy", 2: "sell"}
 
     for ep in range(n_episode):
-        print(f"Episode {ep+1}/{n_episode} started")
+        print(f"Episode {ep+1}/{n_episode} started (sequence length : {seq_len})")
         obs = env.reset()
         done = False
         total_reward = 0
