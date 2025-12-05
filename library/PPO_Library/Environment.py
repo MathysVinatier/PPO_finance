@@ -150,7 +150,8 @@ class TradingEnv(gym.Env):
             self.current_balance += market_evolution*100/0.005
 
         elif (action == 0) & (self.position == 0): # SHORT
-            self.current_balance -= market_evolution*100/0.005
+            #self.current_balance -= market_evolution*100/0.005
+            self.current_balance += 0
 
         # Advance time
         self.current_step += 1
